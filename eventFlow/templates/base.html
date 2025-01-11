@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    {% block head %}
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="stylesheet" href="/static/css/main.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %} {% endblock %}</title>
+    {% endblock %}
+  </head>
+  <body>
+    <section id="section1" class="header">
+      <div class="nav-part1">
+        <a href="#" class="logo">
+          <div class="logo-text">
+            <h1>EventFlow</h1>
+          </div>
+        </a>
+      </div>
+      <div>
+        <ul id="nav-bar" class="nav">
+          <li>
+            <a href="{{url_for('main.home')}}">Home</a>
+          </li>
+          <li>
+            <a href="{{url_for('main.services')}}">Services</a>
+          </li>
+          <li>
+            <a href="{{url_for('main.about')}}">About Us</a>
+          </li>
+        </ul>
+      </div>
+    </section>
+    {% with messages = get_flashed_messages(with_categories=true) %} {% if
+    messages %} {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %} {% endif %} {% endwith %}
+    <div class="content">{% block content %} {% endblock %}</div>
+  </body>
+</html>
