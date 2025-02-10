@@ -1,20 +1,11 @@
-{% extends 'base.html' %} 
-{{super()}} 
+{% extends 'base.html' %}
 {% block head %}
-  {% block title %} EventFlow {% endblock %}
+  {{ super() }}
   <link rel="stylesheet" href="/static/css/home.css" />
-{% endblock %} 
+{% endblock %}
+{% block title %}
+  Home - EventFlow
+{% endblock %}
 {% block content %}
-<section>
-  <div class="intro">
-    <h2>Welcome to Rowley Company</h2>
-    <p>
-      We are a trusted partner in real estate management, dedicated to providing
-      exceptional service and value to our clients.
-    </p>
-  </div>
-  <div class="featured-properties">
-    <h2><strong> Featured Properties </strong></h2>
-  </div>
-</section>
+  <section></section>
 {% endblock %}

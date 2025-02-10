@@ -1,0 +1,156 @@
+@import url('https://fonts.googleapis.com/css2?family=Acme&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@font-face {
+  font-family: 'Sail';
+  src: url('/static/fonts/Sail-Regular.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Chillax';
+  src: url('/static/fonts/Chillax-Bold.otf') format('opentype');
+  font-weight: bold;
+  font-style: normal;
+}
+:root  {
+  --background: 251 9% 95%;
+  --foreground: 251 5% 0%;
+  --card: 251 9% 90%;
+  --card-foreground: 251 5% 10%;
+  --popover: 251 9% 95%;
+  --popover-foreground: 251 95% 0%;
+  --primary: 251 51% 45%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 251 10% 70%;
+  --secondary-foreground: 0 0% 0%;
+  --muted: 213 10% 85%;
+  --muted-foreground: 251 5% 35%;
+  --accent: 213 10% 80%;
+  --accent-foreground: 251 5% 10%;
+  --destructive: 0 50% 30%;
+  --destructive-foreground: 251 5% 90%;
+  --border: 251 20% 50%;
+  --input: 251 20% 18%;
+  --ring: 251 51% 45%;
+  --radius: 1rem;
+}
+.dark  {
+  --background: 251 10% 5%;
+  --foreground: 251 5% 90%;
+  --card: 251 9% 0%;
+  --card-foreground: 251 5% 90%;
+  --popover: 251 10% 5%;
+  --popover-foreground: 251 5% 90%;
+  --primary: 251 51% 45%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 251 10% 10%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 213 10% 15%;
+  --muted-foreground: 251 5% 60%;
+  --accent: 213 10% 15%;
+  --accent-foreground: 251 5% 90%;
+  --destructive: 0 50% 30%;
+  --destructive-foreground: 251 5% 90%;
+  --border: 251 20% 18%;
+  --input: 251 20% 18%;
+  --ring: 251 51% 45%;
+  --radius: 1rem;
+}
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body{
+  margin: 0;
+  padding: 0;
+  font-family: "Poppins", sans-serif;
+  background-color: hsl(var(--background));
+}
+a {
+  text-decoration: none;
+  /* color: #000; */
+}
+header{
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  width: 100%;
+  border-bottom: 1px solid rgb(192, 190, 190);
+  position: relative;
+}
+.headerSection{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1280px;
+  gap: 10rem;
+  margin: auto;
+}
+.companyName{
+  font-family: 'Chillax', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+.navSection{
+  gap: 3rem;
+  flex-grow: 1;
+  display: flex;
+  justify-content: space-between;
+}
+.mainNavbar{
+  display: flex;
+  list-style: none;
+  gap: 2.25rem;
+  color: black;
+}
+.nav-item a{
+  color: black;
+  font-weight: 500;
+}
+.authSection{
+  display: flex;
+  gap: 2rem;
+}
+.dropdownTitle{
+  position: relative;
+  cursor: pointer;
+}
+.material-symbols-outlined {
+  font-variation-settings:
+    'FILL'0,
+    'wght'350,
+    'GRAD'0,
+    'opsz'20;
+  position: absolute;
+  right: 18;
+  top: 10
+}
+.dropdownContent{
+  display: none;
+  position: absolute;
+  z-index: 1000;  
+  top: 100%;
+  left: 0;
+  width: 100%;
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: hsl(var(--background));
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+.dropdownList li{
+  list-style: none;
+  /* width: 100%; */
+}
+.nav-item.dropdown:hover .dropdownContent{
+  display: flex;
+  /* align-items: center; */
+  
+}
+.dropdownList{
+  /* align-content: center; */
+  /* width: 100%; */
+  /* flex-direction: column; */
+  /* align-items: center; */
+  gap: 1rem;
+  /* max-width: 1280px; */
+  border: 1px solid red;
+}
