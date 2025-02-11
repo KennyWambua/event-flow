@@ -1,5 +1,10 @@
 flask
-flask-login
-flask-session
 flask-sqlalchemy
-datetime
+flask-login
+flask-migrate
+flask-wtf
+flask-session
+email-validator
+python-dotenv
+werkzeug
+

@@ -2,34 +2,82 @@
 <html lang="en">
   <head>
     {% block head %}
-    <meta charset="UTF-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <link rel="stylesheet" href="/static/css/main.css" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{% block title %} {% endblock %}</title>
+      <meta charset="UTF-8" />
+      <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="stylesheet" href="/static/css/base.css" />
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
+      <title>
+        {% block title %}
+        {% endblock %}
+      </title>
     {% endblock %}
   </head>
   <body>
-    <section id="section1" class="header">
-      <div class="nav-part1">
-        <a href="#" class="logo">
-          <div class="logo-text">
-            <h1>EventFlow</h1>
+    <header class="header">
+      <div class="headerSection">
+        <div class="companyName">
+          <a href="{{ url_for('main.home') }}">eventFlow</a>
+        </div>
+        <button class="mobileMenuBtn">
+          <span class="material-icons">menu</span>
+        </button>
+        <div class="navSection">
+          <nav>
+            <ul class="mainNavbar">
+              <li class="nav-item">
+                <a href="{{ url_for('main.findEvent') }}" class="nav-link">Find Events</a>
+              </li>
+              <li class="nav-item">
+                <a href="{{ url_for('main.createEvent') }}" class="nav-link">Create Event</a>
+              </li>
+              <li class="nav-item dropdown">
+                <button class="dropdownTitle nav-link">
+                  Help Center
+                  <span class="material-symbols-outlined">keyboard_arrow_down</span>
+                </button>
+                <div class="dropdownContent">
+                  <ul class="dropdownList">
+                    <li>
+                      <a href="{{ url_for('main.helpCenter') }}">Help Center</a>
+                    </li>
+                    <li>
+                      <a href="{{ url_for('main.findMyTickets') }}">Find Your Tickets</a>
+                    </li>
+                    <li>
+                      <a href="{{ url_for('main.contactOrganizer') }}">Contact Your Event Organizer</a>
+                    </li>
+                  </ul>
+                </div>
+              </li>
+              <li class="nav-item">
+                <a href="{{ url_for('main.findMyTickets') }}" class="nav-link">Find my tickets</a>
+              </li>
+            </ul>
+          </nav>
+          <div class="authSection">
+            <div class="login">
+              <a href="{{ url_for('auth.login') }}" class="auth-link">Log In</a>
+            </div>
+            <div class="signup">
+              <a href="{{ url_for('auth.signup') }}" class="auth-link">Sign Up</a>
+            </div>
           </div>
-        </a>
+        </div>
       </div>
-      <div>
-        <ul id="nav-bar" class="nav">
-          <li>
-            <a href="{{url_for('main.home')}}">Home</a>
-          </li>
-        </ul>
-      </div>
-    </section>
-    {% with messages = get_flashed_messages(with_categories=true) %} {% if
-    messages %} {% for category, message in messages %}
-    <div class="alert alert-{{ category }}">{{ message }}</div>
-    {% endfor %} {% endif %} {% endwith %}
-    <div class="content">{% block content %} {% endblock %}</div>
+    </header>
+    {% with messages=get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    <div class="content">
+      {% block content %}
+      {% endblock %}
+    </div>
+    <script src="/static/js/base.js"></script>
   </body>
 </html>
