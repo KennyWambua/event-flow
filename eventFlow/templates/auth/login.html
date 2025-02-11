@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block head %}
+  {{ super() }}
+  <link rel="stylesheet" href="/static/css/auth.css" />
+{% endblock %}
+{% block title %}
+  Log In - eventFlow
+{% endblock %}
+{% block content %}
+  <div class="auth-container">
+    <div class="auth-card">
+      <h1>Welcome Back</h1>
+      <p class="auth-subtitle">Log in to your account</p>
+
+      <form method="POST" action="{{ url_for('auth.login') }}" class="auth-form">
+        {{ form.hidden_tag() }}
+
+        <div class="form-group">
+          {{ form.email.label }}
+          {{ form.email(class='form-control') }}
+          {% if form.email.errors %}
+            {% for error in form.email.errors %}
+              <span class="error-message">{{ error }}</span>
+            {% endfor %}
+          {% endif %}
+        </div>
+
+        <div class="form-group">
+          {{ form.password.label }}
+          {{ form.password(class='form-control') }}
+          {% if form.password.errors %}
+            {% for error in form.password.errors %}
+              <span class="error-message">{{ error }}</span>
+            {% endfor %}
+          {% endif %}
+        </div>
+
+        <div class="form-group remember-me">
+          {{ form.remember(class='form-checkbox') }}
+          {{ form.remember.label }}
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-block">Log In</button>
+      </form>
+
+      <div class="auth-footer">
+        <p>
+          Don't have an account? <a href="{{ url_for('auth.signup') }}">Sign Up</a>
+        </p>
+        <a href="{{ url_for('auth.forgot_password') }}" class="forgot-password">Forgot Password?</a>
+      </div>
+    </div>
+  </div>
+{% endblock %}

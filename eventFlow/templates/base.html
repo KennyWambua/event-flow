@@ -6,34 +6,37 @@
       <meta http-equiv="X-UA-Compatible" content="IE=edge" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="stylesheet" href="/static/css/base.css" />
-      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=keyboard_arrow_down" />
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
       <title>
         {% block title %}
         {% endblock %}
       </title>
-      <meta http-equiv="refresh" content="15" />
     {% endblock %}
   </head>
   <body>
-    <header>
+    <header class="header">
       <div class="headerSection">
         <div class="companyName">
           <a href="{{ url_for('main.home') }}">eventFlow</a>
         </div>
+        <button class="mobileMenuBtn">
+          <span class="material-icons">menu</span>
+        </button>
         <div class="navSection">
           <nav>
             <ul class="mainNavbar">
               <li class="nav-item">
-                <a href="{{ url_for('main.findEvent') }}">Find Events</a>
+                <a href="{{ url_for('main.findEvent') }}" class="nav-link">Find Events</a>
               </li>
               <li class="nav-item">
-                <a href="{{ url_for('main.createEvent') }}">Create Event</a>
+                <a href="{{ url_for('main.createEvent') }}" class="nav-link">Create Event</a>
               </li>
               <li class="nav-item dropdown">
-                <span class="dropdownTitle">
+                <button class="dropdownTitle nav-link">
                   Help Center
                   <span class="material-symbols-outlined">keyboard_arrow_down</span>
-                </span>
+                </button>
                 <div class="dropdownContent">
                   <ul class="dropdownList">
                     <li>
@@ -49,16 +52,16 @@
                 </div>
               </li>
               <li class="nav-item">
-                <a href="{{ url_for('main.findMyTickets') }}">Find my tickets</a>
+                <a href="{{ url_for('main.findMyTickets') }}" class="nav-link">Find my tickets</a>
               </li>
             </ul>
           </nav>
           <div class="authSection">
             <div class="login">
-              <a href="{{ url_for('auth.login') }}">Log In</a>
+              <a href="{{ url_for('auth.login') }}" class="auth-link">Log In</a>
             </div>
             <div class="signup">
-              <a href="{{ url_for('auth.signup') }}">Sign Up</a>
+              <a href="{{ url_for('auth.signup') }}" class="auth-link">Sign Up</a>
             </div>
           </div>
         </div>
@@ -73,8 +76,8 @@
     {% endwith %}
     <div class="content">
       {% block content %}
-
       {% endblock %}
     </div>
+    <script src="/static/js/base.js"></script>
   </body>
 </html>

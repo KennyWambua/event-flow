@@ -1,0 +1,145 @@
+.auth-container {
+  min-height: calc(100vh - 4rem);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.auth-card {
+  background: hsl(var(--card));
+  padding: 2rem;
+  border-radius: var(--radius);
+  width: 100%;
+  max-width: 400px;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.auth-card h1 {
+  font-size: 1.875rem;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.auth-subtitle {
+  text-align: center;
+  color: hsl(var(--muted-foreground));
+  margin-bottom: 2rem;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-control {
+  padding: 0.75rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) * 0.5);
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: hsl(var(--ring));
+  box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
+}
+
+.remember-me, .terms {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.form-checkbox {
+  width: 1rem;
+  height: 1rem;
+}
+
+.error-message {
+  color: hsl(var(--destructive));
+  font-size: 0.875rem;
+}
+
+.auth-footer {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+.auth-footer a {
+  color: hsl(var(--primary));
+}
+
+.forgot-password {
+  display: block;
+  margin-top: 1rem;
+  font-size: 0.875rem;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius);
+  font-weight: 500;
+  transition: all 0.2s;
+  text-decoration: none;
+  cursor: pointer;
+  border: none;
+}
+
+.btn-primary {
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+}
+
+.btn-primary:hover {
+  background: hsl(var(--primary) / 0.9);
+}
+
+.btn-block {
+  width: 100%;
+}
+
+.btn-link {
+  color: hsl(var(--primary));
+  padding: 0;
+}
+
+.btn-link:hover {
+  text-decoration: underline;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .hero {
+    padding: 3rem 1rem;
+  }
+
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  .hero p {
+    font-size: 1rem;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+  }
+
+  .auth-container {
+    padding: 1rem;
+  }
+}

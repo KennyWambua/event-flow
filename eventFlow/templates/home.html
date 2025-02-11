@@ -1,11 +1,61 @@
-{% extends 'base.html' %}
+{% extends "base.html" %}
 {% block head %}
   {{ super() }}
   <link rel="stylesheet" href="/static/css/home.css" />
-{% endblock %}
-{% block title %}
-  Home - EventFlow
-{% endblock %}
+{% endblock%}
+{% block title %} eventFlow - Discover & Create Events{% endblock %}
 {% block content %}
-  <section></section>
+<main class="homeContainer">
+  <section class="hero">
+    <div class="heroContent">
+      <h1>Discover Amazing Events Near You</h1>
+      <p>Find and join events that match your interests or create your own.</p>
+      <div class="heroActions">
+        <a href="{{ url_for('main.findEvent') }}" class="btn btn-primary">Find Events</a>
+        <a href="{{ url_for('main.createEvent') }}" class="btn btn-outline">Create Event</a>
+      </div>
+    </div>
+  </section>
+  <section class="featuredEvents">
+    <h2>Featured Events</h2>
+    <div class="eventSection">
+      {% for event in featured_events %}
+      <div class="eventCard">
+        <a href="{{ url_for('main.event', event_id=event.id) }}">
+          <div class="eventImage">
+            <img src="{{ event.image_url }}" alt="{{ event.title }}">
+          </div>
+        </a>
+        <div class="eventDetails">
+          <span class="eventDate">{{ event.date }}</span>
+          <h3>{{ event.title }}</h3>
+          <p>{{ event.location }}</p>
+          <a href="{{ url_for('main.event', event_id=event.id) }}" class="btn btn-link">Learn More →</a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+  <section class="categories">
+    <h2>Browse by Category</h2>
+    <div class="categoryGrid">
+      <a href="#" class="categoryCard">
+        <span class="material-icons">music_note</span>
+        <h3>Music</h3>
+      </a>
+      <a href="#" class="categoryCard">
+        <span class="material-icons">sports_esports</span>
+        <h3>Gaming</h3>
+      </a>
+      <a href="#" class="categoryCard">
+        <span class="material-icons">theater_comedy</span>
+        <h3>Arts</h3>
+      </a>
+      <a href="#" class="categoryCard">
+        <span class="material-icons">sports</span>
+        <h3>Sports</h3>
+      </a>
+    </div>
+  </section>
+</main>
 {% endblock %}
