@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="/static/css/my_events.css" />
+{% endblock %}
+
+{% block title %}My Events{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active">My Events</li>
+{% endblock %}
+
+{% block content %}
+<div class="my-events-container">
+    <h1>My Events</h1>
+    <p class="subtitle">Manage your events here.</p>
+    <div class="event-list">
+        <!-- Example event card -->
+        <div class="event-card">
+            <h2>Sample Event Title</h2>
+            <p>Date: April 15, 2025</p>
+            <p>Location: Uhuru Gardens, Nairobi</p>
+            <a href="#" class="btn btn-primary">Edit Event</a>
+        </div>
+        <!-- More event cards can be added dynamically -->
+    </div>
+</div>
+{% endblock %} 

@@ -15,31 +15,31 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Log In')
 
 class SignupForm(FlaskForm):
-    username = StringField('Username', validators=[
-        DataRequired(),
-        Length(min=3, max=20)
-    ])
     email = StringField('Email', validators=[
         DataRequired(),
         Email()
+    ])
+    confirm_email = StringField('Confirm Email', validators=[
+        DataRequired(),
+        Email(),
+        EqualTo('email', message='Emails must match')
+    ])
+    first_name = StringField('First Name', validators=[
+        DataRequired(),
+        Length(min=2, max=50)
+    ])
+    last_name = StringField('Last Name', validators=[
+        DataRequired(),
+        Length(min=2, max=50)
     ])
     password = PasswordField('Password', validators=[
         DataRequired(),
         Length(min=6, message="Password must be at least 6 characters long")
     ])
-    confirm_password = PasswordField('Confirm Password', validators=[
-        DataRequired(),
-        EqualTo('password', message='Passwords must match')
-    ])
     accept_terms = BooleanField('I accept the Terms and Conditions', validators=[
         DataRequired(message="You must accept the terms and conditions")
     ])
     submit = SubmitField('Sign Up')
-
-    def validate_username(self, username):
-        user = User.query.filter_by(username=username.data).first()
-        if user:
-            raise ValidationError('Username already exists. Please choose a different one.')
 
     def validate_email(self, email):
         user = User.query.filter_by(email=email.data).first()

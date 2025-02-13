@@ -6,11 +6,12 @@
       <meta http-equiv="X-UA-Compatible" content="IE=edge" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="stylesheet" href="/static/css/base.css" />
+      <link rel="stylesheet" href="/static/css/breadcrumbs.css" />
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
       <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
       <title>
         {% block title %}
-        {% endblock %}
+        {% endblock %} - eventFlow
       </title>
     {% endblock %}
   </head>
@@ -20,7 +21,7 @@
         <div class="companyName">
           <a href="{{ url_for('main.home') }}">eventFlow</a>
         </div>
-        <button class="mobileMenuBtn">
+        <button class="mobileMenuBtn" aria-label="Toggle menu">
           <span class="material-icons">menu</span>
         </button>
         <div class="navSection">
@@ -39,15 +40,9 @@
                 </button>
                 <div class="dropdownContent">
                   <ul class="dropdownList">
-                    <li>
-                      <a href="{{ url_for('main.helpCenter') }}">Help Center</a>
-                    </li>
-                    <li>
-                      <a href="{{ url_for('main.findMyTickets') }}">Find Your Tickets</a>
-                    </li>
-                    <li>
-                      <a href="{{ url_for('main.contactOrganizer') }}">Contact Your Event Organizer</a>
-                    </li>
+                    <li><a href="{{ url_for('main.helpCenter') }}">Help Center</a></li>
+                    <li><a href="{{ url_for('main.findMyTickets') }}">Find Your Tickets</a></li>
+                    <li><a href="{{ url_for('main.contactOrganizer') }}">Contact Your Event Organizer</a></li>
                   </ul>
                 </div>
               </li>
@@ -57,27 +52,111 @@
             </ul>
           </nav>
           <div class="authSection">
-            <div class="login">
-              <a href="{{ url_for('auth.login') }}" class="auth-link">Log In</a>
-            </div>
-            <div class="signup">
-              <a href="{{ url_for('auth.signup') }}" class="auth-link">Sign Up</a>
-            </div>
+            {% if current_user.is_authenticated %}
+              <div class="userMenu dropdown">
+                <button class="dropdownTitle nav-link">
+                  <span class="material-icons">account_circle</span>
+                  {{ current_user.username }}
+                  <span class="material-symbols-outlined">keyboard_arrow_down</span>
+                </button>
+                <div class="dropdownContent">
+                  <ul class="dropdownList">
+                    <li><a href="{{ url_for('main.profile') }}">My Profile</a></li>
+                    <li><a href="{{ url_for('main.myEvents') }}">My Events</a></li>
+                    <li><a href="{{ url_for('main.settings') }}">Settings</a></li>
+                    <li class="divider"></li>
+                    <li><a href="{{ url_for('auth.logout') }}" class="logout-link">Log Out</a></li>
+                  </ul>
+                </div>
+              </div>
+            {% else %}
+              <div class="login">
+                <a href="{{ url_for('auth.login') }}" class="auth-link">Log In</a>
+              </div>
+              <div class="signup">
+                <a href="{{ url_for('auth.signup') }}" class="auth-link">Sign Up</a>
+              </div>
+            {% endif %}
           </div>
         </div>
       </div>
     </header>
-    {% with messages=get_flashed_messages(with_categories=true) %}
-      {% if messages %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{ category }}">{{ message }}</div>
-        {% endfor %}
-      {% endif %}
-    {% endwith %}
-    <div class="content">
+    <div class="breadcrumbs">
+      <ul class="breadcrumb-list">
+        <li class="breadcrumb-item"><a href="{{ url_for('main.home') }}">Home</a></li>
+        {% block breadcrumb_items %}{% endblock %}
+      </ul>
+    </div>
+    <div class="flash-container">
+      {% with messages=get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, message in messages %}
+            <div class="flash-message flash-{{ category }}">
+              <span class="flash-text">{{ message }}</span>
+              <button class="flash-close">
+                <span class="material-icons">close</span>
+              </button>
+            </div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+    </div>
+    <main class="main-content">
       {% block content %}
       {% endblock %}
-    </div>
+    </main>
+    <footer class="site-footer">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h3>About eventFlow</h3>
+          <p>Your one-stop platform for discovering, creating, and managing events.</p>
+          <div class="social-links">
+            <a href="#" aria-label="Facebook"><i class="material-icons">facebook</i></a>
+            <a href="#" aria-label="Twitter"><i class="material-icons">twitter</i></a>
+            <a href="#" aria-label="Instagram"><i class="material-icons">instagram</i></a>
+            <a href="#" aria-label="LinkedIn"><i class="material-icons">linkedin</i></a>
+          </div>
+        </div>
+
+        <div class="footer-section">
+          <h3>Quick Links</h3>
+          <ul>
+            <li><a href="{{ url_for('main.findEvent') }}">Find Events</a></li>
+            <li><a href="{{ url_for('main.createEvent') }}">Create Event</a></li>
+            <li><a href="{{ url_for('main.helpCenter') }}">Help Center</a></li>
+            <li><a href="{{ url_for('main.findMyTickets') }}">My Tickets</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h3>Categories</h3>
+          <ul>
+            <li><a href="#">Music & Concerts</a></li>
+            <li><a href="#">Food & Drink</a></li>
+            <li><a href="#">Business & Professional</a></li>
+            <li><a href="#">Arts & Culture</a></li>
+            <li><a href="#">Sports & Fitness</a></li>
+            <li><a href="#">Technology</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-section">
+          <h3>Support</h3>
+          <ul>
+            <li><a href="#">Contact Us</a></li>
+            <li><a href="#">FAQs</a></li>
+            <li><a href="#">Terms of Service</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+            <li><a href="#">Cookie Policy</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; {{ now.year if now else 2024 }} eventFlow. All rights reserved.</p>
+      </div>
+    </footer>
     <script src="/static/js/base.js"></script>
+    {% block scripts %}{% endblock %}
   </body>
 </html>

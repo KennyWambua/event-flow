@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="/static/css/contact_organizer.css" />
+{% endblock %}
+
+{% block title %}Contact Organizer{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active">Contact Organizer</li>
+{% endblock %}
+
+{% block content %}
+<div class="contact-organizer-container">
+    <h1>Contact Your Event Organizer</h1>
+    <form method="POST" action="{{ url_for('main.contactOrganizer') }}" class="contact-form">
+        <div class="form-group">
+            <label for="organizer-email">Organizer Email</label>
+            <input type="email" id="organizer-email" name="email" class="form-control" required />
+        </div>
+        <div class="form-group">
+            <label for="message">Message</label>
+            <textarea id="message" name="message" class="form-control" required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Send Message</button>
+    </form>
+</div>
+{% endblock %} 
