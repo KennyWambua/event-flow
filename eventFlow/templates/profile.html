@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="/static/css/profile.css" />
+{% endblock %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active">My Profile</li>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <h1>My Profile</h1>
+    <p>Username: {{ current_user.username }}</p>
+    <p>Email: {{ current_user.email }}</p>
+    <p>First Name: {{ current_user.first_name }}</p>
+    <p>Last Name: {{ current_user.last_name }}</p>
+    <button class="btn btn-primary">Edit Profile</button>
+</div>
+{% endblock %} 

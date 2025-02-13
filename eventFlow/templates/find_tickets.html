@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="/static/css/find_tickets.css" />
+{% endblock %}
+
+{% block title %}My Tickets{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active">My Tickets</li>
+{% endblock %}
+
+{% block content %}
+<div class="my-tickets-container">
+    <h1>My Tickets</h1>
+    <p class="subtitle">View and manage your tickets.</p>
+    <div class="ticket-list">
+        <!-- Example ticket card -->
+        <div class="ticket-card">
+            <h2>Sample Event Title</h2>
+            <p>Date: April 15, 2025</p>
+            <p>Location: Uhuru Gardens, Nairobi</p>
+            <a href="#" class="btn btn-primary">View Ticket</a>
+        </div>
+        <!-- More ticket cards can be added dynamically -->
+    </div>
+</div>
+{% endblock %} 

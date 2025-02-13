@@ -3,21 +3,23 @@
   {{ super() }}
   <link rel="stylesheet" href="/static/css/home.css" />
 {% endblock%}
-{% block title %} eventFlow - Discover & Create Events{% endblock %}
+{% block title %}eventFlow - Discover & Create Events{% endblock %}
 {% block content %}
 <main class="homeContainer">
   <section class="hero">
     <div class="heroContent">
       <h1>Discover Amazing Events Near You</h1>
-      <p>Find and join events that match your interests or create your own.</p>
+      <p>Find and join events that match your interests or create your own. Connect with people who share your passions.</p>
       <div class="heroActions">
         <a href="{{ url_for('main.findEvent') }}" class="btn btn-primary">Find Events</a>
         <a href="{{ url_for('main.createEvent') }}" class="btn btn-outline">Create Event</a>
       </div>
     </div>
   </section>
+
   <section class="featuredEvents">
     <h2>Featured Events</h2>
+    <p>Discover the most exciting upcoming events in your area</p>
     <div class="eventSection">
       {% for event in featured_events %}
       <div class="eventCard">
@@ -36,6 +38,7 @@
       {% endfor %}
     </div>
   </section>
+
   <section class="categories">
     <h2>Browse by Category</h2>
     <div class="categoryGrid">
@@ -55,7 +58,24 @@
         <span class="material-icons">sports</span>
         <h3>Sports</h3>
       </a>
+      <a href="#" class="categoryCard">
+        <span class="material-icons">school</span>
+        <h3>Education</h3>
+      </a>
+      <a href="#" class="categoryCard">
+        <span class="material-icons">business</span>
+        <h3>Business</h3>
+      </a>
     </div>
+  </section>
+
+  <section class="newsletter">
+    <h2>Stay Updated</h2>
+    <p>Subscribe to our newsletter and never miss out on exciting events and special offers.</p>
+    <form class="newsletterForm">
+      <input type="email" placeholder="Enter your email address" required>
+      <button type="submit" class="btn btn-primary">Subscribe</button>
+    </form>
   </section>
 </main>
 {% endblock %}

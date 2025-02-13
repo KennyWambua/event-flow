@@ -6,18 +6,34 @@
 {% block title %}
   Log In - eventFlow
 {% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active">Log In</li>
+{% endblock %}
+
 {% block content %}
   <div class="auth-container">
     <div class="auth-card">
       <h1>Welcome Back</h1>
-      <p class="auth-subtitle">Log in to your account</p>
+      <p class="auth-subtitle">Log in to manage your events, tickets, and discover new experiences</p>
+
+      <div class="social-login">
+        <button class="social-btn google-btn">
+          <img src="/static/images/google.svg" alt="Google" width="20" height="20">
+          Continue with Google
+        </button>
+      </div>
+
+      <div class="divider">
+        <span>or</span>
+      </div>
 
       <form method="POST" action="{{ url_for('auth.login') }}" class="auth-form">
         {{ form.hidden_tag() }}
 
         <div class="form-group">
           {{ form.email.label }}
-          {{ form.email(class='form-control') }}
+          {{ form.email(class='form-control', placeholder='name@example.com') }}
           {% if form.email.errors %}
             {% for error in form.email.errors %}
               <span class="error-message">{{ error }}</span>
@@ -27,7 +43,7 @@
 
         <div class="form-group">
           {{ form.password.label }}
-          {{ form.password(class='form-control') }}
+          {{ form.password(class='form-control', placeholder='••••••••') }}
           {% if form.password.errors %}
             {% for error in form.password.errors %}
               <span class="error-message">{{ error }}</span>
@@ -35,9 +51,12 @@
           {% endif %}
         </div>
 
-        <div class="form-group remember-me">
-          {{ form.remember(class='form-checkbox') }}
-          {{ form.remember.label }}
+        <div class="form-row">
+          <div class="checkbox-wrapper">
+            {{ form.remember(class='form-checkbox') }}
+            {{ form.remember.label }}
+          </div>
+          <a href="{{ url_for('auth.forgot_password') }}" class="forgot-link">Forgot Password?</a>
         </div>
 
         <button type="submit" class="btn btn-primary btn-block">Log In</button>
@@ -47,7 +66,6 @@
         <p>
           Don't have an account? <a href="{{ url_for('auth.signup') }}">Sign Up</a>
         </p>
-        <a href="{{ url_for('auth.forgot_password') }}" class="forgot-password">Forgot Password?</a>
       </div>
     </div>
   </div>

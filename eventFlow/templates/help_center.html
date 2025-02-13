@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="/static/css/help_center.css" />
+{% endblock %}
+
+{% block title %}Help Center{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active">Help Center</li>
+{% endblock %}
+
+{% block content %}
+<div class="help-center-container">
+    <h1>Help Center</h1>
+    <p class="subtitle">Find answers to your questions.</p>
+    <div class="faq-section">
+        <h2>Frequently Asked Questions</h2>
+        <ul>
+            <li><strong>How do I create an event?</strong> - You can create an event by navigating to the Create Event page.</li>
+            <li><strong>How do I find my tickets?</strong> - You can find your tickets in the My Tickets section.</li>
+            <li><strong>How do I contact support?</strong> - You can contact support through the Contact Us page.</li>
+        </ul>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="/static/css/find_event.css" />
+{% endblock %}
+
+{% block title %}Find Events{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active">Find Events</li>
+{% endblock %}
+
+{% block content %}
+<div class="find-event-container">
+    <h1>Find Events</h1>
+    <p class="subtitle">Discover events happening near you.</p>
+    <!-- Event search/filter functionality can be added here -->
+    <div class="event-list">
+        <!-- Example event card -->
+        <div class="event-card">
+            <h2>Sample Event Title</h2>
+            <p>Date: April 15, 2025</p>
+            <p>Location: Uhuru Gardens, Nairobi</p>
+            <a href="{{ url_for('main.event', event_id=1) }}" class="btn btn-primary">View Details</a>
+        </div>
+        <!-- More event cards can be added dynamically -->
+    </div>
+</div>
+{% endblock %} 
