@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="/static/css/settings.css" />
+{% endblock %}
+
+{% block title %}Settings{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item active">Settings</li>
+{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+    <h1>Settings</h1>
+    <form method="POST" action="{{ url_for('main.settings') }}" class="settings-form">
+        <div class="form-group">
+            <label for="notification-settings">Notification Settings</label>
+            <select id="notification-settings" name="notifications" class="form-control">
+                <option value="all">All Notifications</option>
+                <option value="important">Only Important</option>
+                <option value="none">No Notifications</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Save Changes</button>
+    </form>
+</div>
+{% endblock %} 

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="/static/css/event.css" />
+{% endblock %}
+
+{% block title %}Event Details{% endblock %}
+
+{% block breadcrumb_items %}
+<li class="breadcrumb-item"><a href="{{ url_for('main.findEvent') }}">Find Events</a></li>
+<li class="breadcrumb-item active">Event Details</li>
+{% endblock %}
+
+{% block content %}
+<div class="event-details-container">
+    <h1>Event Title</h1>
+    <p>Date: April 15, 2025</p>
+    <p>Location: Uhuru Gardens, Nairobi</p>
+    <p>Description: This is a sample event description.</p>
+    <button class="btn btn-primary">Buy Tickets</button>
+</div>
+{% endblock %} 

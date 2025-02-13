@@ -3,143 +3,449 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2rem;
+  padding: 1rem;
+  background: linear-gradient(45deg, hsl(var(--primary) / 0.1), hsl(var(--secondary) / 0.1));
 }
 
 .auth-card {
   background: hsl(var(--card));
-  padding: 2rem;
+  padding: 1.5rem;
   border-radius: var(--radius);
   width: 100%;
-  max-width: 400px;
+  max-width: 450px;
   box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  border: 1px solid hsl(var(--border));
 }
 
 .auth-card h1 {
-  font-size: 1.875rem;
+  font-size: 2.25rem;
+  font-weight: 600;
   text-align: center;
   margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .auth-subtitle {
   text-align: center;
   color: hsl(var(--muted-foreground));
   margin-bottom: 2rem;
+  font-size: 0.925rem;
+  line-height: 1.5;
+}
+
+.social-login {
+  text-align: center;
+}
+
+.social-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.social-btn:hover {
+  background: hsl(var(--accent));
+}
+
+.google-btn {
+  background: white;
+  color: #444;
+  border-color: #ddd;
+}
+
+.google-btn:hover {
+  background: #f8f8f8;
+}
+
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1.5rem 0;
+  border: none;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+.divider span {
+  padding: 0 1rem;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.875rem;
 }
 
 .auth-form {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
+  margin-bottom: 0;
+}
+
+.form-group label {
+  font-weight: 500;
+  font-size: 0.875rem;
 }
 
 .form-control {
-  padding: 0.75rem;
+  padding: 0.75rem 1rem;
+  height: 2.75rem;
   border: 1px solid hsl(var(--border));
   border-radius: calc(var(--radius) * 0.5);
-  background: hsl(var(--background));
-  color: hsl(var(--foreground));
+  font-size: 0.875rem;
+  width: 100%;
 }
 
 .form-control:focus {
   outline: none;
-  border-color: hsl(var(--ring));
+  border-color: hsl(var(--primary));
   box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
 }
 
 .remember-me, .terms {
   display: flex;
-  flex-direction: row;
   align-items: center;
   gap: 0.5rem;
+  font-size: 0.875rem;
 }
 
 .form-checkbox {
   width: 1rem;
   height: 1rem;
+  border-radius: 0.25rem;
+  border: 1px solid hsl(var(--border));
 }
 
 .error-message {
   color: hsl(var(--destructive));
-  font-size: 0.875rem;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .auth-footer {
   margin-top: 2rem;
   text-align: center;
+  font-size: 0.875rem;
 }
 
 .auth-footer a {
   color: hsl(var(--primary));
+  font-weight: 500;
+}
+
+.auth-footer a:hover {
+  text-decoration: underline;
 }
 
 .forgot-password {
   display: block;
   margin-top: 1rem;
-  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
 }
 
-/* Buttons */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.75rem 1.5rem;
-  border-radius: var(--radius);
+.btn-block {
+  width: 100%;
+  padding: 0.875rem;
+  font-size: 1rem;
   font-weight: 500;
-  transition: all 0.2s;
-  text-decoration: none;
-  cursor: pointer;
-  border: none;
 }
 
+@media (max-width: 640px) {
+  .auth-card {
+    padding: 1.25rem;
+  }
+
+  .name-row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .form-control {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.875rem;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 768px) {
+  .auth-card {
+    padding: 1.5rem;
+    max-width: 400px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .auth-card {
+    padding: 1.75rem;
+    max-width: 425px;
+  }
+}
+
+@media (min-width: 1025px) {
+  .auth-card {
+    padding: 2rem;
+    max-width: 450px;
+  }
+}
+
+/* Form Row for Remember Me and Forgot Password */
+.form-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+/* Checkbox Styling */
+.checkbox-wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.checkbox-wrapper .form-checkbox {
+  margin-top: 0.25rem;
+}
+
+.form-checkbox {
+  width: 1.125rem;
+  height: 1.125rem;
+  border: 2px solid hsl(var(--border));
+  border-radius: 0.25rem;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  position: relative;
+  background: hsl(var(--background));
+  transition: all 0.2s ease;
+}
+
+.form-checkbox:checked {
+  background: hsl(var(--primary));
+  border-color: hsl(var(--primary));
+}
+
+.form-checkbox:checked::after {
+  content: '✓';
+  position: absolute;
+  color: white;
+  font-size: 0.75rem;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.form-checkbox:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
+}
+
+/* Forgot Password Link */
+.forgot-link {
+  color: hsl(var(--primary));
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.forgot-link:hover {
+  text-decoration: underline;
+}
+
+/* Button Improvements */
 .btn-primary {
   background: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  padding: 0.875rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 0.75rem;
+  height: 2.75rem;
 }
 
 .btn-primary:hover {
   background: hsl(var(--primary) / 0.9);
 }
 
-.btn-block {
-  width: 100%;
+.btn-primary:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
 }
 
-.btn-link {
-  color: hsl(var(--primary));
-  padding: 0;
+/* Form Control Improvements */
+.form-control::placeholder {
+  color: hsl(var(--muted-foreground));
 }
 
-.btn-link:hover {
-  text-decoration: underline;
+/* Signup Steps */
+.signup-step {
+  display: none;
 }
 
-/* Responsive Styles */
-@media (max-width: 768px) {
-  .hero {
-    padding: 3rem 1rem;
-  }
+.signup-step.active {
+  display: block;
+}
 
-  .hero h1 {
-    font-size: 2rem;
-  }
+/* Email Field with Edit Button */
+.email-field-wrapper {
+  margin-bottom: 0.5rem;
+}
 
-  .hero p {
-    font-size: 1rem;
-  }
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
 
-  .hero-actions {
-    flex-direction: column;
-  }
+.input-with-icon .form-control {
+  padding-right: 3rem;
+}
 
-  .auth-container {
-    padding: 1rem;
-  }
+.input-with-icon .form-control[readonly] {
+  background-color: hsl(var(--accent));
+  color: hsl(var(--foreground));
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.edit-email-btn {
+  position: absolute;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  color: hsl(var(--muted-foreground));
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+}
+
+.edit-email-btn:hover {
+  color: hsl(var(--foreground));
+}
+
+/* Name Fields Row */
+.name-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Animation */
+.signup-step {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.3s ease;
+}
+
+.signup-step.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Add new styles */
+.step-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 0.25rem;
+  color: hsl(var(--foreground));
+}
+
+.step-description {
+  text-align: center;
+  color: hsl(var(--muted-foreground));
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
+}
+
+/* Update button text */
+#continue-btn {
+  font-weight: 500;
+  height: 2.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Hide Get Started heading in step two */
+.signup-step:not(#step-one) .auth-card > h1,
+.signup-step:not(#step-one) .auth-subtitle {
+  display: none;
+}
+
+/* Form Sections */
+.form-section {
+  margin-bottom: 0.75rem;
+}
+
+.form-section:last-of-type {
+  margin-bottom: 1.5rem;
+}
+
+/* Improve spacing in step one */
+#step-one .auth-footer {
+  margin-top: 1.5rem;
+}
+
+/* Adjust step two spacing */
+#step-two .step-title {
+  margin-top: 0.5rem;
+}
+
+/* Terms checkbox styling */
+.checkbox-wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: hsl(var(--muted-foreground));
+}
+
+.checkbox-wrapper .form-checkbox {
+  margin-top: 0.25rem;
 }

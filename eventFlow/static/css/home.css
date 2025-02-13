@@ -1,33 +1,56 @@
 .homeContainer {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem;
+  padding: 2rem 1rem;
 }
 
 .hero {
+  position: relative;
   text-align: center;
-  padding: 4rem 1rem;
-  background: linear-gradient(to right, hsl(var(--primary) / 0.1), hsl(var(--secondary) / 0.1));
+  padding: 6rem 1rem;
+  background: linear-gradient(45deg, hsl(var(--primary) / 0.1), hsl(var(--secondary) / 0.1));
   border-radius: var(--radius);
   margin-bottom: 4rem;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('/static/images/concert.jpg') center/cover;
+  /*opacity: 0.3;
+  */z-index: 0;
+  filter: blur(5px);
+  -webkit-filter: blur(5px);
 }
 
 .heroContent {
+  position: relative;
+  z-index: 1;
   max-width: 800px;
   margin: 0 auto;
 }
 
-.heroContent h1 {
-  font-size: 3rem;
-  font-weight: 700;
-  margin-bottom: 1rem;
-  color: hsl(var(--foreground));
+.hero h1 {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 1.5rem;
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  line-height: 1.2;
 }
 
-.heroContent p {
+.hero p {
   font-size: 1.25rem;
-  color: hsl(var(--muted-foreground));
-  margin-bottom: 2rem;
+  color: hsl(var(--primary-foreground));
+  margin-bottom: 2.5rem;
+  line-height: 1.6;
 }
 
 .heroActions {
@@ -35,6 +58,7 @@
   gap: 1rem;
   justify-content: center;
 }
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -60,27 +84,33 @@
 .btn-outline {
   background: transparent;
   border: 1px solid hsl(var(--primary));
-  color: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
 }
 
 .btn-outline:hover {
   background: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
 }
+
 .featuredEvents {
   margin-bottom: 4rem;
 }
 
 .featuredEvents h2 {
   font-size: 2rem;
-  margin-bottom: 2rem;
+  margin-bottom: 0.5rem;
+}
+
+.featuredEvents > p {
+  color: hsl(var(--muted-foreground));
+  margin-bottom: 3rem;
 }
 
 .eventSection {
   display: flex;
   flex-direction: row;
   gap: 2rem;
-  
+  margin-top: 2rem;
 }
 
 .eventCard {
@@ -88,31 +118,28 @@
   width: 300px;
   border-radius: var(--radius);
   overflow: hidden;
-  transition: all 0.2s ease;
-  -webkit-transition: all 0.2s ease;
-  -moz-transition: all 0.2s ease;
-  -ms-transition: all 0.2s ease;
-  -o-transition: all 0.2s ease;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: 1px solid hsl(var(--border));
 }
 
 .eventCard:hover {
-  box-shadow: 0 12px 24px -10px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 12px 24px -10px hsl(var(--primary) / 0.1);
 }
 
-.eventCard:hover .eventImage img {
-  filter: blur(2px);
-  -webkit-filter: blur(2px);
-}
 .eventImage {
-  /* aspect-ratio: 16/9; */
+  aspect-ratio: 16/9;
   overflow: hidden;
-  height: 200px;
 }
 
 .eventImage img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.eventCard:hover .eventImage img {
+  transform: scale(1.05);
 }
 
 .eventDetails {
@@ -122,21 +149,29 @@
 .eventDate {
   color: hsl(var(--primary));
   font-size: 0.875rem;
-  font-weight: 500;
+  font-weight: 600;
+  display: block;
+  margin-bottom: 0.5rem;
 }
 
 .eventDetails h3 {
-  margin: 0.5rem 0;
   font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+}
+
+.eventDetails p {
+  color: hsl(var(--muted-foreground));
+  margin-bottom: 1rem;
 }
 
 .categories {
-  margin-bottom: 4rem;
+  margin-bottom: 5rem;
 }
 
 .categories h2 {
   font-size: 2rem;
-  margin-bottom: 2rem;
+  margin-bottom: 2.25rem;
 }
 
 .categoryGrid {
@@ -152,12 +187,17 @@
   padding: 2rem;
   background: hsl(var(--card));
   border-radius: var(--radius);
-  text-decoration: none;
-  transition: all 0.2s;
+  border: 1px solid hsl(var(--border));
+  transition: all 0.3s ease;
 }
 
 .categoryCard:hover {
   background: hsl(var(--accent));
+  transform: translateY(-1px);
+  -webkit-transform: translateY(-1px);
+  -moz-transform: translateY(-1px);
+  -ms-transform: translateY(-1px);
+  -o-transform: translateY(-1px);
 }
 
 .categoryCard .material-icons {
@@ -168,5 +208,63 @@
 
 .categoryCard h3 {
   font-size: 1.25rem;
-  color: hsl(var(--foreground));
+  font-weight: 600;
+}
+
+.newsletter {
+  background: hsl(var(--card));
+  border-radius: var(--radius);
+  padding: 4rem 2rem;
+  text-align: center;
+  border: 1px solid hsl(var(--border));
+}
+
+.newsletter h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.newsletter p {
+  color: hsl(var(--muted-foreground));
+  margin-bottom: 2rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.newsletterForm {
+  display: flex;
+  gap: 1rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.newsletterForm input {
+  flex: 1;
+  padding: 0.75rem 1rem;
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius);
+  background: hsl(var(--background));
+}
+
+@media (max-width: 768px) {
+  .hero {
+    padding: 2rem 1rem;
+  }
+
+  .hero h1 {
+    font-size: 2rem;
+  }
+
+  .hero p{
+    font-size: 1rem;
+  }
+
+  .heroActions {
+    flex-direction: column;
+  }
+
+  .newsletterForm {
+    flex-direction: column;
+  }
 }
