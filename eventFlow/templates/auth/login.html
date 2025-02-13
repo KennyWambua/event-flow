@@ -8,7 +8,14 @@
 {% endblock %}
 
 {% block breadcrumb_items %}
-<li class="breadcrumb-item active">Log In</li>
+  <div class="breadcrumb-wrapper">
+    <ul class="breadcrumb-list">
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('main.home') }}">Home</a>
+      </li>
+      <li class="breadcrumb-item active">Login</li>
+    </ul>
+  </div>
 {% endblock %}
 
 {% block content %}
@@ -19,7 +26,7 @@
 
       <div class="social-login">
         <button class="social-btn google-btn">
-          <img src="/static/images/google.svg" alt="Google" width="20" height="20">
+          <img src="/static/images/google.svg" alt="Google" width="20" height="20" />
           Continue with Google
         </button>
       </div>
@@ -52,10 +59,8 @@
         </div>
 
         <div class="form-row">
-          <div class="checkbox-wrapper">
-            {{ form.remember(class='form-checkbox') }}
-            {{ form.remember.label }}
-          </div>
+          <div class="checkbox-wrapper">{{ form.remember(class='form-checkbox') }}
+            {{ form.remember.label }}</div>
           <a href="{{ url_for('auth.forgot_password') }}" class="forgot-link">Forgot Password?</a>
         </div>
 

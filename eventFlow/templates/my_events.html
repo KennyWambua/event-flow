@@ -1,28 +1,100 @@
 {% extends 'base.html' %}
 {% block head %}
     {{ super() }}
-    <link rel="stylesheet" href="/static/css/my_events.css" />
+    <link rel="stylesheet" href="/static/css/find_event.css" />
 {% endblock %}
 
 {% block title %}My Events{% endblock %}
 
 {% block breadcrumb_items %}
-<li class="breadcrumb-item active">My Events</li>
+<div class="breadcrumb-wrapper">
+    <ul class="breadcrumb-list">
+        <li class="breadcrumb-item"><a href="{{ url_for('main.home') }}">Home</a></li>
+        <li class="breadcrumb-item active">My Events</li>
+    </ul>
+</div>
 {% endblock %}
 
 {% block content %}
-<div class="my-events-container">
-    <h1>My Events</h1>
-    <p class="subtitle">Manage your events here.</p>
-    <div class="event-list">
-        <!-- Example event card -->
-        <div class="event-card">
-            <h2>Sample Event Title</h2>
-            <p>Date: April 15, 2025</p>
-            <p>Location: Uhuru Gardens, Nairobi</p>
-            <a href="#" class="btn btn-primary">Edit Event</a>
-        </div>
-        <!-- More event cards can be added dynamically -->
+<div class="find-event-container">
+    <div class="header-section">
+        <h1>My Events</h1>
+        <a href="{{ url_for('main.createEvent') }}" class="btn btn-primary">Create New Event</a>
     </div>
+
+    {% if events.items %}
+        <div class="eventSection">
+            {% for event in events.items %}
+                <div class="eventCard">
+                    <a href="{{ url_for('main.event', event_id=event.id) }}">
+                        <div class="eventImage">
+                            <img src="{{ event.get_primary_image_url() }}" alt="{{ event.title }}" />
+                        </div>
+                    </a>
+                    <div class="eventDetails">
+                        <span class="eventDate">{{ event.date.strftime('%B %d, %Y at %I:%M %p') }}</span>
+                        <h3>{{ event.title }}</h3>
+                        <p>{{ event.location }}</p>
+                        <div class="event-actions">
+                            <a href="{{ url_for('main.event', event_id=event.id) }}" class="btn btn-secondary">View Details</a>
+                            <button class="btn btn-outline" onclick="deleteEvent({{ event.id }})">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        {% if events.pages > 1 %}
+        <div class="pagination">
+            {% if events.has_prev %}
+                <a href="{{ url_for('main.myEvents', page=events.prev_num) }}" class="pagination-button">Previous</a>
+            {% endif %}
+            
+            {% for page in events.iter_pages() %}
+                {% if page %}
+                    <a href="{{ url_for('main.myEvents', page=page) }}" 
+                       class="pagination-button {% if page == events.page %}active{% endif %}">
+                        {{ page }}
+                    </a>
+                {% else %}
+                    <span class="pagination-button">...</span>
+                {% endif %}
+            {% endfor %}
+
+            {% if events.has_next %}
+                <a href="{{ url_for('main.myEvents', page=events.next_num) }}" class="pagination-button">Next</a>
+            {% endif %}
+        </div>
+        {% endif %}
+    {% else %}
+        <div class="no-events">
+            <p>You haven't created any events yet.</p>
+            <a href="{{ url_for('main.createEvent') }}" class="btn btn-primary">Create Your First Event</a>
+        </div>
+    {% endif %}
 </div>
+
+<script>
+function deleteEvent(eventId) {
+    if (confirm('Are you sure you want to delete this event?')) {
+        fetch(`/event/${eventId}/delete`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => {
+            if (response.ok) {
+                window.location.reload();
+            } else {
+                alert('Error deleting event');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting event');
+        });
+    }
+}
+</script>
 {% endblock %} 
