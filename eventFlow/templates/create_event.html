@@ -1,272 +1,264 @@
 {% extends 'base.html' %}
 {% block head %}
-    {{ super() }}
-    <link rel="stylesheet" href="/static/css/create_event.css" />
+  {{ super() }}
+  <link rel="stylesheet" href="/static/css/create_event.css" />
 {% endblock %}
 
-{% block title %}Create Event{% endblock %}
+{% block title %}
+  Create Event
+{% endblock %}
 
 {% block breadcrumb_items %}
-<div class="breadcrumb-wrapper">
+  <div class="breadcrumb-wrapper">
     <ul class="breadcrumb-list">
-        <li class="breadcrumb-item"><a href="{{ url_for('main.home') }}">Home</a></li>
-        <li class="breadcrumb-item active">Create Event</li>
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('main.home') }}">Home</a>
+      </li>
+      <li class="breadcrumb-item active">Create Event</li>
     </ul>
-</div>
+  </div>
 {% endblock %}
 
 {% block content %}
-<div class="create-event-container">
+  <div class="create-event-container">
     <div class="page-header">
-        <h1>Create Your Event</h1>
-        <p class="subtitle">Share your event with the world</p>
+      <h1>Create Your Event</h1>
+      <p class="subtitle">Share your next amazing event with the community</p>
     </div>
     <form method="POST" action="{{ url_for('main.createEvent') }}" class="event-form" enctype="multipart/form-data">
-        {{ form.csrf_token }}
-        
-        <div class="form-section">
-            <h2 class="form-section-title">Basic Information</h2>
-            <div class="form-grid">
-                <div class="form-group">
-                    {{ form.title.label }}
-                    {{ form.title(class="form-control", placeholder="Enter event title") }}
-                    {% if form.title.errors %}
-                        {% for error in form.title.errors %}
-                            <span class="error-message">{{ error }}</span>
-                        {% endfor %}
-                    {% endif %}
-                </div>
+      {{ form.csrf_token }}
 
-                <div class="form-group">
-                    {{ form.category.label }}
-                    {{ form.category(class="form-control") }}
-                    {% if form.category.errors %}
-                        {% for error in form.category.errors %}
-                            <span class="error-message">{{ error }}</span>
-                        {% endfor %}
-                    {% endif %}
-                </div>
-            </div>
+      <div class="form-section">
+        <h2 class="form-section-title">Basic Information</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            {{ form.title.label }}
+            {{ form.title(class='form-control', placeholder='Easter Music Festival 2025') }}
+            {% if form.title.errors %}
+              {% for error in form.title.errors %}
+                <span class="error-message">{{ error }}</span>
+              {% endfor %}
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            {{ form.category.label }}
+            {{ form.category(class='form-control') }}
+            {% if form.category.errors %}
+              {% for error in form.category.errors %}
+                <span class="error-message">{{ error }}</span>
+              {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h2 class="form-section-title">Date & Location</h2>
+        <div class="form-grid">
+          <div class="form-group">
+            {{ form.date.label }}
+            {{ form.date(class='form-control', type='datetime-local', min=now.strftime('%Y-%m-%dT%H:%M')) }}
+            {% if form.date.errors %}
+              {% for error in form.date.errors %}
+                <span class="error-message">{{ error }}</span>
+              {% endfor %}
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            {{ form.location.label }}
+            {{ form.location(class='form-control', placeholder='Uhuru Park, Nairobi') }}
+            {% if form.location.errors %}
+              {% for error in form.location.errors %}
+                <span class="error-message">{{ error }}</span>
+              {% endfor %}
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h2 class="form-section-title">Event Details</h2>
+        <div class="form-group full-width">
+          {{ form.description.label }}
+          {{ form.description(class='form-control', placeholder='Tell people what makes your event special. Include key details like schedule, special guests, what to bring, etc.') }}
+          {% if form.description.errors %}
+            {% for error in form.description.errors %}
+              <span class="error-message">{{ error }}</span>
+            {% endfor %}
+          {% endif %}
         </div>
 
         <div class="form-section">
-            <h2 class="form-section-title">Date & Location</h2>
-            <div class="form-grid">
-                <div class="form-group">
-                    {{ form.date.label }}
-                    {{ form.date(class="form-control", type="datetime-local") }}
-                    {% if form.date.errors %}
-                        {% for error in form.date.errors %}
-                            <span class="error-message">{{ error }}</span>
-                        {% endfor %}
-                    {% endif %}
+          <h2 class="form-section-title">Event Images</h2>
+          <p class="section-description">Add up to 5 images to showcase your event</p>
+          <div class="image-input-group full-width">
+            <div class="form-group">
+              <div class="file-upload-wrapper">
+                <div class="upload-header">
+                  <button type="button" class="btn btn-secondary btn-add-image">
+                    <span class="material-icons">add_photo_alternate</span>
+                    Add Images
+                  </button>
                 </div>
-
-                <div class="form-group">
-                    {{ form.location.label }}
-                    {{ form.location(class="form-control", placeholder="Enter event location") }}
-                    {% if form.location.errors %}
-                        {% for error in form.location.errors %}
-                            <span class="error-message">{{ error }}</span>
-                        {% endfor %}
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-
-        <div class="form-section">
-            <h2 class="form-section-title">Event Details</h2>
-            <div class="form-group full-width">
-                {{ form.description.label }}
-                {{ form.description(class="form-control", placeholder="Describe your event...") }}
-                {% if form.description.errors %}
-                    {% for error in form.description.errors %}
-                        <span class="error-message">{{ error }}</span>
-                    {% endfor %}
-                {% endif %}
+                {{ form.images(class='form-control-file', accept='image/jpeg,image/png', multiple=true, style='display: none;') }}
+                <div class="upload-message">No images selected yet</div>
+                <div class="image-previews"></div>
+              </div>
             </div>
 
-            <div class="form-section">
-                <h2 class="form-section-title">Event Images</h2>
-                <p class="section-description">Add up to 5 images to showcase your event. First image will be the primary image.</p>
-                <div class="image-input-group full-width">
-                    <div class="form-group">
-                        <div class="file-upload-wrapper">
-                            <div class="upload-header">
-                                <label for="images" class="upload-label">{{ form.images.label }}</label>
-                                <button type="button" class="btn btn-secondary btn-add-image">
-                                    <span class="material-icons">add_photo_alternate</span>
-                                    Add Image
-                                </button>
-                            </div>
-                            {{ form.images(class="form-control-file", accept="image/jpeg,image/png", multiple=true, style="display: none;") }}
-                            <div class="upload-message">No images selected</div>
-                            <div class="image-previews">
-                                <!-- Previews will be added here -->
-                            </div>
-                        </div>
-                        {% if form.images.errors %}
-                            {% for error in form.images.errors %}
-                                <span class="error-message">{{ error }}</span>
-                            {% endfor %}
-                        {% endif %}
-                    </div>
-
-                    <div class="form-group">
-                        <div class="separator">
-                            <span>OR</span>
-                        </div>
-                        {{ form.image_url.label }}
-                        {{ form.image_url(class="form-control", placeholder="https://example.com/image.jpg") }}
-                        {% if form.image_url.errors %}
-                            {% for error in form.image_url.errors %}
-                                <span class="error-message">{{ error }}</span>
-                            {% endfor %}
-                        {% endif %}
-                    </div>
-                </div>
+            <div class="separator">
+              <span>OR</span>
             </div>
-        </div>
 
-        <div class="form-actions">
-            <button type="submit" class="btn btn-primary btn-create-event">
-                <span class="material-icons">event</span>
-                Create Event
-            </button>
+            <div class="form-group">
+              <label for="image_url">Add Image URL</label>
+              <div class="url-input-wrapper">
+                <input type="url" id="image_url" class="form-control" placeholder="https://example.com/image.jpg">
+                <button type="button" class="btn btn-secondary btn-add-url">
+                  <span class="material-icons">add_link</span>
+                  Add URL
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn btn-primary btn-create-event">
+          <span class="material-icons">event</span>
+          Create Event
+        </button>
+      </div>
     </form>
-</div>
+  </div>
 
-{% block scripts %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const imageInput = document.querySelector('input[type="file"]');
-    const imageUrlInput = document.querySelector('input[name="image_url"]');
-    const uploadMessage = document.querySelector('.upload-message');
-    const previewContainer = document.querySelector('.image-previews');
-    const addImageBtn = document.querySelector('.btn-add-image');
-    const maxFiles = 5;
-    let currentFiles = new DataTransfer();
-
-    function updatePreviews() {
-        previewContainer.innerHTML = '';
-        uploadMessage.style.display = currentFiles.files.length ? 'none' : 'block';
-
-        Array.from(currentFiles.files).forEach((file, index) => {
-            const preview = document.createElement('div');
-            preview.className = 'preview-item';
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                preview.innerHTML = `
-                    <div class="preview-image">
-                        <img src="${e.target.result}" alt="Preview ${index + 1}">
-                        ${index === 0 ? '<span class="primary-badge">Primary</span>' : ''}
-                    </div>
-                    <div class="preview-actions">
-                        ${index !== 0 ? `
-                            <button type="button" class="btn-action make-primary" title="Make Primary" data-index="${index}">
-                                <span class="material-icons">star</span>
-                            </button>
-                        ` : ''}
-                        <button type="button" class="btn-action remove-image" title="Remove Image" data-index="${index}">
-                            <span class="material-icons">delete</span>
-                        </button>
-                    </div>
-                `;
+  {% block scripts %}
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        const imageInput = document.querySelector('.form-control-file')
+        const uploadMessage = document.querySelector('.upload-message')
+        const previewContainer = document.querySelector('.image-previews')
+        const addImageBtn = document.querySelector('.btn-add-image')
+        const maxFiles = 5
+        let currentFiles = new DataTransfer()
+      
+        function updatePreviews() {
+          previewContainer.innerHTML = ''
+          const fileCount = currentFiles.files.length
+          uploadMessage.textContent = fileCount ? `${fileCount} image${fileCount !== 1 ? 's' : ''} selected` : 'No images selected yet'
+          uploadMessage.style.display = fileCount ? 'none' : 'block'
+      
+          Array.from(currentFiles.files).forEach((file, index) => {
+            const preview = document.createElement('div')
+            preview.className = 'preview-item' + (index === 0 ? ' primary' : '')
+      
+            const reader = new FileReader()
+            reader.onload = function (e) {
+              preview.innerHTML = 
+                '<div class="preview-image">' +
+                '<img src="' + e.target.result + '" alt="Preview">' +
+                (index === 0 ? '<span class="primary-badge">Cover Image</span>' : '') +
+                '<div class="preview-actions">' +
+                (index !== 0 ? '<button type="button" class="btn-action make-primary" data-tooltip="Set as cover image" data-index="' + index + '"><span class="material-icons">star</span></button>' : '') +
+                '<button type="button" class="btn-action remove-image" data-tooltip="Remove image" data-index="' + index + '"><span class="material-icons">delete</span></button>' +
+                '</div>' +
+                '<div class="image-name">' + file.name + '</div>' +
+                '</div>'
             }
-            reader.readAsDataURL(file);
-            previewContainer.appendChild(preview);
-        });
-
-        // Update the actual file input
-        imageInput.files = currentFiles.files;
-        
-        // Update Add Image button state
-        const remainingFiles = maxFiles - currentFiles.files.length;
-        addImageBtn.disabled = remainingFiles <= 0;
-        addImageBtn.style.opacity = addImageBtn.disabled ? '0.5' : '1';
-        addImageBtn.title = remainingFiles > 0 
-            ? `Add Image (${remainingFiles} remaining)`
-            : 'Maximum images reached';
-    }
-
-    addImageBtn.addEventListener('click', function(e) {
-        e.preventDefault(); // Prevent form submission
-        if (currentFiles.files.length >= maxFiles) {
-            alert(`Maximum ${maxFiles} images allowed`);
-            return;
+            reader.readAsDataURL(file)
+            previewContainer.appendChild(preview)
+          })
+      
+          imageInput.files = currentFiles.files
+          addImageBtn.disabled = fileCount >= maxFiles
         }
-        imageInput.click();
-    });
-
-    imageInput.addEventListener('change', function() {
-        if (!this.files.length) return;
-        
-        const newFiles = Array.from(this.files);
-        const totalFiles = currentFiles.files.length + newFiles.length;
-        
-        if (totalFiles > maxFiles) {
-            const remaining = maxFiles - currentFiles.files.length;
-            alert(`You can only add ${remaining} more image${remaining !== 1 ? 's' : ''}`);
-            return;
+      
+        addImageBtn.onclick = function (e) {
+          e.preventDefault()
+          if (currentFiles.files.length < maxFiles) {
+            imageInput.click()
+          }
+        }
+      
+        imageInput.onchange = function () {
+          if (!this.files.length) return
+      
+          const newFiles = Array.from(this.files)
+          if (currentFiles.files.length + newFiles.length > maxFiles) {
+            alert(`You can only add ${maxFiles - currentFiles.files.length} more image(s)`)
+            return
+          }
+      
+          newFiles.forEach((file) => {
+            const dt = new DataTransfer()
+            Array.from(currentFiles.files).forEach((f) => dt.items.add(f))
+            dt.items.add(file)
+            currentFiles = dt
+          })
+      
+          updatePreviews()
+          this.value = ''
+        }
+      
+        previewContainer.onclick = function (e) {
+          const button = e.target.closest('.btn-action')
+          if (!button) return
+      
+          const index = parseInt(button.dataset.index)
+          const dt = new DataTransfer()
+      
+          if (button.classList.contains('remove-image')) {
+            Array.from(currentFiles.files).forEach((file, i) => {
+              if (i !== index) dt.items.add(file)
+            })
+          } else if (button.classList.contains('make-primary')) {
+            const files = Array.from(currentFiles.files)
+            const movedFile = files.splice(index, 1)[0]
+            files.unshift(movedFile)
+            files.forEach((file) => dt.items.add(file))
+          }
+      
+          currentFiles = dt
+          updatePreviews()
         }
 
-        // Add new files to current files
-        newFiles.forEach(file => {
-            if (!file.type.startsWith('image/')) {
-                alert(`File "${file.name}" is not an image`);
+        const imageUrlInput = document.querySelector('#image_url');
+        const addUrlBtn = document.querySelector('.btn-add-url');
+
+        addUrlBtn.onclick = function() {
+            const url = imageUrlInput.value.trim();
+            if (!url) return;
+
+            if (currentFiles.files.length >= maxFiles) {
+                alert(`Maximum ${maxFiles} images allowed`);
                 return;
             }
-            currentFiles.items.add(file);
-        });
 
-        updatePreviews();
-        this.value = ''; // Reset input for next selection
-    });
-
-    // Handle removing and reordering images
-    previewContainer.addEventListener('click', function(e) {
-        const target = e.target.closest('.btn-action');
-        if (!target) return;
-
-        const index = parseInt(target.dataset.index);
-        const dt = new DataTransfer();
-
-        if (target.classList.contains('remove-image')) {
-            Array.from(currentFiles.files).forEach((file, i) => {
-                if (i !== index) dt.items.add(file);
-            });
-            currentFiles = dt;
-            updatePreviews();
-        } else if (target.classList.contains('make-primary')) {
-            const files = Array.from(currentFiles.files);
-            const movedFile = files.splice(index, 1)[0];
-            files.unshift(movedFile);
-            
-            files.forEach(file => dt.items.add(file));
-            currentFiles = dt;
-            updatePreviews();
-        }
-    });
-
-    // Clear file input when URL is entered
-    imageUrlInput?.addEventListener('input', function() {
-        if (this.value) {
-            currentFiles = new DataTransfer();
-            updatePreviews();
-        }
-    });
-
-    // Form submission validation
-    const form = document.querySelector('form');
-    form.addEventListener('submit', function(e) {
-        if (!currentFiles.files.length && !imageUrlInput.value) {
-            e.preventDefault();
-            alert('Please add at least one image or provide an image URL');
-        }
-    });
-});
-</script>
+            // Create a temporary image to validate the URL
+            const img = new Image();
+            img.onload = function() {
+                fetch(url)
+                    .then(res => res.blob())
+                    .then(blob => {
+                        const file = new File([blob], 'image-' + Date.now() + '.jpg', { type: 'image/jpeg' });
+                        const dt = new DataTransfer();
+                        Array.from(currentFiles.files).forEach(f => dt.items.add(f));
+                        dt.items.add(file);
+                        currentFiles = dt;
+                        updatePreviews();
+                        imageUrlInput.value = '';
+                    })
+                    .catch(() => alert('Failed to load image from URL'));
+            };
+            img.onerror = function() {
+                alert('Invalid image URL');
+            };
+            img.src = url;
+        };
+      })
+    </script>
+  {% endblock %}
 {% endblock %}
-{% endblock %} 

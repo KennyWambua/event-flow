@@ -1,7 +1,6 @@
 .breadcrumbs {
   padding: 0.75rem 0;
   background: hsl(var(--background));
-  /* border-bottom: 1px solid hsl(var(--border)); */
 }
 
 .breadcrumb-wrapper {
