@@ -56,8 +56,12 @@
     border-radius: var(--radius);
     overflow: hidden;
     transition: transform 0.2s, box-shadow 0.2s;
-    border: 1px solid hsl(var(--border));
+    border: 1px solid hsl(var(--accent));
     margin-top: 2rem;
+    -webkit-transition: transform 0.2s, box-shadow 0.2s;
+    -moz-transition: transform 0.2s, box-shadow 0.2s;
+    -ms-transition: transform 0.2s, box-shadow 0.2s;
+    -o-transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .eventCard:hover {

@@ -5,31 +5,47 @@ from . import db
 from .models import User
 from .forms import LoginForm, SignupForm
 
+# Create a Blueprint for authentication routes
 auth = Blueprint('auth', __name__)
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
+    # Check if user is already logged in
     if current_user.is_authenticated:
         return redirect(url_for('main.home'))
     
     form = LoginForm()
+    
+    # Get the 'next' URL from either form data (POST) or query parameters (GET)
+    next_url = request.form.get('next') or request.args.get('next')
+    
+    # Handle form submission
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
+        
+        # Validate user credentials
         if user is None or not user.check_password(form.password.data):
             flash('Invalid email or password. Please try again', 'error')
-            return redirect(url_for('auth.login'))
+            return redirect(url_for('auth.login', next=next_url))
         
         login_user(user, remember=form.remember.data)
         
-        # Get the next page from the request args
-        next_page = request.args.get('next')
-        if not next_page or urlparse(next_page).netloc != '':
-            next_page = url_for('main.home')
+        # Handle redirect after successful login
+        if next_url:
+            # Ensure the next_url starts with a slash for security
+            if not next_url.startswith('/'):
+                next_url = '/' + next_url
+            
+            # Prevent protocol-relative URL redirects for security
+            if not next_url.startswith('//'):
+                flash(f'Welcome back, {user.first_name}!', 'success')
+                return redirect(next_url)
         
-        flash(f'Welcome, {user.first_name}!', 'success')
-        return redirect(next_page)
+        # If no next URL, redirect to home page
+        flash(f'Welcome back, {user.first_name}!', 'success')
+        return redirect(url_for('main.home'))
     
-    return render_template('auth/login.html', form=form)
+    return render_template('auth/login.html', form=form, next=next_url)
 
 @auth.route('/signup', methods=['GET', 'POST'])
 def signup():

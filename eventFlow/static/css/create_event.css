@@ -567,3 +567,249 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
         background: rgba(0, 0, 0, 0.7);
     }
 }
+
+/* Ticket Settings */
+.ticket-settings {
+    margin-top: 1.5rem;
+}
+
+.ticket-types-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.ticket-type-item {
+    background: hsl(var(--accent) / 0.5);
+    border: 1px solid hsl(var(--accent));
+    transition: all 0.2s ease;
+}
+
+.ticket-type-item:hover {
+    background: hsl(var(--accent) / 0.7);
+}
+
+.ticket-type-header {
+    padding-bottom: 1rem;
+    border-bottom: 1px solid hsl(var(--accent));
+    margin-bottom: 1.5rem;
+}
+
+.ticket-type-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+}
+
+.ticket-type-grid .form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+.custom-type-field {
+    display: none;
+}
+
+.btn-add-ticket {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+}
+
+.remove-ticket {
+    color: hsl(var(--destructive));
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: var(--radius);
+    transition: all 0.2s ease;
+}
+
+.remove-ticket:hover {
+    background: hsl(var(--destructive) / 0.1);
+}
+
+@media (max-width: 768px) {
+    .ticket-type-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.ticket-type-select {
+    font-weight: 500;
+}
+
+.ticket-type-select option {
+    padding: 8px;
+}
+
+.ticket-type-select option:first-child {
+    color: hsl(var(--muted-foreground));
+}
+
+.custom-type-wrapper,
+.input-wrapper,
+.description-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.help-text {
+    color: hsl(var(--muted-foreground));
+    font-size: 0.875rem;
+}
+
+.price-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.price-input-wrapper input {
+    padding-left: 2.5rem;
+    text-align: right;
+    font-family: monospace;
+}
+
+.currency-symbol {
+    position: absolute;
+    left: 0.75rem;
+    color: hsl(var(--muted-foreground));
+    font-weight: 500;
+}
+
+.price-input-wrapper input:focus {
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2);
+}
+
+.description-wrapper textarea:not([readonly]) {
+    border-color: hsl(var(--primary) / 0.5);
+    background-color: hsl(var(--background));
+}
+
+.description-wrapper textarea:not([readonly]):focus {
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2);
+}
+
+/* Ticket Structure Styling */
+.ticket-types-list {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.ticket-type-item {
+    background: hsl(var(--background));
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px hsl(var(--accent) / 0.1);
+    transition: all 0.2s ease;
+}
+
+.ticket-type-item:hover {
+    border-color: hsl(var(--accent));
+    box-shadow: 0 4px 8px hsl(var(--accent) / 0.2);
+}
+
+.ticket-type-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid hsl(var(--border));
+}
+
+.ticket-type-header h4 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+    margin: 0;
+}
+
+.remove-ticket {
+    color: hsl(var(--destructive));
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5rem;
+    border-radius: var(--radius);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+}
+
+.remove-ticket:hover {
+    background: hsl(var(--destructive) / 0.1);
+}
+
+.remove-ticket .material-icons {
+    font-size: 1.25rem;
+}
+
+/* Ticket Type Grid Layout */
+.ticket-type-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+}
+
+.ticket-type-grid .form-group {
+    margin: 0;
+}
+
+.ticket-type-grid .form-group.full-width {
+    grid-column: 1 / -1;
+}
+
+/* Add Ticket Button Styling */
+.btn-add-ticket {
+    margin-top: 1rem;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border: none;
+    border-radius: var(--radius);
+    padding: 0.75rem 1.5rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-add-ticket:hover {
+    background: hsl(var(--primary) / 0.9);
+}
+
+.btn-add-ticket .material-icons {
+    font-size: 1.25rem;
+}
+
+/* Ticket Type Counter Badge */
+.ticket-counter {
+    background: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+    padding: 0.25rem 0.75rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .ticket-type-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .ticket-type-header {
+        flex-direction: row;
+        align-items: center;
+    }
+}

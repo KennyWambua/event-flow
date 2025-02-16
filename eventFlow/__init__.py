@@ -1,5 +1,5 @@
 import secrets
-from flask import Flask
+from flask import Flask, request, session, url_for, redirect, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
@@ -23,11 +23,24 @@ def create_app():
 
   db.init_app(app)
   migrate.init_app(app, db)
-  login_manager.login_view = 'auth.login'
-  login_manager.login_message_category = 'info'
-  login_manager.init_app(app)
   
+  # Initialize Session before login manager
   Session(app)
+  
+  login_manager.login_view = 'auth.login'
+  login_manager.login_message = 'Please log in to access this page.'
+  login_manager.login_message_category = 'info'
+
+  @login_manager.unauthorized_handler
+  def unauthorized():
+    # Get the full current URL
+    next_url = request.url
+    # Remove the domain part if present
+    if '//' in next_url:
+        next_url = '/' + next_url.split('/', 3)[3]
+    return redirect(url_for('auth.login', next=next_url))
+
+  login_manager.init_app(app)
   
   from .models import User
   
@@ -41,7 +54,7 @@ def create_app():
   from .auth import auth as auth_blueprint
   app.register_blueprint(auth_blueprint, url_prefix='/auth')
   
-  # blueprint for non-auth 
+  # blueprint for main routes 
   from .main import main as main_blueprint
   app.register_blueprint(main_blueprint)
 

@@ -34,7 +34,7 @@
   --border: 251 20% 50%;
   --input: 251 20% 18%;
   --ring: 251 51% 45%;
-  --radius: 1rem;
+  --radius: 0.25rem;
 }
 
 .dark {
@@ -57,7 +57,7 @@
   --border: 251 20% 18%;
   --input: 251 20% 18%;
   --ring: 251 51% 45%;
-  --radius: 1rem;
+  --radius: 0.25rem;
 }
 
 * {

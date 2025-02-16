@@ -52,6 +52,17 @@ class EventImage(db.Model):
             return f"data:{self.image_mime_type};base64,{base64.b64encode(self.image_data).decode('utf-8')}"
         return None
 
+class TicketType(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
+    ticket_type = db.Column(db.String(50), nullable=False)
+    custom_type = db.Column(db.String(50))
+    quantity = db.Column(db.Integer, nullable=False)
+    price = db.Column(db.Float)
+    description = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
+    updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
@@ -62,6 +73,9 @@ class Event(db.Model):
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     images = db.relationship('EventImage', backref='event', lazy=True)
+    is_paid_event = db.Column(db.Boolean, default=False)
+    currency = db.Column(db.String(3))
+    ticket_types = db.relationship('TicketType', backref='event', lazy=True, cascade='all, delete-orphan')
 
     def __repr__(self):
         return f"<Event('{self.title}', '{self.date}', '{self.location}'), '{self.description}', '{self.category}', '{self.images}')>"
