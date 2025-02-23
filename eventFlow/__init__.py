@@ -5,10 +5,12 @@ from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_session import Session
 from config import Config
+from flask_wtf.csrf import CSRFProtect
 
 db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
+csrf = CSRFProtect()
 
 def create_app():
   app = Flask(__name__)
@@ -26,6 +28,9 @@ def create_app():
   
   # Initialize Session before login manager
   Session(app)
+  
+  # Initialize CSRF protection
+  csrf.init_app(app)
   
   login_manager.login_view = 'auth.login'
   login_manager.login_message = 'Please log in to access this page.'

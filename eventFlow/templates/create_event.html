@@ -2,6 +2,7 @@
 {% block head %}
   {{ super() }}
   <link rel="stylesheet" href="/static/css/create_event.css" />
+  <meta name="csrf-token" content="{{ form.csrf_token.current_token }}" />
 {% endblock %}
 
 {% block title %}
@@ -22,10 +23,10 @@
 {% block content %}
   <div class="create-event-container">
     <div class="page-header">
-      <h1>Create Your Event</h1>
-      <p class="subtitle">Share your next amazing event with the community</p>
+      <h1>Create a New Event</h1>
+      <p class="subtitle">Share an amazing event with the community</p>
     </div>
-    <form method="POST" action="{{ url_for('main.createEvent') }}" class="event-form" enctype="multipart/form-data">
+    <form method="POST" action="{{ url_for('main.createEvent') }}" class="event-form" enctype="multipart/form-data" id="eventForm">
       {{ form.csrf_token }}
 
       <div class="form-section">
@@ -91,112 +92,126 @@
         </div>
 
         <div class="form-section">
-          <h2 class="form-section-title">Ticketing</h2>
+          <h2 class="form-section-title">Event Type</h2>
           <p class="section-description">Set up your event's ticket types and pricing</p>
 
           <div class="form-group">
-            <div class="checkbox-wrapper">
-              {{ form.is_paid_event(class='form-checkbox') }}
-              {{ form.is_paid_event.label }}
+            <div class="event-type-options">
+              {% for option in form.event_type %}
+                <div class="event-type-option">{{ option }}
+                  {{ option.label }}</div>
+              {% endfor %}
             </div>
+            {% if form.event_type.errors %}
+              {% for error in form.event_type.errors %}
+                <span class="error-message">{{ error }}</span>
+              {% endfor %}
+            {% endif %}
           </div>
 
           <div class="ticket-types" id="ticketSettings" style="display: none;">
             <div class="ticket-types-header">
-                <div class="header-content">
-                    <h3>Ticket Types</h3>
-                    <p class="section-description">Define different ticket categories for your event</p>
-                </div>
-                <button type="button" class="btn-add-ticket" id="addTicketType">
+              <div class="header-content">
+                <h3>Ticket Types</h3>
+                <p class="section-description">Define different ticket categories for your event</p>
+              </div>
+              <div class="currency-section">
+                <div class="header-actions">
+                  <div class="currency-selection">
+                    <label for="currency" class="form-label currency-label">Currency *</label>
+                    {{ form.currency(class='form-select', required=true) }}
+                    {% if form.currency.errors %}
+                      <div class="invalid-feedback">{{ form.currency.errors[0] }}</div>
+                    {% endif %}
+                  </div>
+                  <button type="button" class="btn-add-ticket" id="addTicketType">
                     <span class="material-icons">add</span>
                     Add Ticket Type
-                </button>
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div class="ticket-types-list" id="ticketTypesList">
-                {% for ticket in form.ticket_types %}
+              {% for ticket in form.ticket_types %}
                 <div class="ticket-type-item">
-                    <div class="ticket-type-header">
-                        <div class="header-left">
-                            <h4>Ticket Type <span class="ticket-counter">{{ loop.index }}</span></h4>
-                        </div>
-                        {% if not loop.first %}
-                        <button type="button" class="remove-ticket" title="Remove ticket type">
-                            <span class="material-icons">delete</span>
-                            Remove
-                        </button>
-                        {% endif %}
+                  <div class="ticket-type-header">
+                    <div class="header-left">
+                      <h4>Ticket Type <span class="ticket-counter">{{ loop.index }}</span></h4>
+                    </div>
+                    {% if not loop.first %}
+                      <button type="button" class="remove-ticket" title="Remove ticket type">
+                        <span class="material-icons">delete</span>
+                        Remove
+                      </button>
+                    {% endif %}
+                  </div>
+
+                  <div class="ticket-type-grid">
+                    <div class="form-group">
+                      {{ ticket.form.ticket_type.label }}
+                      {{ ticket.form.ticket_type(class='form-control ticket-type-select') }}
+                      {% if ticket.form.ticket_type.errors %}
+                        {% for error in ticket.form.ticket_type.errors %}
+                          <span class="error-message">{{ error }}</span>
+                        {% endfor %}
+                      {% endif %}
                     </div>
 
-                    <div class="ticket-type-grid">
-                        <div class="form-group">
-                            {{ ticket.form.ticket_type.label }}
-                            {{ ticket.form.ticket_type(class='form-control ticket-type-select') }}
-                            {% if ticket.form.ticket_type.errors %}
-                                {% for error in ticket.form.ticket_type.errors %}
-                                    <span class="error-message">{{ error }}</span>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
-
-                        <div class="form-group custom-type-field" style="display: none;">
-                            {{ ticket.form.custom_type.label }}
-                            <div class="custom-type-wrapper">
-                                {{ ticket.form.custom_type(class='form-control', 
-                                    placeholder='e.g., Backstage Pass, Meet & Greet') }}
-                                <small class="help-text">Create a unique name for your ticket type</small>
-                            </div>
-                            {% if ticket.form.custom_type.errors %}
-                                {% for error in ticket.form.custom_type.errors %}
-                                    <span class="error-message">{{ error }}</span>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
-
-                        <div class="form-group">
-                            {{ ticket.form.quantity.label }}
-                            <div class="input-wrapper">
-                                {{ ticket.form.quantity(class='form-control', type='number', min='1') }}
-                                <small class="help-text">Total number of tickets available for sale</small>
-                            </div>
-                            {% if ticket.form.quantity.errors %}
-                                {% for error in ticket.form.quantity.errors %}
-                                    <span class="error-message">{{ error }}</span>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
-
-                        <div class="form-group">
-                            {{ ticket.form.price.label }}
-                            <div class="price-input-wrapper">
-                                <span class="currency-symbol">{{ form.currency.data }}</span>
-                                {{ ticket.form.price(class='form-control', type='number', step='0.01', min='0') }}
-                            </div>
-                            {% if ticket.form.price.errors %}
-                                {% for error in ticket.form.price.errors %}
-                                    <span class="error-message">{{ error }}</span>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
-
-                        <div class="form-group full-width">
-                            {{ ticket.form.description.label }}
-                            <div class="description-wrapper">
-                                {{ ticket.form.description(class='form-control', rows='3', 
-                                    placeholder='Describe the benefits and features of this ticket type...') }}
-                                <small class="help-text">
-                                    Specify what's included with this ticket type (e.g., seating area, perks, restrictions)
-                                </small>
-                            </div>
-                            {% if ticket.form.description.errors %}
-                                {% for error in ticket.form.description.errors %}
-                                    <span class="error-message">{{ error }}</span>
-                                {% endfor %}
-                            {% endif %}
-                        </div>
+                    <div class="form-group custom-type-field" style="display: none;">
+                      {{ ticket.form.custom_type.label }}
+                      <div class="custom-type-wrapper">
+                        {{ ticket.form.custom_type(class='form-control', placeholder='e.g., Backstage Pass, Meet & Greet') }}
+                        <small class="help-text">Create a unique name for your ticket type</small>
+                      </div>
+                      {% if ticket.form.custom_type.errors %}
+                        {% for error in ticket.form.custom_type.errors %}
+                          <span class="error-message">{{ error }}</span>
+                        {% endfor %}
+                      {% endif %}
                     </div>
+
+                    <div class="form-group">
+                      {{ ticket.form.quantity.label }}
+                      <div class="input-wrapper">
+                        {{ ticket.form.quantity(class='form-control', type='number', min='1') }}
+                        <small class="help-text">Total number of tickets available for sale</small>
+                      </div>
+                      {% if ticket.form.quantity.errors %}
+                        {% for error in ticket.form.quantity.errors %}
+                          <span class="error-message">{{ error }}</span>
+                        {% endfor %}
+                      {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                      {{ ticket.form.price.label }}
+                      <div class="price-input-wrapper">
+                        <span class="currency-symbol">{{ form.currency.data }}</span>
+                        {{ ticket.form.price(class='form-control', type='number', step='0.01', min='0') }}
+                      </div>
+                      {% if ticket.form.price.errors %}
+                        {% for error in ticket.form.price.errors %}
+                          <span class="error-message">{{ error }}</span>
+                        {% endfor %}
+                      {% endif %}
+                    </div>
+
+                    <div class="form-group full-width">
+                      {{ ticket.form.description.label }}
+                      <div class="description-wrapper">
+                        {{ ticket.form.description(class='form-control', rows='3', placeholder='Describe the benefits and features of this ticket type...') }}
+                        <small class="help-text">Specify what's included with this ticket type (e.g., seating area, perks, restrictions)</small>
+                      </div>
+                      {% if ticket.form.description.errors %}
+                        {% for error in ticket.form.description.errors %}
+                          <span class="error-message">{{ error }}</span>
+                        {% endfor %}
+                      {% endif %}
+                    </div>
+                  </div>
                 </div>
-                {% endfor %}
+              {% endfor %}
             </div>
           </div>
         </div>
@@ -227,7 +242,7 @@
           <div class="form-group">
             <label for="image_url">Add Image URL</label>
             <div class="url-input-wrapper">
-              <input type="url" id="image_url" class="form-control" placeholder="https://example.com/image.jpg">
+              <input type="url" id="image_url" class="form-control" placeholder="https://example.com/image.jpg" />
               <button type="button" class="btn btn-secondary btn-add-url">
                 <span class="material-icons">add_link</span>
                 Add URL
@@ -238,7 +253,7 @@
       </div>
 
       <div class="form-actions">
-        <button type="submit" class="btn btn-primary btn-create-event">
+        <button type="submit" class="btn-create-event" id="submitBtn">
           <span class="material-icons">event</span>
           Create Event
         </button>
@@ -247,248 +262,6 @@
   </div>
 
   {% block scripts %}
-    <script>
-      document.addEventListener('DOMContentLoaded', function () {
-        const imageInput = document.querySelector('.form-control-file')
-        const uploadMessage = document.querySelector('.upload-message')
-        const previewContainer = document.querySelector('.image-previews')
-        const addImageBtn = document.querySelector('.btn-add-image')
-        const maxFiles = 5
-        let currentFiles = new DataTransfer()
-      
-        function updatePreviews() {
-          previewContainer.innerHTML = ''
-          const fileCount = currentFiles.files.length
-          uploadMessage.textContent = fileCount ? `${fileCount} image${fileCount !== 1 ? 's' : ''} selected` : 'No images selected yet'
-          uploadMessage.style.display = fileCount ? 'none' : 'block'
-      
-          Array.from(currentFiles.files).forEach((file, index) => {
-            const preview = document.createElement('div')
-            preview.className = 'preview-item' + (index === 0 ? ' primary' : '')
-      
-            const reader = new FileReader()
-            reader.onload = function (e) {
-              preview.innerHTML = 
-                '<div class="preview-image">' +
-                '<img src="' + e.target.result + '" alt="Preview">' +
-                (index === 0 ? '<span class="primary-badge">Cover Image</span>' : '') +
-                '<div class="preview-actions">' +
-                (index !== 0 ? '<button type="button" class="btn-action make-primary" data-tooltip="Set as cover image" data-index="' + index + '"><span class="material-icons">star</span></button>' : '') +
-                '<button type="button" class="btn-action remove-image" data-tooltip="Remove image" data-index="' + index + '"><span class="material-icons">delete</span></button>' +
-                '</div>' +
-                '<div class="image-name">' + file.name + '</div>' +
-                '</div>'
-            }
-            reader.readAsDataURL(file)
-            previewContainer.appendChild(preview)
-          })
-      
-          imageInput.files = currentFiles.files
-          addImageBtn.disabled = fileCount >= maxFiles
-        }
-      
-        addImageBtn.onclick = function (e) {
-          e.preventDefault()
-          if (currentFiles.files.length < maxFiles) {
-            imageInput.click()
-          }
-        }
-      
-        imageInput.onchange = function () {
-          if (!this.files.length) return
-      
-          const newFiles = Array.from(this.files)
-          if (currentFiles.files.length + newFiles.length > maxFiles) {
-            alert(`You can only add ${maxFiles - currentFiles.files.length} more image(s)`)
-            return
-          }
-      
-          newFiles.forEach((file) => {
-            const dt = new DataTransfer()
-            Array.from(currentFiles.files).forEach((f) => dt.items.add(f))
-            dt.items.add(file)
-            currentFiles = dt
-          })
-      
-          updatePreviews()
-          this.value = ''
-        }
-      
-        previewContainer.onclick = function (e) {
-          const button = e.target.closest('.btn-action')
-          if (!button) return
-      
-          const index = parseInt(button.dataset.index)
-          const dt = new DataTransfer()
-      
-          if (button.classList.contains('remove-image')) {
-            Array.from(currentFiles.files).forEach((file, i) => {
-              if (i !== index) dt.items.add(file)
-            })
-          } else if (button.classList.contains('make-primary')) {
-            const files = Array.from(currentFiles.files)
-            const movedFile = files.splice(index, 1)[0]
-            files.unshift(movedFile)
-            files.forEach((file) => dt.items.add(file))
-          }
-      
-          currentFiles = dt
-          updatePreviews()
-        }
-
-        const imageUrlInput = document.querySelector('#image_url');
-        const addUrlBtn = document.querySelector('.btn-add-url');
-
-        addUrlBtn.onclick = function() {
-            const url = imageUrlInput.value.trim();
-            if (!url) return;
-
-            if (currentFiles.files.length >= maxFiles) {
-                alert(`Maximum ${maxFiles} images allowed`);
-                return;
-            }
-
-            // Create a temporary image to validate the URL
-            const img = new Image();
-            img.onload = function() {
-                fetch(url)
-                    .then(res => res.blob())
-                    .then(blob => {
-                        const file = new File([blob], 'image-' + Date.now() + '.jpg', { type: 'image/jpeg' });
-                        const dt = new DataTransfer();
-                        Array.from(currentFiles.files).forEach(f => dt.items.add(f));
-                        dt.items.add(file);
-                        currentFiles = dt;
-                        updatePreviews();
-                        imageUrlInput.value = '';
-                    })
-                    .catch(() => alert('Failed to load image from URL'));
-            };
-            img.onerror = function() {
-                alert('Invalid image URL');
-            };
-            img.src = url;
-        };
-
-        const isPaidEvent = document.getElementById('is_paid_event');
-        const ticketSettings = document.getElementById('ticketSettings');
-        const addTicketTypeBtn = document.getElementById('addTicketType');
-        const ticketTypesList = document.getElementById('ticketTypesList');
-        
-        // Toggle ticket settings visibility
-        isPaidEvent.addEventListener('change', function() {
-            ticketSettings.style.display = this.checked ? 'block' : 'none';
-        });
-        
-        // Initialize visibility based on initial value
-        ticketSettings.style.display = isPaidEvent.checked ? 'block' : 'none';
-        
-        // Handle adding new ticket types
-        addTicketTypeBtn.addEventListener('click', function() {
-            const ticketTypes = ticketTypesList.children;
-            if (ticketTypes.length >= 5) {
-                alert('Maximum 5 ticket types allowed');
-                return;
-            }
-            
-            const newTicket = ticketTypes[0].cloneNode(true);
-            const index = ticketTypes.length;
-            
-            // Update the heading with counter
-            const headerTitle = newTicket.querySelector('h4');
-            headerTitle.innerHTML = `Ticket Type <span class="ticket-counter">${index + 1}</span>`;
-            
-            // Clear input values
-            newTicket.querySelectorAll('input, select, textarea').forEach(input => {
-                input.value = '';
-                input.name = input.name.replace('[0]', `[${index}]`);
-            });
-            
-            // Add remove button if not present
-            if (!newTicket.querySelector('.remove-ticket')) {
-                const header = newTicket.querySelector('.ticket-type-header');
-                const removeBtn = document.createElement('button');
-                removeBtn.className = 'remove-ticket';
-                removeBtn.title = 'Remove ticket type';
-                removeBtn.innerHTML = '<span class="material-icons">delete</span>Remove';
-                header.appendChild(removeBtn);
-            }
-            
-            // Initialize the new ticket type select
-            const newSelect = newTicket.querySelector('.ticket-type-select');
-            newSelect.addEventListener('change', function() {
-                handleTicketTypeChange(this);
-            });
-            
-            ticketTypesList.appendChild(newTicket);
-        });
-        
-        // Handle removing ticket types
-        ticketTypesList.addEventListener('click', function(e) {
-            if (e.target.closest('.remove-ticket')) {
-                const ticketItem = e.target.closest('.ticket-type-item');
-                ticketItem.remove();
-                
-                // Update remaining ticket type numbers
-                ticketTypesList.querySelectorAll('.ticket-type-item').forEach((item, index) => {
-                    const counter = item.querySelector('.ticket-counter');
-                    counter.textContent = index + 1;
-                });
-            }
-        });
-
-        function handleTicketTypeChange(select) {
-            const ticketItem = select.closest('.ticket-type-item');
-            const customTypeField = ticketItem.querySelector('.custom-type-field');
-            const customTypeInput = customTypeField.querySelector('input');
-            const descriptionField = ticketItem.querySelector('textarea');
-            const descriptionWrapper = ticketItem.querySelector('.description-wrapper');
-            
-            if (select.value === 'custom') {
-                customTypeField.style.display = 'block';
-                customTypeInput.required = true;
-                descriptionField.value = '';
-                descriptionField.removeAttribute('readonly');
-                descriptionWrapper.querySelector('.help-text').textContent = 
-                    'Describe what this custom ticket type includes';
-            } else {
-                customTypeField.style.display = 'none';
-                customTypeInput.required = false;
-                customTypeInput.value = '';
-                
-                // Set default descriptions but allow editing
-                const defaultDescriptions = {
-                    'early-bird': 'Limited time offer with special pricing for early buyers. Add specific early bird benefits here.',
-                    'regular': 'Standard admission ticket with access to main event areas. Specify any basic amenities included.',
-                    'vip': 'Premium experience with exclusive access and special perks. Detail the VIP benefits here.',
-                    'vvip': 'Ultimate VIP experience with all-access privileges and premium services. List all exclusive perks.',
-                    'student': 'Discounted ticket for students with valid ID. Specify any student-specific benefits or restrictions.',
-                    'group': 'Special rate for groups of 5 or more attendees. Add group booking benefits and requirements.'
-                };
-                
-                descriptionField.value = defaultDescriptions[select.value] || '';
-                descriptionField.removeAttribute('readonly');
-                descriptionWrapper.querySelector('.help-text').textContent = 
-                    'Customize the description for this ticket type';
-            }
-        }
-
-        document.querySelectorAll('.ticket-type-select').forEach(select => {
-            select.addEventListener('change', function() {
-                handleTicketTypeChange(this);
-            });
-        });
-
-        // Add this to format price inputs
-        document.querySelectorAll('input[type="number"][step="0.01"]').forEach(input => {
-            input.addEventListener('change', function() {
-                // Format to 2 decimal places
-                if (this.value) {
-                    this.value = parseFloat(this.value).toFixed(2);
-                }
-            });
-        });
-      })
-    </script>
+    <script src="{{ url_for('static', filename='js/create_event.js') }}"></script>
   {% endblock %}
 {% endblock %}

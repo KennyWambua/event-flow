@@ -68,14 +68,19 @@ class Event(db.Model):
     title = db.Column(db.String(100), nullable=False)
     date = db.Column(db.DateTime, nullable=False)
     location = db.Column(db.String(200), nullable=False)
-    description = db.Column(db.Text)
-    category = db.Column(db.String(50))
+    description = db.Column(db.Text, nullable=False)
+    category = db.Column(db.String(50), nullable=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    images = db.relationship('EventImage', backref='event', lazy=True)
+    
+    # Event pricing and tickets
     is_paid_event = db.Column(db.Boolean, default=False)
-    currency = db.Column(db.String(3))
+    currency = db.Column(db.String(3), default='KES')
+    
+    # Relationships
+    images = db.relationship('EventImage', backref='event', lazy=True, cascade='all, delete-orphan')
     ticket_types = db.relationship('TicketType', backref='event', lazy=True, cascade='all, delete-orphan')
+    organizer = db.relationship('User', backref='events')
 
     def __repr__(self):
         return f"<Event('{self.title}', '{self.date}', '{self.location}'), '{self.description}', '{self.category}', '{self.images}')>"
