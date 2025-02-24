@@ -22,20 +22,20 @@ class LoginForm(FlaskForm):
 class SignupForm(FlaskForm):
     email = StringField('Email', validators=[
         DataRequired(),
-        Email()
+        Email(message="Please enter a valid email address")
     ])
     confirm_email = StringField('Confirm Email', validators=[
         DataRequired(),
-        Email(),
+        Email(message="Please enter a valid email address"),
         EqualTo('email', message='Emails must match')
     ])
     first_name = StringField('First Name', validators=[
         DataRequired(),
-        Length(min=2, max=50)
+        Length(min=2, max=50, message="First name must be between 2 and 50 characters")
     ])
     last_name = StringField('Last Name', validators=[
         DataRequired(),
-        Length(min=2, max=50)
+        Length(min=2, max=50, message="Last name must be between 2 and 50 characters")
     ])
     password = PasswordField('Password', validators=[
         DataRequired(),
@@ -46,10 +46,14 @@ class SignupForm(FlaskForm):
     ])
     submit = SubmitField('Sign Up')
 
-    def validate_email(self, email):
-        user = User.query.filter_by(email=email.data).first()
+    def validate_email(self, field):
+        print(f"Validating email: {field.data}")
+        # Check if email already exists
+        user = User.query.filter_by(email=field.data.lower()).first()
         if user:
-            raise ValidationError('Email already registered. Please use a different one.')
+            print(f"Found existing user with email: {field.data}")
+            raise ValidationError('An account with this email already exists. Please use a different email or log.')
+        print("Email validation passed")
 
 class BaseForm(FlaskForm):
     class Meta:
@@ -102,26 +106,23 @@ class EventForm(FlaskForm):
         ('sports', 'Sports'),
         ('other', 'Other')
     ], validators=[DataRequired(message="Please select an event category")])
-    
-    date = StringField('Event Date', validators=[DataRequired()])
+    date = DateTimeField('Date and Time', format='%Y-%m-%dT%H:%M', validators=[DataRequired()])
     location = StringField('Location', validators=[DataRequired()])
     description = TextAreaField('Description', validators=[DataRequired()])
     
     event_type = RadioField('Event Type',
         choices=[('free', 'Free Event'), ('paid', 'Paid Event')],
-        default='free'
+        default='free',
+        validators=[DataRequired()]
     )
     
-    currency = SelectField('Currency',
+    currency = SelectField('Currency', 
         choices=[
             ('', 'Select Currency'),
             ('KES', 'KES - Kenyan Shilling'),
             ('USD', 'USD - US Dollar'),
             ('EUR', 'EUR - Euro'),
-            ('GBP', 'GBP - British Pound'),
-            ('UGX', 'UGX - Ugandan Shilling'),
-            ('TZS', 'TZS - Tanzanian Shilling'),
-            ('RWF', 'RWF - Rwandan Franc')
+            ('GBP', 'GBP - British Pound')
         ],
         validators=[Optional()]
     )
@@ -168,23 +169,21 @@ class EventForm(FlaskForm):
 
     def validate(self):
         print("Starting form validation...")
-        
-        # Check for files first
-        if not request.files.getlist('images'):
-            print("No images found in request")
-            self.errors['images'] = ['At least one image is required']
+        if not super().validate():
             return False
 
+        # For free events, currency and ticket types are not required
+        if self.event_type.data == 'free':
+            self.currency.data = None  # Clear currency for free events
+            return True
+
+        # For paid events, validate currency and ticket types
         if self.event_type.data == 'paid':
-            print("Validating paid event...")
-            
-            # Validate currency
             if not self.currency.data:
-                print("Currency validation failed")
-                self.errors['currency'] = ['Currency is required for paid events']
+                self.currency.errors = ['Currency is required for paid events']
                 return False
 
-            # Get ticket types from form data
+            # Validate ticket types
             ticket_types_data = []
             i = 0
             while True:
@@ -202,11 +201,8 @@ class EventForm(FlaskForm):
                 })
                 i += 1
 
-            print(f"Found {len(ticket_types_data)} ticket types")
-            
             if not ticket_types_data:
-                print("No ticket types found")
-                self.errors['ticket_types'] = ['At least one ticket type is required']
+                self.errors['ticket_types'] = ['At least one ticket type is required for paid events']
                 return False
 
             # Validate each ticket type

@@ -186,19 +186,31 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	// Event type change handler
 	eventTypeRadios.forEach(radio => {
-		radio.addEventListener('change', function () {
+		radio.addEventListener('change', function() {
 			console.log('Event type changed:', this.value);
+			const ticketSettings = document.getElementById('ticketSettings');
+			const currencySelect = document.querySelector('select[name="currency"]');
+			
 			if (this.value === 'paid') {
 				enableTicketValidation();
 				ticketSettings.style.display = 'block';
+				currencySelect.disabled = false;
+				currencySelect.required = true;
 				// Add first ticket type if none exists
 				if (!document.querySelector('.ticket-type-item')) {
-					console.log('Adding initial ticket type');
 					addTicketType();
 				}
 			} else {
 				disableTicketValidation();
 				ticketSettings.style.display = 'none';
+				currencySelect.disabled = true;
+				currencySelect.required = false;
+				currencySelect.value = ''; // Clear currency selection
+				// Clear ticket types
+				const ticketsList = document.getElementById('ticketTypesList');
+				if (ticketsList) {
+					ticketsList.innerHTML = '';
+				}
 			}
 		});
 	});
@@ -318,18 +330,34 @@ document.addEventListener('DOMContentLoaded', function () {
 		updatePreviews();
 	}
 
-	// Update form submission handler
-	eventForm.addEventListener('submit', async function (e) {
+	// Form submission handler
+	eventForm.addEventListener('submit', async function(e) {
 		e.preventDefault();
 		console.log('Submitting form...');
 
-		const formData = new FormData();
+		const formData = new FormData(this);
+		const eventType = formData.get('event_type');
 
-		// Add all form fields except files
-		const formFields = new FormData(this);
-		for (let [key, value] of formFields.entries()) {
-			if (key !== 'images') {
-				formData.append(key, value);
+		// Handle free vs paid event validation
+		if (eventType === 'paid') {
+			const currency = formData.get('currency');
+			if (!currency) {
+				alert('Please select a currency for paid events');
+				return;
+			}
+
+			const ticketTypes = document.querySelectorAll('.ticket-type-item');
+			if (ticketTypes.length === 0) {
+				alert('Please add at least one ticket type for paid events');
+				return;
+			}
+		} else {
+			// Remove currency and ticket data for free events
+			formData.delete('currency');
+			for (let pair of formData.entries()) {
+				if (pair[0].startsWith('ticket_types-')) {
+					formData.delete(pair[0]);
+				}
 			}
 		}
 
@@ -375,16 +403,6 @@ document.addEventListener('DOMContentLoaded', function () {
 			alert('Error creating event. Please try again.');
 		}
 	});
-
-	// Initialize form state based on current event type
-	const currentEventType = document.querySelector('input[name="event_type"]:checked');
-	if (currentEventType && currentEventType.value === 'paid') {
-		enableTicketValidation();
-		ticketSettings.style.display = 'block';
-		if (!document.querySelector('.ticket-type-item')) {
-			addTicketType();
-		}
-	}
 
 	// Update the ticket type change handler
 	document.addEventListener('change', function (e) {

@@ -60,14 +60,14 @@ def createEvent():
                 db.session.begin_nested()
                 
                 try:
-                    # Convert date string to datetime object
-                    event_date = datetime.strptime(form.date.data, '%Y-%m-%dT%H:%M')
-                    print(f"Parsed date: {event_date}")
+                    # Use the datetime object directly from the form
+                    event_date = form.date.data
+                    print(f"Event date: {event_date}")
 
-                    # Create new event with converted date
+                    # Create new event
                     new_event = Event(
                         title=form.title.data,
-                        date=event_date,  # Use the converted datetime object
+                        date=event_date,  # Use the datetime object directly
                         location=form.location.data,
                         description=form.description.data,
                         category=form.category.data,
@@ -115,7 +115,7 @@ def createEvent():
                                 custom_type=ticket_data.get('custom_type'),
                                 quantity=int(ticket_data['quantity']),
                                 price=float(ticket_data['price']),
-                                description=ticket_data.get('description')
+                                description=ticket_data.get('description', '')
                             )
                             new_event.ticket_types.append(ticket)
                             print(f"Added ticket type: {ticket_data['ticket_type']}")
@@ -123,7 +123,7 @@ def createEvent():
                     db.session.add(new_event)
                     db.session.commit()
                     print("Event created successfully")
-
+                    
                     return make_response(jsonify({
                         'success': True,
                         'redirect': url_for('main.event', event_id=new_event.id)

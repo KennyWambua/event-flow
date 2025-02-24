@@ -144,7 +144,7 @@
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
       const stepOne = document.getElementById('step-one')
       const stepTwo = document.getElementById('step-two')
       const continueBtn = document.getElementById('continue-btn')
@@ -153,14 +153,14 @@
       const confirmEmail = document.querySelector('[name="confirm_email"]')
       const editEmailBtn = document.querySelector('.edit-email-btn')
       let errorDiv = null
-    
+
       function removeErrorMessage() {
         if (errorDiv && errorDiv.parentNode) {
           errorDiv.parentNode.removeChild(errorDiv)
           errorDiv = null
         }
       }
-    
+
       function showErrorMessage(message, element) {
         removeErrorMessage()
         errorDiv = document.createElement('div')
@@ -168,84 +168,85 @@
         errorDiv.textContent = message
         element.parentNode.appendChild(errorDiv)
       }
-    
+
       function isValidEmail(email) {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
       }
-    
+
       async function checkEmailAvailability(email) {
         try {
           const response = await fetch('/auth/check-email', {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              'X-CSRFToken': document.querySelector('input[name="csrf_token"]').value
             },
-            body: JSON.stringify({ email: email })
+            body: JSON.stringify({ email: email.toLowerCase() })
           })
           const data = await response.json()
           return data.available
         } catch (error) {
-          console.error('Error checking email:', error)
           return false
         }
       }
-    
+
       function switchToStepTwo(email) {
         stepOne.classList.remove('active')
         stepTwo.classList.add('active')
-        signupEmail.value = email
+        signupEmail.value = email.toLowerCase()
         confirmEmail.value = ''
         signupEmail.readOnly = true
       }
-    
+
       function switchToStepOne(email) {
         stepTwo.classList.remove('active')
         stepOne.classList.add('active')
-        initialEmail.value = email
+        initialEmail.value = email.toLowerCase()
         removeErrorMessage()
       }
-    
-      continueBtn.addEventListener('click', async function () {
+
+      continueBtn.addEventListener('click', async function() {
         const email = initialEmail.value.trim()
         removeErrorMessage()
-    
+
         if (!email) {
           showErrorMessage('Please enter your email address', initialEmail)
           return
         }
-    
+
         if (!isValidEmail(email)) {
           showErrorMessage('Please enter a valid email address', initialEmail)
           return
         }
-    
+
         // Check if email is available
         const isAvailable = await checkEmailAvailability(email)
         if (!isAvailable) {
           showErrorMessage('An account with this email already exists. Please log in instead.', initialEmail)
+          // Redirect to login page after a delay
           setTimeout(() => {
             window.location.href = "{{ url_for('auth.login') }}"
           }, 3000)
           return
         }
-    
+
         switchToStepTwo(email)
       })
-    
-      editEmailBtn.addEventListener('click', function () {
+
+      editEmailBtn.addEventListener('click', function() {
         switchToStepOne(signupEmail.value)
       })
-    
-      confirmEmail.addEventListener('input', function () {
+
+      confirmEmail.addEventListener('input', function() {
         removeErrorMessage()
-        if (confirmEmail.value !== signupEmail.value) {
-          showErrorMessage('Email address do not match. Please try again', confirmEmail)
+        if (confirmEmail.value.toLowerCase() !== signupEmail.value.toLowerCase()) {
+          showErrorMessage('Email addresses do not match. Please try again', confirmEmail)
         }
       })
-    
+
       const signupForm = document.getElementById('signupForm')
-      signupForm.addEventListener('submit', function (e) {
-        if (confirmEmail.value !== signupEmail.value) {
+      signupForm.addEventListener('submit', function(e) {
+        if (confirmEmail.value.toLowerCase() !== signupEmail.value.toLowerCase()) {
           e.preventDefault()
           showErrorMessage('Email addresses do not match. Please try again', confirmEmail)
           return

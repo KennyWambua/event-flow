@@ -14,10 +14,9 @@
 .event-form {
     max-width: 800px;
     margin: 2rem auto;
-    background: hsl(var(--card));
+    /* background: hsl(var(--card)); */
     padding: 2rem;
     border-radius: 1rem;
-    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 }
 
 .form-grid {
@@ -41,23 +40,26 @@
     color: hsl(var(--foreground));
 }
 
-.form-control {
+.form-control, .form-select {
     width: 100%;
-    padding: 0.875rem 1rem;
-    border: 2px solid hsl(var(--border));
-    border-radius: 0.5rem;
+    padding: 1rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
     background: hsl(var(--background));
     transition: all 0.2s ease;
-    -webkit-border-radius: 0.5rem;
-    -moz-border-radius: 0.5rem;
-    -ms-border-radius: 0.5rem;
-    -o-border-radius: 0.5rem;
+    -webkit-border-radius: var(--radius);
+    -moz-border-radius: var(--radius);
+    -ms-border-radius: var(--radius);
+    -o-border-radius: var(--radius);
 }
 
-.form-control:focus {
-    outline: none;
+.form-control:focus, .form-select:focus {
     border-color: hsl(var(--primary));
-    box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.25);
+}
+
+.form-control::placeholder {
+    color: hsl(var(--muted-foreground));
 }
 
 textarea.form-control {
@@ -465,11 +467,13 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 }
 
 /* Improve responsiveness */
-@media (max-width: 320px) { /* xs */
+@media (max-width: 320px) {
+
+    /* xs */
     .create-event-container {
         padding: 1rem;
     }
-    
+
     .event-form {
         padding: 1rem;
     }
@@ -484,7 +488,9 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
     }
 }
 
-@media (min-width: 321px) and (max-width: 640px) { /* sm */
+@media (min-width: 321px) and (max-width: 640px) {
+
+    /* sm */
     .create-event-container {
         padding: 1.5rem;
     }
@@ -494,25 +500,33 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
     }
 }
 
-@media (min-width: 641px) and (max-width: 768px) { /* md */
+@media (min-width: 641px) and (max-width: 768px) {
+
+    /* md */
     .image-previews {
         grid-template-columns: repeat(4, 1fr);
     }
 }
 
-@media (min-width: 769px) and (max-width: 1024px) { /* lg */
+@media (min-width: 769px) and (max-width: 1024px) {
+
+    /* lg */
     .image-previews {
         grid-template-columns: repeat(5, 1fr);
     }
 }
 
-@media (min-width: 1025px) and (max-width: 1280px) { /* xl */
+@media (min-width: 1025px) and (max-width: 1280px) {
+
+    /* xl */
     .create-event-container {
         max-width: 1024px;
     }
 }
 
-@media (min-width: 1281px) { /* 2xl */
+@media (min-width: 1281px) {
+
+    /* 2xl */
     .create-event-container {
         max-width: 1280px;
     }
@@ -591,9 +605,22 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
     }
 }
 
-.event-type-option {
+.event-type-options {
     display: flex;
+    gap: 1rem;
 }
+
+.event-type-option {
+    padding: 1rem;
+    display: flex;
+    border: 1px solid hsl(var(--accent));
+    border-radius: var(--radius);
+    -webkit-border-radius: var(--radius);
+    -moz-border-radius: var(--radius);
+    -ms-border-radius: var(--radius);
+    -o-border-radius: var(--radius);
+}
+
 /* Ticket Settings */
 .ticket-types {
     margin-top: 1.5rem;
@@ -735,7 +762,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
     .ticket-type-grid {
         grid-template-columns: 1fr;
     }
-    
+
     .ticket-type-header {
         flex-direction: row;
         align-items: center;
@@ -838,26 +865,6 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 
 .ticket-type-grid .form-group.full-width {
     grid-column: 1 / -1;
-}
-
-/* Form Control Styles */
-.form-control, .form-select {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid hsl(var(--border));
-    border-radius: var(--radius);
-    transition: border-color 0.2s, box-shadow 0.2s;
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-}
-
-.form-control:focus, .form-select:focus {
-    border-color: hsl(var(--ring));
-    box-shadow: 0 0 0 2px hsl(var(--ring) / 0.25);
-}
-
-.form-control::placeholder {
-    color: hsl(var(--muted-foreground));
 }
 
 /* Help text and labels */

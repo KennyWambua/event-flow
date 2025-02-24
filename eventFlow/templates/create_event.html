@@ -90,129 +90,129 @@
             {% endfor %}
           {% endif %}
         </div>
+      </div>
 
-        <div class="form-section">
-          <h2 class="form-section-title">Event Type</h2>
-          <p class="section-description">Set up your event's ticket types and pricing</p>
+      <div class="form-section">
+        <h2 class="form-section-title">Event Type</h2>
+        <p class="section-description">Set up your event's ticket types and pricing</p>
 
-          <div class="form-group">
-            <div class="event-type-options">
-              {% for option in form.event_type %}
-                <div class="event-type-option">{{ option }}
-                  {{ option.label }}</div>
-              {% endfor %}
+        <div class="form-group">
+          <div class="event-type-options">
+            {% for option in form.event_type %}
+              <div class="event-type-option">{{ option }}
+                {{ option.label }}</div>
+            {% endfor %}
+          </div>
+          {% if form.event_type.errors %}
+            {% for error in form.event_type.errors %}
+              <span class="error-message">{{ error }}</span>
+            {% endfor %}
+          {% endif %}
+        </div>
+
+        <div class="ticket-types" id="ticketSettings" style="display: none;">
+          <div class="ticket-types-header">
+            <div class="header-content">
+              <h3>Ticket Types</h3>
+              <p class="section-description">Define different ticket categories for your event</p>
             </div>
-            {% if form.event_type.errors %}
-              {% for error in form.event_type.errors %}
-                <span class="error-message">{{ error }}</span>
-              {% endfor %}
-            {% endif %}
+            <div class="currency-section">
+              <div class="header-actions">
+                <div class="currency-selection">
+                  <label for="currency" class="form-label currency-label">Currency</label>
+                  {{ form.currency(class='form-select', required=false) }}
+                  {% if form.currency.errors %}
+                    <div class="invalid-feedback">{{ form.currency.errors[0] }}</div>
+                  {% endif %}
+                </div>
+                <button type="button" class="btn-add-ticket" id="addTicketType">
+                  <span class="material-icons">add</span>
+                  Add Ticket Type
+                </button>
+              </div>
+            </div>
           </div>
 
-          <div class="ticket-types" id="ticketSettings" style="display: none;">
-            <div class="ticket-types-header">
-              <div class="header-content">
-                <h3>Ticket Types</h3>
-                <p class="section-description">Define different ticket categories for your event</p>
-              </div>
-              <div class="currency-section">
-                <div class="header-actions">
-                  <div class="currency-selection">
-                    <label for="currency" class="form-label currency-label">Currency *</label>
-                    {{ form.currency(class='form-select', required=true) }}
-                    {% if form.currency.errors %}
-                      <div class="invalid-feedback">{{ form.currency.errors[0] }}</div>
-                    {% endif %}
+          <div class="ticket-types-list" id="ticketTypesList">
+            {% for ticket in form.ticket_types %}
+              <div class="ticket-type-item">
+                <div class="ticket-type-header">
+                  <div class="header-left">
+                    <h4>Ticket Type <span class="ticket-counter">{{ loop.index }}</span></h4>
                   </div>
-                  <button type="button" class="btn-add-ticket" id="addTicketType">
-                    <span class="material-icons">add</span>
-                    Add Ticket Type
-                  </button>
+                  {% if not loop.first %}
+                    <button type="button" class="remove-ticket" title="Remove ticket type">
+                      <span class="material-icons">delete</span>
+                      Remove
+                    </button>
+                  {% endif %}
                 </div>
-              </div>
-            </div>
 
-            <div class="ticket-types-list" id="ticketTypesList">
-              {% for ticket in form.ticket_types %}
-                <div class="ticket-type-item">
-                  <div class="ticket-type-header">
-                    <div class="header-left">
-                      <h4>Ticket Type <span class="ticket-counter">{{ loop.index }}</span></h4>
-                    </div>
-                    {% if not loop.first %}
-                      <button type="button" class="remove-ticket" title="Remove ticket type">
-                        <span class="material-icons">delete</span>
-                        Remove
-                      </button>
+                <div class="ticket-type-grid">
+                  <div class="form-group">
+                    {{ ticket.form.ticket_type.label }}
+                    {{ ticket.form.ticket_type(class='form-control ticket-type-select') }}
+                    {% if ticket.form.ticket_type.errors %}
+                      {% for error in ticket.form.ticket_type.errors %}
+                        <span class="error-message">{{ error }}</span>
+                      {% endfor %}
                     {% endif %}
                   </div>
 
-                  <div class="ticket-type-grid">
-                    <div class="form-group">
-                      {{ ticket.form.ticket_type.label }}
-                      {{ ticket.form.ticket_type(class='form-control ticket-type-select') }}
-                      {% if ticket.form.ticket_type.errors %}
-                        {% for error in ticket.form.ticket_type.errors %}
-                          <span class="error-message">{{ error }}</span>
-                        {% endfor %}
-                      {% endif %}
+                  <div class="form-group custom-type-field" style="display: none;">
+                    {{ ticket.form.custom_type.label }}
+                    <div class="custom-type-wrapper">
+                      {{ ticket.form.custom_type(class='form-control', placeholder='e.g., Backstage Pass, Meet & Greet') }}
+                      <small class="help-text">Create a unique name for your ticket type</small>
                     </div>
+                    {% if ticket.form.custom_type.errors %}
+                      {% for error in ticket.form.custom_type.errors %}
+                        <span class="error-message">{{ error }}</span>
+                      {% endfor %}
+                    {% endif %}
+                  </div>
 
-                    <div class="form-group custom-type-field" style="display: none;">
-                      {{ ticket.form.custom_type.label }}
-                      <div class="custom-type-wrapper">
-                        {{ ticket.form.custom_type(class='form-control', placeholder='e.g., Backstage Pass, Meet & Greet') }}
-                        <small class="help-text">Create a unique name for your ticket type</small>
-                      </div>
-                      {% if ticket.form.custom_type.errors %}
-                        {% for error in ticket.form.custom_type.errors %}
-                          <span class="error-message">{{ error }}</span>
-                        {% endfor %}
-                      {% endif %}
+                  <div class="form-group">
+                    {{ ticket.form.quantity.label }}
+                    <div class="input-wrapper">
+                      {{ ticket.form.quantity(class='form-control', type='number', min='1') }}
+                      <small class="help-text">Total number of tickets available for sale</small>
                     </div>
+                    {% if ticket.form.quantity.errors %}
+                      {% for error in ticket.form.quantity.errors %}
+                        <span class="error-message">{{ error }}</span>
+                      {% endfor %}
+                    {% endif %}
+                  </div>
 
-                    <div class="form-group">
-                      {{ ticket.form.quantity.label }}
-                      <div class="input-wrapper">
-                        {{ ticket.form.quantity(class='form-control', type='number', min='1') }}
-                        <small class="help-text">Total number of tickets available for sale</small>
-                      </div>
-                      {% if ticket.form.quantity.errors %}
-                        {% for error in ticket.form.quantity.errors %}
-                          <span class="error-message">{{ error }}</span>
-                        {% endfor %}
-                      {% endif %}
+                  <div class="form-group">
+                    {{ ticket.form.price.label }}
+                    <div class="price-input-wrapper">
+                      <span class="currency-symbol">{{ form.currency.data }}</span>
+                      {{ ticket.form.price(class='form-control', type='number', step='0.01', min='0') }}
                     </div>
+                    {% if ticket.form.price.errors %}
+                      {% for error in ticket.form.price.errors %}
+                        <span class="error-message">{{ error }}</span>
+                      {% endfor %}
+                    {% endif %}
+                  </div>
 
-                    <div class="form-group">
-                      {{ ticket.form.price.label }}
-                      <div class="price-input-wrapper">
-                        <span class="currency-symbol">{{ form.currency.data }}</span>
-                        {{ ticket.form.price(class='form-control', type='number', step='0.01', min='0') }}
-                      </div>
-                      {% if ticket.form.price.errors %}
-                        {% for error in ticket.form.price.errors %}
-                          <span class="error-message">{{ error }}</span>
-                        {% endfor %}
-                      {% endif %}
+                  <div class="form-group full-width">
+                    {{ ticket.form.description.label }}
+                    <div class="description-wrapper">
+                      {{ ticket.form.description(class='form-control', rows='3', placeholder='Describe the benefits and features of this ticket type...') }}
+                      <small class="help-text">Specify what's included with this ticket type (e.g., seating area, perks, restrictions)</small>
                     </div>
-
-                    <div class="form-group full-width">
-                      {{ ticket.form.description.label }}
-                      <div class="description-wrapper">
-                        {{ ticket.form.description(class='form-control', rows='3', placeholder='Describe the benefits and features of this ticket type...') }}
-                        <small class="help-text">Specify what's included with this ticket type (e.g., seating area, perks, restrictions)</small>
-                      </div>
-                      {% if ticket.form.description.errors %}
-                        {% for error in ticket.form.description.errors %}
-                          <span class="error-message">{{ error }}</span>
-                        {% endfor %}
-                      {% endif %}
-                    </div>
+                    {% if ticket.form.description.errors %}
+                      {% for error in ticket.form.description.errors %}
+                        <span class="error-message">{{ error }}</span>
+                      {% endfor %}
+                    {% endif %}
                   </div>
                 </div>
-              {% endfor %}
-            </div>
+              </div>
+            {% endfor %}
           </div>
         </div>
       </div>

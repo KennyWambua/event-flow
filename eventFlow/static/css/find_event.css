@@ -44,9 +44,9 @@
 }
 
 .eventSection {
-    display: flex;
-    flex-direction: row;
-    gap: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.25rem;
     margin-top: 2rem;
 }
 
