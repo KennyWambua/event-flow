@@ -1,29 +1,85 @@
 {% extends 'base.html' %}
 {% block head %}
-    {{ super() }}
-    <link rel="stylesheet" href="/static/css/find_event.css" />
+  {{ super() }}
+  <link rel="stylesheet" href="/static/css/find_event.css" />
 {% endblock %}
 
-{% block title %}Find Events{% endblock %}
+{% block title %}
+  Find Events
+{% endblock %}
 
 {% block breadcrumb_items %}
-<li class="breadcrumb-item active">Find Events</li>
+<div class="breadcrumb-wrapper">
+    <ul class="breadcrumb-list">
+        <li class="breadcrumb-item"><a href="{{ url_for('main.home') }}">Home</a></li>
+        <li class="breadcrumb-item active">Find Events</li>
+    </ul>
+</div>
 {% endblock %}
 
 {% block content %}
-<div class="find-event-container">
+  <div class="find-event-container">
     <h1>Find Events</h1>
     <p class="subtitle">Discover events happening near you.</p>
-    <!-- Event search/filter functionality can be added here -->
-    <div class="event-list">
-        <!-- Example event card -->
-        <div class="event-card">
-            <h2>Sample Event Title</h2>
-            <p>Date: April 15, 2025</p>
-            <p>Location: Uhuru Gardens, Nairobi</p>
-            <a href="{{ url_for('main.event', event_id=1) }}" class="btn btn-primary">View Details</a>
+
+    <form class="search-bar" method="GET" action="{{ url_for('main.findEvent') }}">
+        <input type="text" name="query" placeholder="Search by event name..." class="form-control-one" value="{{ request.args.get('query', '') }}" />
+        <select name="category" class="form-control-two">
+            <option value="">All Categories</option>
+            <option value="conference" {% if request.args.get('category') == 'conference' %}selected{% endif %}>Conference</option>
+            <option value="seminar" {% if request.args.get('category') == 'seminar' %}selected{% endif %}>Seminar</option>
+            <option value="workshop" {% if request.args.get('category') == 'workshop' %}selected{% endif %}>Workshop</option>
+            <option value="concert" {% if request.args.get('category') == 'concert' %}selected{% endif %}>Concert</option>
+            <option value="exhibition" {% if request.args.get('category') == 'exhibition' %}selected{% endif %}>Exhibition</option>
+            <option value="sports" {% if request.args.get('category') == 'sports' %}selected{% endif %}>Sports</option>
+            <option value="other" {% if request.args.get('category') == 'other' %}selected{% endif %}>Other</option>
+        </select>
+        <div class="location-input">
+            <span class="material-icons">location_on</span>
+            <input type="text" name="location" placeholder="Nairobi" class="form-control" value="{{ request.args.get('location', '') }}" />
         </div>
-        <!-- More event cards can be added dynamically -->
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+
+    <div class="eventSection">
+      {% for event in events.items %}
+        <div class="eventCard">
+          <a href="{{ url_for('main.event', event_id=event.id) }}">
+            <div class="eventImage">
+              <img src="{{ event.get_primary_image_url() }}" alt="{{ event.title }}" />
+            </div>
+          </a>
+          <div class="eventDetails">
+            <span class="eventDate">{{ event.date }}</span>
+            <h3>{{ event.title }}</h3>
+            <p>{{ event.location }}</p>
+            <a href="{{ url_for('main.event', event_id=event.id) }}" class="btn btn-primary">Get ticket</a>
+          </div>
+        </div>
+      {% endfor %}
     </div>
-</div>
-{% endblock %} 
+
+    {% if events.pages > 1 %}
+    <div class="pagination">
+        {% if events.has_prev %}
+            <a href="{{ url_for('main.findEvent', page=events.prev_num, **request.args) }}" class="pagination-button">Previous</a>
+        {% endif %}
+        
+        {% for page in events.iter_pages() %}
+            {% if page %}
+                <a href="{{ url_for('main.findEvent', page=page, **request.args) }}" 
+                   class="pagination-button {% if page == events.page %}active{% endif %}">
+                    {{ page }}
+                </a>
+            {% else %}
+                <span class="pagination-button">...</span>
+            {% endif %}
+        {% endfor %}
+
+        {% if events.has_next %}
+            <a href="{{ url_for('main.findEvent', page=events.next_num, **request.args) }}" class="pagination-button">Next</a>
+        {% endif %}
+    </div>
+    {% endif %}
+  </div>
+{% endblock %}

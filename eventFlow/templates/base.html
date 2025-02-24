@@ -82,10 +82,7 @@
       </div>
     </header>
     <div class="breadcrumbs">
-      <ul class="breadcrumb-list">
-        <li class="breadcrumb-item"><a href="{{ url_for('main.home') }}">Home</a></li>
         {% block breadcrumb_items %}{% endblock %}
-      </ul>
     </div>
     <div class="flash-container">
       {% with messages=get_flashed_messages(with_categories=true) %}

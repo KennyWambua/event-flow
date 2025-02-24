@@ -1,0 +1,27 @@
+.help-center-container {
+    padding: 2rem;
+}
+
+.subtitle {
+    font-size: 1.125rem;
+    color: hsl(var(--muted-foreground));
+    margin-bottom: 1.5rem;
+}
+
+.faq-section {
+    margin-top: 1.5rem;
+}
+
+.faq-section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.faq-section ul {
+    list-style: none;
+    padding: 0;
+}
+
+.faq-section li {
+    margin-bottom: 0.5rem;
+} 
