@@ -11,7 +11,6 @@ document.addEventListener('DOMContentLoaded', function () {
 	const eventForm = document.getElementById('eventForm');
 	const imageInput = document.querySelector('.form-control-file');
 	const addImageBtn = document.querySelector('.btn-add-image');
-	const ticketSettings = document.getElementById('ticketSettings');
 	const eventTypeRadios = document.querySelectorAll('input[name="event_type"]');
 	const addTicketTypeBtn = document.getElementById('addTicketType');
 	const ticketTypesList = document.getElementById('ticketTypesList');
@@ -48,11 +47,13 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 
 	function addTicketType() {
+
 		const ticketHtml = `
 			<div class="ticket-type-item">
 				<div class="ticket-type-header">
-					<h4>Ticket Type ${ticketTypeCounter + 1}</h4>
-					${ticketTypeCounter > 0 ? '<button type="button" class="remove-ticket">Remove</button>' : ''}
+					<h4 class="ticket-type-label">Ticket Type ${ticketTypeCounter + 1}</h4>
+					${ticketTypeCounter > 0 ?
+				'<button type="button" class="remove-ticket"><span class="material-icons">delete</span> Remove</button>' : ''}
 				</div>
 				<div class="ticket-type-grid">
 					<div class="form-group">
@@ -132,6 +133,15 @@ document.addEventListener('DOMContentLoaded', function () {
 		if (removeBtn) {
 			removeBtn.addEventListener('click', function () {
 				newTicket.remove();
+				ticketTypeCounter--;
+				// Renumber remaining tickets
+				const ticketTypeItem = document.querySelectorAll('.ticket-type-item');
+				ticketTypeItem.forEach((container, index) => {
+					const ticketLabel = container.querySelector('.ticket-type-label');
+					if (ticketLabel) {
+						ticketLabel.textContent = `Ticket Type ${index + 1}`;
+					}
+				});
 			});
 		}
 
@@ -186,17 +196,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	// Event type change handler
 	eventTypeRadios.forEach(radio => {
-		radio.addEventListener('change', function() {
+		radio.addEventListener('change', function () {
 			console.log('Event type changed:', this.value);
 			const ticketSettings = document.getElementById('ticketSettings');
 			const currencySelect = document.querySelector('select[name="currency"]');
-			
+
 			if (this.value === 'paid') {
 				enableTicketValidation();
 				ticketSettings.style.display = 'block';
 				currencySelect.disabled = false;
 				currencySelect.required = true;
-				// Add first ticket type if none exists
 				if (!document.querySelector('.ticket-type-item')) {
 					addTicketType();
 				}
@@ -205,8 +214,8 @@ document.addEventListener('DOMContentLoaded', function () {
 				ticketSettings.style.display = 'none';
 				currencySelect.disabled = true;
 				currencySelect.required = false;
-				currencySelect.value = ''; // Clear currency selection
-				// Clear ticket types
+				currencySelect.value = '';
+				ticketTypeCounter = 0;
 				const ticketsList = document.getElementById('ticketTypesList');
 				if (ticketsList) {
 					ticketsList.innerHTML = '';
@@ -222,22 +231,6 @@ document.addEventListener('DOMContentLoaded', function () {
 			addTicketType();
 		});
 	}
-
-	// Remove ticket type handler
-	ticketTypesList?.addEventListener('click', function (e) {
-		if (e.target.classList.contains('remove-ticket')) {
-			const ticketType = e.target.closest('.ticket-type');
-			if (ticketTypesList.children.length > 1) {
-				ticketType.remove();
-
-				// Disable remove button if only one ticket type left
-				if (ticketTypesList.children.length === 1) {
-					const removeButton = ticketTypesList.querySelector('.remove-ticket');
-					if (removeButton) removeButton.disabled = true;
-				}
-			}
-		}
-	});
 
 	// Track selected files
 	let currentFiles = new DataTransfer();
@@ -261,7 +254,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 			// Check file size (5MB)
 			if (file.size > 5 * 1024 * 1024) {
-				alert('File size must be less than 5MB');
+				alert('Images should be less than 5MB');
 				return;
 			}
 
@@ -331,7 +324,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	}
 
 	// Form submission handler
-	eventForm.addEventListener('submit', async function(e) {
+	eventForm.addEventListener('submit', async function (e) {
 		e.preventDefault();
 		console.log('Submitting form...');
 
@@ -418,4 +411,82 @@ document.addEventListener('DOMContentLoaded', function () {
 
 	// Initialize currency symbols on page load
 	updateCurrencySymbols();
+
+	// Event type selection handler
+	document.querySelectorAll('.event-type-option').forEach(option => {
+		const radio = option.querySelector('input[type="radio"]');
+
+		option.addEventListener('click', () => {
+			document.querySelectorAll('.event-type-option').forEach(opt => {
+				opt.classList.remove('selected');
+			});
+			option.classList.add('selected');
+			radio.checked = true;
+			radio.dispatchEvent(new Event('change'));
+		});
+	});
+
+	// Update the image URL handling
+	const imageUrlInput = document.getElementById('image_url');
+	const addUrlBtn = document.querySelector('.btn-add-url');
+
+	async function handleImageUrl(url) {
+		try {
+			// Create a temporary image to verify the URL
+			await new Promise((resolve, reject) => {
+				const img = new Image();
+				img.onload = resolve;
+				img.onerror = reject;
+				img.src = url;
+			});
+
+			// Fetch the image and create a File object
+			const response = await fetch(url);
+			const blob = await response.blob();
+			const fileName = url.split('/').pop() || 'url-image.jpg';
+			const file = new File([blob], fileName, { type: blob.type });
+
+			// Add to currentFiles
+			const dt = new DataTransfer();
+			Array.from(currentFiles.files).forEach(f => dt.items.add(f));
+			dt.items.add(file);
+			currentFiles = dt;
+
+			// Update previews
+			updatePreviews();
+			imageUrlInput.value = '';
+
+		} catch (error) {
+			console.error('Error handling image URL:', error);
+			alert('Please enter a valid image URL');
+		}
+	}
+
+	addUrlBtn.addEventListener('click', () => {
+		const url = imageUrlInput.value.trim();
+		if (url) {
+			handleImageUrl(url);
+		}
+	});
+
+	imageUrlInput.addEventListener('keypress', (e) => {
+		if (e.key === 'Enter') {
+			e.preventDefault();
+			const url = e.target.value.trim();
+			if (url) {
+				handleImageUrl(url);
+			}
+		}
+	});
+
+	// Initialize the event type selection on page load
+	window.addEventListener('DOMContentLoaded', () => {
+		const defaultEventType = document.querySelector('input[name="event_type"][value="free"]');
+		if (defaultEventType) {
+			const option = defaultEventType.closest('.event-type-option');
+			option.classList.add('selected');
+			defaultEventType.checked = true;
+			defaultEventType.dispatchEvent(new Event('change'));
+		}
+	});
 });

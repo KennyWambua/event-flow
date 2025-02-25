@@ -262,10 +262,11 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 }
 
 .image-previews {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
     gap: 1rem;
     margin-top: 1rem;
+    overflow-x: auto;
 }
 
 .image-preview-wrapper {
@@ -275,7 +276,6 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
     margin: 0.5rem;
     border-radius: 0.5rem;
     overflow: hidden;
-    display: inline-block;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
@@ -570,6 +570,13 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
     gap: 0.5rem;
     padding: 0.625rem 1.25rem;
     white-space: nowrap;
+    cursor: pointer;
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    -webkit-border-radius: var(--radius);
+    -moz-border-radius: var(--radius);
+    -ms-border-radius: var(--radius);
+    -o-border-radius: var(--radius);
 }
 
 /* Update tooltips for better mobile experience */
@@ -606,19 +613,63 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 }
 
 .event-type-options {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .event-type-option {
-    padding: 1rem;
-    display: flex;
-    border: 1px solid hsl(var(--accent));
+    position: relative;
+    padding: 1.5rem;
+    border: 2px solid hsl(var(--border));
     border-radius: var(--radius);
-    -webkit-border-radius: var(--radius);
-    -moz-border-radius: var(--radius);
-    -ms-border-radius: var(--radius);
-    -o-border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.event-type-option.selected {
+    border-color: hsl(var(--primary));
+    background: hsl(var(--primary) / 0.1);
+}
+
+.event-type-option:hover:not(.selected) {
+    border-color: hsl(var(--primary));
+    background: hsl(var(--primary) / 0.05);
+}
+
+.event-type-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: hsl(var(--secondary));
+    color: hsl(var(--secondary-foreground));
+    transition: all 0.2s ease;
+}
+
+.event-type-option.selected .event-type-icon {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+}
+
+.event-type-content {
+    flex: 1;
+}
+
+.event-type-title {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.event-type-description {
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
 }
 
 /* Ticket Settings */
