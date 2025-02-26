@@ -61,23 +61,50 @@
 
     {% if events.pages > 1 %}
     <div class="pagination">
+        {# Previous button #}
         {% if events.has_prev %}
-            <a href="{{ url_for('main.findEvent', page=events.prev_num, **request.args) }}" class="pagination-button">Previous</a>
+            <a href="{{ url_for('main.findEvent', page=events.prev_num, query=request.args.get('query', ''), category=request.args.get('category', ''), location=request.args.get('location', '')) }}" 
+               class="pagination-button">Previous</a>
+        {% else %}
+            <span class="pagination-button disabled">Previous</span>
         {% endif %}
         
-        {% for page in events.iter_pages() %}
-            {% if page %}
-                <a href="{{ url_for('main.findEvent', page=page, **request.args) }}" 
-                   class="pagination-button {% if page == events.page %}active{% endif %}">
-                    {{ page }}
-                </a>
-            {% else %}
+        {# Page numbers #}
+        {% set window_size = 2 %}
+        {% set window_start = [events.page - window_size, 1]|max %}
+        {% set window_end = [events.page + window_size, events.pages]|min %}
+
+        {% if window_start > 1 %}
+            <a href="{{ url_for('main.findEvent', page=1, query=request.args.get('query', ''), category=request.args.get('category', ''), location=request.args.get('location', '')) }}" 
+               class="pagination-button">1</a>
+            {% if window_start > 2 %}
                 <span class="pagination-button">...</span>
+            {% endif %}
+        {% endif %}
+
+        {% for page_num in range(window_start, window_end + 1) %}
+            {% if page_num == events.page %}
+                <span class="pagination-button active">{{ page_num }}</span>
+            {% else %}
+                <a href="{{ url_for('main.findEvent', page=page_num, query=request.args.get('query', ''), category=request.args.get('category', ''), location=request.args.get('location', '')) }}" 
+                   class="pagination-button">{{ page_num }}</a>
             {% endif %}
         {% endfor %}
 
+        {% if window_end < events.pages %}
+            {% if window_end < events.pages - 1 %}
+                <span class="pagination-button">...</span>
+            {% endif %}
+            <a href="{{ url_for('main.findEvent', page=events.pages, query=request.args.get('query', ''), category=request.args.get('category', ''), location=request.args.get('location', '')) }}" 
+               class="pagination-button">{{ events.pages }}</a>
+        {% endif %}
+
+        {# Next button #}
         {% if events.has_next %}
-            <a href="{{ url_for('main.findEvent', page=events.next_num, **request.args) }}" class="pagination-button">Next</a>
+            <a href="{{ url_for('main.findEvent', page=events.next_num, query=request.args.get('query', ''), category=request.args.get('category', ''), location=request.args.get('location', '')) }}" 
+               class="pagination-button">Next</a>
+        {% else %}
+            <span class="pagination-button disabled">Next</span>
         {% endif %}
     </div>
     {% endif %}

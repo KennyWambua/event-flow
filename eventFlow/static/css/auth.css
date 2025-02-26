@@ -19,6 +19,7 @@
 .auth-card:hover {
   border: 1px solid hsl(var(--border));
 }
+
 .auth-card h1 {
   font-size: 2.25rem;
   font-weight: 600;
@@ -106,6 +107,7 @@
   gap: 0.25rem;
   margin-bottom: 0;
 }
+
 .login-input-group {
   position: relative;
 }
@@ -119,7 +121,6 @@
   pointer-events: none;
   transition: all 0.2s ease;
 }
-
 
 .form-group label {
   font-weight: 500;
@@ -141,9 +142,10 @@
   box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
 }
 
-.form-group:focus > .form-group label {
+.form-group:focus>.form-group label {
   color: hsl(var(--primary));
 }
+
 .remember-me, .terms {
   display: flex;
   align-items: center;
@@ -170,6 +172,7 @@
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -178,7 +181,7 @@
 
 .auth-footer {
   margin-top: 2rem;
-  text-align: center;
+  text-align: left;
   font-size: 0.875rem;
 }
 
@@ -420,6 +423,7 @@
 /* Update button text */
 #continue-btn {
   font-weight: 500;
+  margin-top: 2rem;
   height: 2.75rem;
   display: flex;
   align-items: center;
@@ -427,7 +431,7 @@
 }
 
 /* Hide Get Started heading in step two */
-.signup-step:not(#step-one) .auth-card > h1,
+.signup-step:not(#step-one) .auth-card>h1,
 .signup-step:not(#step-one) .auth-subtitle {
   display: none;
 }

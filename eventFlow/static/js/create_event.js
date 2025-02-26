@@ -427,24 +427,44 @@ document.addEventListener('DOMContentLoaded', function () {
 	});
 
 	// Update the image URL handling
-	const imageUrlInput = document.getElementById('image_url');
-	const addUrlBtn = document.querySelector('.btn-add-url');
+	const urlInputWrapper = document.querySelector('.url-input-wrapper');
+	const imageUrlInput = urlInputWrapper.querySelector('input[type="url"]');
+	const addUrlBtn = urlInputWrapper.querySelector('.btn-add-url');
 
 	async function handleImageUrl(url) {
 		try {
-			// Create a temporary image to verify the URL
-			await new Promise((resolve, reject) => {
-				const img = new Image();
-				img.onload = resolve;
-				img.onerror = reject;
-				img.src = url;
-			});
+			if (!url) {
+				throw new Error('Please enter a valid URL');
+			}
 
-			// Fetch the image and create a File object
-			const response = await fetch(url);
-			const blob = await response.blob();
-			const fileName = url.split('/').pop() || 'url-image.jpg';
-			const file = new File([blob], fileName, { type: blob.type });
+			// Extract actual image URL from various sources
+			let imageUrl = url;
+			
+			// Handle Google Images URLs
+			if (url.includes('google.com/imgres')) {
+				const urlParams = new URLSearchParams(url.split('?')[1]);
+				imageUrl = decodeURIComponent(urlParams.get('imgurl') || '');
+				if (!imageUrl) {
+					throw new Error('Please use the direct image URL instead of Google Images URL');
+				}
+			}
+
+			try {
+				const response = await fetch(imageUrl);
+				if (!response.ok) {
+					throw new Error('Failed to fetch image');
+				}
+				
+				const contentType = response.headers.get('content-type');
+				if (!contentType || !contentType.startsWith('image/')) {
+					throw new Error('The URL does not point to a valid image');
+				}
+
+				const imageBlob = await response.blob();
+				
+				// Create file object
+				const fileName = imageUrl.startsWith('data:') ? 'image.jpg' : imageUrl.split('/').pop() || 'image.jpg';
+				const file = new File([imageBlob], fileName, { type: imageBlob.type });
 
 			// Add to currentFiles
 			const dt = new DataTransfer();
@@ -452,32 +472,39 @@ document.addEventListener('DOMContentLoaded', function () {
 			dt.items.add(file);
 			currentFiles = dt;
 
-			// Update previews
-			updatePreviews();
-			imageUrlInput.value = '';
+				// Update previews
+				updatePreviews();
+				imageUrlInput.value = ''; // Clear the input
+
+			} catch (error) {
+				console.error('Fetch error:', error);
+				throw new Error('Unable to access the image. Please try using the direct image URL');
+			}
 
 		} catch (error) {
 			console.error('Error handling image URL:', error);
-			alert('Please enter a valid image URL');
+			alert(error.message || 'Failed to add image from URL');
 		}
 	}
 
-	addUrlBtn.addEventListener('click', () => {
-		const url = imageUrlInput.value.trim();
-		if (url) {
-			handleImageUrl(url);
-		}
-	});
-
-	imageUrlInput.addEventListener('keypress', (e) => {
-		if (e.key === 'Enter') {
-			e.preventDefault();
-			const url = e.target.value.trim();
+	if (addUrlBtn && imageUrlInput) {
+		addUrlBtn.addEventListener('click', () => {
+			const url = imageUrlInput.value.trim();
 			if (url) {
 				handleImageUrl(url);
 			}
-		}
-	});
+		});
+
+		imageUrlInput.addEventListener('keypress', (e) => {
+			if (e.key === 'Enter') {
+				e.preventDefault();
+				const url = e.target.value.trim();
+				if (url) {
+					handleImageUrl(url);
+				}
+			}
+		});
+	}
 
 	// Initialize the event type selection on page load
 	window.addEventListener('DOMContentLoaded', () => {

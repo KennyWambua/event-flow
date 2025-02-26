@@ -157,13 +157,17 @@ def createEvent():
  
 @main.route('/event/find')
 def findEvent():
+    # Get pagination and search parameters
     page = request.args.get('page', 1, type=int)
+    per_page = 9  # Number of items per page
     query = request.args.get('query', '').strip()
     category = request.args.get('category', '').strip()
     location = request.args.get('location', '').strip()
     
+    # Build the base query
     events_query = Event.query
     
+    # Apply filters
     if query:
         search_terms = [term.strip() for term in query.split()]
         search_filters = []
@@ -186,19 +190,28 @@ def findEvent():
             location_filters.append(Event.location.ilike(f'%{term}%'))
         events_query = events_query.filter(or_(*location_filters))
     
-    # Only show future events by default
+    # Only show future events
     events_query = events_query.filter(Event.date >= datetime.now(timezone.utc))
     
     # Order by date
     events_query = events_query.order_by(Event.date.asc())
     
     # Paginate results
-    events = events_query.paginate(
-        page=page, 
-        per_page=9, 
-        error_out=False
-    )
-    
+    try:
+        events = events_query.paginate(
+            page=page,
+            per_page=per_page,
+            error_out=False
+        )
+        
+        if not events.items and page > 1:
+            # If no items found and we're not on first page, redirect to page 1
+            return redirect(url_for('main.findEvent', page=1, query=query, category=category, location=location))
+            
+    except Exception as e:
+        print(f"Pagination error: {str(e)}")
+        events = events_query.paginate(page=1, per_page=per_page, error_out=False)
+
     return render_template('find_event.html', events=events, now=g.now)
 
 
