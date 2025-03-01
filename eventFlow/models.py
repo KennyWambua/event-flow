@@ -1,3 +1,4 @@
+from flask import url_for
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
@@ -14,6 +15,8 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(128), nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.now(timezone.utc))
+    # Add relationship to events
+    events = db.relationship('Event', backref='user', lazy=True)
 
     @staticmethod
     def generate_username(first_name, last_name):
@@ -80,13 +83,12 @@ class Event(db.Model):
     # Relationships
     images = db.relationship('EventImage', backref='event', lazy=True, cascade='all, delete-orphan')
     ticket_types = db.relationship('TicketType', backref='event', lazy=True, cascade='all, delete-orphan')
-    organizer = db.relationship('User', backref='events')
 
     def __repr__(self):
         return f"<Event('{self.title}', '{self.date}', '{self.location}'), '{self.description}', '{self.category}', '{self.images}')>"
 
     def get_primary_image_url(self):
-        primary_image = next((img for img in self.images if img.is_primary), None)
-        if primary_image:
-            return primary_image.get_url()
-        return self.images[0].get_url() if self.images else None
+        """Returns the URL for the primary (first) image of the event"""
+        if self.images:
+            return url_for('main.get_image', image_id=self.images[0].id)
+        return url_for('static', filename='images/audience.jpg') 

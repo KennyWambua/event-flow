@@ -1,0 +1,122 @@
+{% extends 'base.html' %}
+{% block head %}
+    {{ super() }}
+    <link rel="stylesheet" href="/static/css/create_event.css" />
+{% endblock %}
+
+{% block title %}Edit {{ event.title }} - eventFlow{% endblock %}
+
+{% block breadcrumb_items %}
+<div class="breadcrumb-wrapper">
+    <ul class="breadcrumb-list">
+        <li class="breadcrumb-item">
+            <a href="{{ url_for('main.home') }}">Home</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="{{ url_for('main.myEvents') }}">My Events</a>
+        </li>
+        <li class="breadcrumb-item active">Edit Event</li>
+    </ul>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="create-event-container">
+    <h1>Edit Event</h1>
+    <p class="subtitle">Update your event details</p>
+
+    <form method="POST" enctype="multipart/form-data" class="event-form">
+        {{ form.csrf_token }}
+        
+        <div class="form-grid">
+            <div class="form-group">
+                <label for="title">Event Title</label>
+                {{ form.title(class="form-control", value=event.title) }}
+            </div>
+
+            <div class="form-group">
+                <label for="date">Event Date & Time</label>
+                {{ form.date(class="form-control", value=event.date.strftime('%Y-%m-%dT%H:%M')) }}
+            </div>
+
+            <div class="form-group full-width">
+                <label for="location">Location</label>
+                {{ form.location(class="form-control", value=event.location) }}
+            </div>
+
+            <div class="form-group">
+                <label for="category">Category</label>
+                {{ form.category(class="form-select", value=event.category) }}
+            </div>
+
+            <div class="form-group">
+                <label for="event_type">Event Type</label>
+                {{ form.event_type(class="form-select", value='paid' if event.is_paid_event else 'free') }}
+            </div>
+
+            <div class="form-group full-width">
+                <label for="description">Event Description</label>
+                {{ form.description(class="form-control", rows=5) }}
+            </div>
+
+            <div class="form-group full-width">
+                <label for="images">Event Images</label>
+                <div class="current-images">
+                    {% for image in event.images %}
+                    <div class="image-preview">
+                        <img src="{{ url_for('main.get_image', image_id=image.id) }}" alt="Event image">
+                    </div>
+                    {% endfor %}
+                </div>
+                {{ form.images(class="form-control", multiple=true) }}
+                <p class="help-text">Upload new images to replace current ones</p>
+            </div>
+
+            {% if event.is_paid_event %}
+            <div id="ticketSection" class="form-group full-width">
+                <label>Ticket Types</label>
+                <div id="ticketTypes" class="ticket-types">
+                    {% for ticket in event.ticket_types %}
+                    <div class="ticket-type">
+                        <input type="text" name="ticket_type" value="{{ ticket.ticket_type }}" class="form-control">
+                        <input type="number" name="quantity" value="{{ ticket.quantity }}" class="form-control">
+                        <input type="number" name="price" value="{{ ticket.price }}" class="form-control">
+                        <textarea name="description" class="form-control">{{ ticket.description }}</textarea>
+                    </div>
+                    {% endfor %}
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="addTicketType()">
+                    <span class="material-icons">add</span>
+                    Add Ticket Type
+                </button>
+            </div>
+            {% endif %}
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ url_for('main.event', event_id=event.id) }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Update Event</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function addTicketType() {
+    const ticketTypes = document.getElementById('ticketTypes');
+    const newTicket = document.createElement('div');
+    newTicket.className = 'ticket-type';
+    newTicket.innerHTML = `
+        <input type="text" name="ticket_type" placeholder="Ticket Type" class="form-control">
+        <input type="number" name="quantity" placeholder="Quantity" class="form-control">
+        <input type="number" name="price" placeholder="Price" class="form-control">
+        <textarea name="description" placeholder="Description" class="form-control"></textarea>
+        <button type="button" class="btn btn-icon btn-delete" onclick="this.parentElement.remove()">
+            <span class="material-icons">delete</span>
+        </button>
+    `;
+    ticketTypes.appendChild(newTicket);
+}
+</script>
+{% endblock %} 

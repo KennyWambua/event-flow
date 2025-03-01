@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, g, request, redirect, url_for, fla
 from flask_login import login_required, current_user
 from datetime import datetime, timezone
 from sqlalchemy import or_
-from .models import Event, EventImage, db, TicketType
+from .models import Event, EventImage, db, TicketType, User
 from .forms import EventForm, TicketTypeForm
 import imghdr
 import requests
@@ -230,7 +230,14 @@ def contactOrganizer():
 
 @main.route('/event/<int:event_id>')
 def event(event_id):
-    return render_template('event.html', event_id=event_id, now=g.now)
+    # Use join to load the user relationship
+    event = Event.query.join(User).filter(Event.id == event_id).first_or_404()
+    
+    # Convert event date to timezone-aware if it isn't already
+    if event.date.tzinfo is None:
+        event.date = event.date.replace(tzinfo=timezone.utc)
+    
+    return render_template('event.html', event=event, now=g.now)
 
 @main.route('/profile')
 @login_required
@@ -241,33 +248,145 @@ def profile():
 @login_required
 def myEvents():
     page = request.args.get('page', 1, type=int)
+    
+    # Make sure we're using timezone-aware datetime for comparison
+    current_time = datetime.now(timezone.utc)
+    
     events = Event.query.filter_by(user_id=current_user.id)\
-        .order_by(Event.date.asc())\
+        .order_by(Event.date.desc())\
         .paginate(page=page, per_page=9, error_out=False)
-    return render_template('my_events.html', events=events, now=g.now)
+        
+    # Convert event dates to timezone-aware
+    for event in events.items:
+        if event.date.tzinfo is None:
+            event.date = event.date.replace(tzinfo=timezone.utc)
+    
+    return render_template('my_events.html', events=events, now=current_time)
 
 @main.route('/settings')
 @login_required
 def settings():
     return render_template('settings.html', now=g.now)
 
+@main.route('/event/<int:event_id>/edit', methods=['GET', 'POST'])
+@login_required
+def editEvent(event_id):
+    event = Event.query.get_or_404(event_id)
+    
+    # Check if user owns the event
+    if event.user_id != current_user.id:
+        flash('You do not have permission to edit this event.', 'error')
+        return redirect(url_for('main.myEvents'))
+    
+    form = EventForm(obj=event)
+    
+    if form.validate_on_submit():
+        try:
+            # Update event details
+            event.title = form.title.data
+            event.date = form.date.data
+            event.location = form.location.data
+            event.description = form.description.data
+            event.category = form.category.data
+            event.is_paid_event = (form.event_type.data == 'paid')
+            event.currency = form.currency.data if form.event_type.data == 'paid' else None
+            
+            # Handle image updates
+            if form.images.data and any(f.filename for f in form.images.data):
+                # Delete old images
+                for image in event.images:
+                    db.session.delete(image)
+                event.images = []
+                
+                # Add new images
+                for file in form.images.data:
+                    if file and file.filename:
+                        image_data = file.read()
+                        image_type = imghdr.what(None, image_data)
+                        if image_type in ['jpeg', 'png']:
+                            event_image = EventImage(
+                                image_data=image_data,
+                                image_mime_type=f'image/{image_type}'
+                            )
+                            event.images.append(event_image)
+            
+            # Handle ticket types for paid events
+            if form.event_type.data == 'paid':
+                # Delete old ticket types
+                for ticket in event.ticket_types:
+                    db.session.delete(ticket)
+                event.ticket_types = []
+                
+                # Add new ticket types
+                for ticket_data in form.ticket_types_data:
+                    ticket = TicketType(
+                        ticket_type=ticket_data['ticket_type'],
+                        custom_type=ticket_data.get('custom_type'),
+                        quantity=int(ticket_data['quantity']),
+                        price=float(ticket_data['price']),
+                        description=ticket_data.get('description', '')
+                    )
+                    event.ticket_types.append(ticket)
+            
+            db.session.commit()
+            flash('Event updated successfully!', 'success')
+            return redirect(url_for('main.event', event_id=event.id))
+            
+        except Exception as e:
+            db.session.rollback()
+            flash('Error updating event. Please try again.', 'error')
+            print(f"Error: {str(e)}")
+            
+    return render_template('edit_event.html', form=form, event=event)
+
 @main.route('/event/<int:event_id>/delete', methods=['DELETE'])
 @login_required
 def deleteEvent(event_id):
     event = Event.query.get_or_404(event_id)
+    
     if event.user_id != current_user.id:
-        return jsonify({'error': 'Unauthorized'}), 403
+        return jsonify({'error': 'Unauthorized access'}), 403
         
     try:
         # Delete associated images first
         for image in event.images:
             db.session.delete(image)
+            
+        # Delete associated tickets
+        for ticket in event.ticket_types:
+            db.session.delete(ticket)
+            
         db.session.delete(event)
         db.session.commit()
-        return jsonify({'message': 'Event deleted successfully'}), 200
+        
+        return jsonify({
+            'success': True,
+            'message': 'Event deleted successfully'
+        }), 200
+        
     except Exception as e:
         db.session.rollback()
-        print(f"Error: {str(e)}")
-        return jsonify({'error': 'Error deleting event'}), 500
+        print(f"Error deleting event: {str(e)}")
+        return jsonify({
+            'success': False,
+            'error': 'Failed to delete event'
+        }), 500
+
+@main.route('/image/<int:image_id>')
+def get_image(image_id):
+    # Get the image from database
+    image = EventImage.query.get_or_404(image_id)
+    
+    # Create response with image data and correct mime type
+    response = make_response(image.image_data)
+    response.headers.set('Content-Type', image.image_mime_type)
+    
+    # Set cache control headers
+    response.headers.set(
+        'Cache-Control', 
+        'public, max-age=31536000'  # Cache for 1 year
+    )
+    
+    return response
 
  

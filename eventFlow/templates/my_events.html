@@ -1,100 +1,225 @@
 {% extends 'base.html' %}
 {% block head %}
-    {{ super() }}
-    <link rel="stylesheet" href="/static/css/find_event.css" />
+  {{ super() }}
+  <link rel="stylesheet" href="/static/css/my_events.css" />
 {% endblock %}
 
-{% block title %}My Events{% endblock %}
+{% block title %}
+  My Events
+{% endblock %}
 
 {% block breadcrumb_items %}
-<div class="breadcrumb-wrapper">
+  <div class="breadcrumb-wrapper">
     <ul class="breadcrumb-list">
-        <li class="breadcrumb-item"><a href="{{ url_for('main.home') }}">Home</a></li>
-        <li class="breadcrumb-item active">My Events</li>
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('main.home') }}">Home</a>
+      </li>
+      <li class="breadcrumb-item active">My Events</li>
     </ul>
-</div>
+  </div>
 {% endblock %}
 
 {% block content %}
-<div class="find-event-container">
+  <div class="my-events-container">
     <div class="header-section">
+      <div class="header-content">
         <h1>My Events</h1>
-        <a href="{{ url_for('main.createEvent') }}" class="btn btn-primary">Create New Event</a>
+        <p class="subtitle">Manage and track your created events</p>
+      </div>
+      <a href="{{ url_for('main.createEvent') }}" class="btn btn-create">
+        <span class="material-icons">add</span>
+        Create New Event
+      </a>
     </div>
 
     {% if events.items %}
-        <div class="eventSection">
-            {% for event in events.items %}
-                <div class="eventCard">
-                    <a href="{{ url_for('main.event', event_id=event.id) }}">
-                        <div class="eventImage">
-                            <img src="{{ event.get_primary_image_url() }}" alt="{{ event.title }}" />
-                        </div>
-                    </a>
-                    <div class="eventDetails">
-                        <span class="eventDate">{{ event.date.strftime('%B %d, %Y at %I:%M %p') }}</span>
-                        <h3>{{ event.title }}</h3>
-                        <p>{{ event.location }}</p>
-                        <div class="event-actions">
-                            <a href="{{ url_for('main.event', event_id=event.id) }}" class="btn btn-secondary">View Details</a>
-                            <button class="btn btn-outline" onclick="deleteEvent({{ event.id }})">Delete</button>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
-        </div>
+      <div class="events-grid">
+        {% for event in events.items %}
+          <div class="event-card" data-event-id="{{ event.id }}">
+            <div class="event-image">
+              <img src="{{ event.get_primary_image_url() }}" alt="{{ event.title }}" />
+            </div>
+            <div class="event-status">
+              {% if event.date > now %}
+                <span class="status upcoming">Upcoming</span>
+              {% else %}
+                <span class="status past">Past</span>
+              {% endif %}
+            </div>
+            <div class="event-details">
+              <div class="event-info">
+                <span class="event-date">{{ event.date.strftime('%B %d, %Y at %I:%M %p') }}</span>
+                <h3>{{ event.title }}</h3>
+                <p class="event-location">
+                  <span class="material-icons">location_on</span>
+                  {{ event.location }}
+                </p>
+              </div>
+              <div class="event-actions">
+                <a href="{{ url_for('main.event', event_id=event.id) }}" class="btn btn-view">
+                  <span class="material-icons">visibility</span>
+                  View
+                </a>
+                <button class="btn btn-edit" onclick="editEvent({{ event.id }})">
+                  <span class="material-icons">edit</span>
+                  Edit
+                </button>
+                <button class="btn btn-delete" onclick="deleteEvent({{ event.id }})">
+                  <span class="material-icons">delete</span>
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
 
-        {% if events.pages > 1 %}
+      {% if events.pages > 1 %}
         <div class="pagination">
-            {% if events.has_prev %}
-                <a href="{{ url_for('main.myEvents', page=events.prev_num) }}" class="pagination-button">Previous</a>
-            {% endif %}
-            
+          {% if events.has_prev %}
+            <a href="{{ url_for('main.myEvents', page=events.prev_num) }}" class="pagination-button">
+              <span class="material-icons">chevron_left</span>
+              Previous
+            </a>
+          {% endif %}
+
+          <div class="page-numbers">
             {% for page in events.iter_pages() %}
-                {% if page %}
-                    <a href="{{ url_for('main.myEvents', page=page) }}" 
-                       class="pagination-button {% if page == events.page %}active{% endif %}">
-                        {{ page }}
-                    </a>
-                {% else %}
-                    <span class="pagination-button">...</span>
-                {% endif %}
+              {% if page %}
+                <a href="{{ url_for('main.myEvents', page=page) }}" class="page-number {% if page == events.page %}active{% endif %}">{{ page }}</a>
+              {% else %}
+                <span class="page-ellipsis">...</span>
+              {% endif %}
             {% endfor %}
+          </div>
 
-            {% if events.has_next %}
-                <a href="{{ url_for('main.myEvents', page=events.next_num) }}" class="pagination-button">Next</a>
-            {% endif %}
+          {% if events.has_next %}
+            <a href="{{ url_for('main.myEvents', page=events.next_num) }}" class="pagination-button">
+              Next
+              <span class="material-icons">chevron_right</span>
+            </a>
+          {% endif %}
         </div>
-        {% endif %}
+      {% endif %}
     {% else %}
-        <div class="no-events">
-            <p>You haven't created any events yet.</p>
-            <a href="{{ url_for('main.createEvent') }}" class="btn btn-primary">Create Your First Event</a>
-        </div>
+      <div class="no-events">
+        <span class="material-icons">event_busy</span>
+        <h2>No Events Yet</h2>
+        <p>You haven't created any events yet. Start by creating your first event!</p>
+        <a href="{{ url_for('main.createEvent') }}" class="btn btn-create">
+          <span class="material-icons">add</span>
+          Create Your First Event
+        </a>
+      </div>
     {% endif %}
-</div>
+  </div>
 
-<script>
-function deleteEvent(eventId) {
-    if (confirm('Are you sure you want to delete this event?')) {
-        fetch(`/event/${eventId}/delete`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        })
-        .then(response => {
-            if (response.ok) {
-                window.location.reload();
-            } else {
-                alert('Error deleting event');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error deleting event');
-        });
+  <div id="deleteModal" class="modal">
+    <div class="modal-content">
+      <h2>Delete Event</h2>
+      <p>Are you sure you want to delete this event? This action cannot be undone.</p>
+      <div class="modal-actions">
+        <button class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+        <button class="btn btn-delete" onclick="confirmDelete()">Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let eventToDelete = null;
+
+    function showDeleteModal(eventId) {
+      eventToDelete = eventId;
+      const modal = document.getElementById('deleteModal');
+      modal.style.display = 'flex';
+      modal.classList.add('active');
     }
-}
-</script>
-{% endblock %} 
+
+    function closeDeleteModal() {
+      eventToDelete = null;
+      const modal = document.getElementById('deleteModal');
+      modal.classList.remove('active');
+      setTimeout(() => {
+        modal.style.display = 'none';
+      }, 300);
+    }
+
+    function deleteEvent(eventId) {
+      showDeleteModal(eventId);
+    }
+
+    function editEvent(eventId) {
+      window.location.href = `/event/${eventId}/edit`;
+    }
+
+    function confirmDelete() {
+      if (!eventToDelete) return;
+      
+      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+      
+      fetch(`/event/${eventToDelete}/delete`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': csrfToken
+        }
+      })
+      .then(response => {
+        if (!response.ok) throw new Error('Failed to delete event');
+        return response.json();
+      })
+      .then(data => {
+        if (data.success) {
+          const eventCard = document.querySelector(`[data-event-id="${eventToDelete}"]`);
+          if (eventCard) {
+            eventCard.style.animation = 'fadeOut 0.3s ease';
+            setTimeout(() => {
+              eventCard.remove();
+              // Check if there are no more events
+              const remainingEvents = document.querySelectorAll('.event-card');
+              if (remainingEvents.length === 0) {
+                location.reload(); // Show the "No Events" message
+              }
+            }, 300);
+          }
+          closeDeleteModal();
+          // Show success message
+          showNotification('Event deleted successfully', 'success');
+        } else {
+          throw new Error(data.error || 'Failed to delete event');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        showNotification('Error deleting event. Please try again.', 'error');
+        closeDeleteModal();
+      });
+    }
+
+    // Add notification system
+    function showNotification(message, type = 'success') {
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.textContent = message;
+      
+      document.body.appendChild(notification);
+      
+      // Trigger animation
+      setTimeout(() => notification.classList.add('show'), 100);
+      
+      // Remove notification after 3 seconds
+      setTimeout(() => {
+        notification.classList.remove('show');
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
+    }
+
+    // Close modal when clicking outside
+    window.onclick = function(event) {
+      const modal = document.getElementById('deleteModal');
+      if (event.target === modal) {
+        closeDeleteModal();
+      }
+    }
+  </script>
+{% endblock %}
