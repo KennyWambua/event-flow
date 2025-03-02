@@ -307,4 +307,98 @@
 .btn-icon:hover {
     background: hsl(var(--accent) / 0.8);
     transform: translateY(-1px);
+}
+
+/* Add these new styles */
+.cart-items {
+    margin-bottom: 1.5rem;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid hsl(var(--border));
+}
+
+.cart-item:last-child {
+    border-bottom: none;
+}
+
+.cart-item-details h4 {
+    margin: 0;
+    font-size: 1rem;
+    color: hsl(var(--foreground));
+}
+
+.cart-item-details p {
+    margin: 0.25rem 0 0;
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+}
+
+.cart-item-subtotal {
+    font-weight: 500;
+    color: hsl(var(--foreground));
+}
+
+.cart-summary {
+    padding: 1rem;
+    background: hsl(var(--accent));
+    border-radius: var(--radius);
+    margin: 1rem 0;
+}
+
+.cart-total {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+    font-size: 1.125rem;
+}
+
+.notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius);
+    background: hsl(var(--success));
+    color: hsl(var(--success-foreground));
+    animation: slideIn 0.3s ease forwards;
+    z-index: 1000;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Update existing styles */
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.secondary-images {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 0.5rem;
+}
+
+.secondary-images img {
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.secondary-images img:hover {
+    opacity: 0.8;
 } 
