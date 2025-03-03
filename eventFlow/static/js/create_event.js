@@ -439,7 +439,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 			// Extract actual image URL from various sources
 			let imageUrl = url;
-			
+
 			// Handle Google Images URLs
 			if (url.includes('google.com/imgres')) {
 				const urlParams = new URLSearchParams(url.split('?')[1]);
@@ -454,23 +454,23 @@ document.addEventListener('DOMContentLoaded', function () {
 				if (!response.ok) {
 					throw new Error('Failed to fetch image');
 				}
-				
+
 				const contentType = response.headers.get('content-type');
 				if (!contentType || !contentType.startsWith('image/')) {
 					throw new Error('The URL does not point to a valid image');
 				}
 
 				const imageBlob = await response.blob();
-				
+
 				// Create file object
 				const fileName = imageUrl.startsWith('data:') ? 'image.jpg' : imageUrl.split('/').pop() || 'image.jpg';
 				const file = new File([imageBlob], fileName, { type: imageBlob.type });
 
-			// Add to currentFiles
-			const dt = new DataTransfer();
-			Array.from(currentFiles.files).forEach(f => dt.items.add(f));
-			dt.items.add(file);
-			currentFiles = dt;
+				// Add to currentFiles
+				const dt = new DataTransfer();
+				Array.from(currentFiles.files).forEach(f => dt.items.add(f));
+				dt.items.add(file);
+				currentFiles = dt;
 
 				// Update previews
 				updatePreviews();

@@ -278,11 +278,21 @@ def editEvent(event_id):
         flash('You do not have permission to edit this event.', 'error')
         return redirect(url_for('main.myEvents'))
     
-    form = EventForm(obj=event)
+    form = EventForm()
+    
+    if request.method == 'GET':
+        # Pre-populate form with existing event data
+        form.title.data = event.title
+        form.date.data = event.date
+        form.location.data = event.location
+        form.description.data = event.description
+        form.category.data = event.category
+        form.event_type.data = 'paid' if event.is_paid_event else 'free'
+        form.currency.data = event.currency if event.is_paid_event else None
     
     if form.validate_on_submit():
         try:
-            # Update event details
+            # Update basic event details
             event.title = form.title.data
             event.date = form.date.data
             event.location = form.location.data
@@ -291,24 +301,31 @@ def editEvent(event_id):
             event.is_paid_event = (form.event_type.data == 'paid')
             event.currency = form.currency.data if form.event_type.data == 'paid' else None
             
-            # Handle image updates
-            if form.images.data and any(f.filename for f in form.images.data):
+            # Handle image updates only if new images are uploaded
+            files = request.files.getlist('images')
+            if any(f.filename for f in files):
                 # Delete old images
                 for image in event.images:
                     db.session.delete(image)
                 event.images = []
                 
                 # Add new images
-                for file in form.images.data:
+                for file in files:
                     if file and file.filename:
-                        image_data = file.read()
-                        image_type = imghdr.what(None, image_data)
-                        if image_type in ['jpeg', 'png']:
-                            event_image = EventImage(
-                                image_data=image_data,
-                                image_mime_type=f'image/{image_type}'
-                            )
-                            event.images.append(event_image)
+                        try:
+                            image_data = file.read()
+                            image_type = imghdr.what(None, image_data)
+                            if image_type in ['jpeg', 'png']:
+                                event_image = EventImage(
+                                    image_data=image_data,
+                                    image_mime_type=f'image/{image_type}'
+                                )
+                                event.images.append(event_image)
+                            else:
+                                flash(f'Invalid image format for {file.filename}. Only JPEG and PNG are supported.', 'error')
+                        except Exception as e:
+                            flash(f'Error processing image {file.filename}', 'error')
+                            print(f"Image processing error: {str(e)}")
             
             # Handle ticket types for paid events
             if form.event_type.data == 'paid':
@@ -317,16 +334,36 @@ def editEvent(event_id):
                     db.session.delete(ticket)
                 event.ticket_types = []
                 
-                # Add new ticket types
-                for ticket_data in form.ticket_types_data:
-                    ticket = TicketType(
-                        ticket_type=ticket_data['ticket_type'],
-                        custom_type=ticket_data.get('custom_type'),
-                        quantity=int(ticket_data['quantity']),
-                        price=float(ticket_data['price']),
-                        description=ticket_data.get('description', '')
-                    )
-                    event.ticket_types.append(ticket)
+                # Add new ticket types from form data
+                for i in range(100):  # Reasonable limit for ticket types
+                    prefix = f'ticket_types-{i}-'
+                    ticket_type = request.form.get(f'{prefix}ticket_type')
+                    if not ticket_type:
+                        break
+                    
+                    try:
+                        quantity = int(request.form.get(f'{prefix}quantity', 0))
+                        price = float(request.form.get(f'{prefix}price', 0))
+                        
+                        if quantity < 1:
+                            flash(f'Quantity must be at least 1 for ticket type {ticket_type}', 'error')
+                            continue
+                            
+                        if price < 0:
+                            flash(f'Price cannot be negative for ticket type {ticket_type}', 'error')
+                            continue
+                        
+                        ticket = TicketType(
+                            ticket_type=ticket_type,
+                            custom_type=request.form.get(f'{prefix}custom_type'),
+                            quantity=quantity,
+                            price=price,
+                            description=request.form.get(f'{prefix}description', '')
+                        )
+                        event.ticket_types.append(ticket)
+                    except ValueError as e:
+                        flash(f'Invalid number format for ticket type {ticket_type}', 'error')
+                        continue
             
             db.session.commit()
             flash('Event updated successfully!', 'success')

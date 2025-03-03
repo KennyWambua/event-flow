@@ -104,11 +104,10 @@
     {% else %}
       <div class="no-events">
         <span class="material-icons">event_busy</span>
-        <h2>No Events Yet</h2>
-        <p>You haven't created any events yet. Start by creating your first event!</p>
+        <h2>No events created yet</h2>
         <a href="{{ url_for('main.createEvent') }}" class="btn btn-create">
           <span class="material-icons">add</span>
-          Create Your First Event
+          Create My First Event
         </a>
       </div>
     {% endif %}

@@ -83,7 +83,7 @@
                     </button>
                 {% else %}
                     <a href="{{ url_for('auth.login', next=request.path) }}" class="btn btn-primary">
-                        Login to Book
+                        Book Now
                     </a>
                 {% endif %}
             </div>
@@ -94,7 +94,7 @@
                     <button class="btn btn-primary btn-book">Register</button>
                 {% else %}
                     <a href="{{ url_for('auth.login', next=request.path) }}" class="btn btn-primary">
-                        Login to Register
+                        Register
                     </a>
                 {% endif %}
             </div>
@@ -153,13 +153,13 @@
                 <h2>Share Event</h2>
                 <div class="share-buttons">
                     <button class="btn btn-icon" onclick="shareEvent('facebook')">
-                        <span class="material-icons">facebook</span>
+                        <i class="fa-brands fa-facebook-f"></i>
                     </button>
                     <button class="btn btn-icon" onclick="shareEvent('twitter')">
-                        <span class="material-icons">twitter</span>
+                        <i class="fa-brands fa-x-twitter"></i>
                     </button>
                     <button class="btn btn-icon" onclick="shareEvent('whatsapp')">
-                        <span class="material-icons">whatsapp</span>
+                        <i class="fa-brands fa-whatsapp fa-xl"></i>
                     </button>
                     <button class="btn btn-icon" onclick="copyEventLink()">
                         <span class="material-icons">link</span>
