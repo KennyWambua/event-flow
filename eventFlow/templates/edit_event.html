@@ -22,8 +22,10 @@
 
 {% block content %}
 <div class="edit-event-container">
-    <h1>Edit Event</h1>
-    <p class="subtitle">Update your event details</p>
+	<div class="section-header">
+		<h1>Edit Event</h1>
+		<p class="subtitle">Update your event details</p>
+	</div>
 
     <form method="POST" enctype="multipart/form-data" class="event-form">
         {{ form.csrf_token }}

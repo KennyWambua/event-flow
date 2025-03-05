@@ -98,12 +98,12 @@ class EventForm(FlaskForm):
     title = StringField('Event Title', validators=[DataRequired(message="Please enter an event title")])
     category = SelectField('Category', choices=[
         ('', 'Select Category'),
-        ('conference', 'Conference'),
-        ('seminar', 'Seminar'),
-        ('workshop', 'Workshop'),
-        ('concert', 'Concert'),
-        ('exhibition', 'Exhibition'),
+        ('music', 'Music'),
+        ('gaming', 'Gaming'),
+        ('arts', 'Arts'),
         ('sports', 'Sports'),
+        ('education', 'Education'),
+        ('business', 'Business'),
         ('other', 'Other')
     ], validators=[DataRequired(message="Please select an event category")])
     date = DateTimeField('Date and Time', format='%Y-%m-%dT%H:%M', validators=[DataRequired()])

@@ -26,13 +26,13 @@
         <input type="text" name="query" placeholder="Search by event name..." class="form-control-one" value="{{ request.args.get('query', '') }}" />
         <select name="category" class="form-control-two">
             <option value="">All Categories</option>
-            <option value="conference" {% if request.args.get('category') == 'conference' %}selected{% endif %}>Conference</option>
-            <option value="seminar" {% if request.args.get('category') == 'seminar' %}selected{% endif %}>Seminar</option>
-            <option value="workshop" {% if request.args.get('category') == 'workshop' %}selected{% endif %}>Workshop</option>
-            <option value="concert" {% if request.args.get('category') == 'concert' %}selected{% endif %}>Concert</option>
-            <option value="exhibition" {% if request.args.get('category') == 'exhibition' %}selected{% endif %}>Exhibition</option>
+            <option value="music" {% if request.args.get('category') == 'music' %}selected{% endif %}>Music</option>
+            <option value="gaming" {% if request.args.get('category') == 'gaming' %}selected{% endif %}>Gaming</option>
+            <option value="arts" {% if request.args.get('category') == 'arts' %}selected{% endif %}>Arts</option>
             <option value="sports" {% if request.args.get('category') == 'sports' %}selected{% endif %}>Sports</option>
-            <option value="other" {% if request.args.get('category') == 'other' %}selected{% endif %}>Other</option>z
+            <option value="education" {% if request.args.get('category') == 'education' %}selected{% endif %}>Education</option>
+            <option value="business" {% if request.args.get('category') == 'business' %}selected{% endif %}>Business</option>
+            <option value="other" {% if request.args.get('category') == 'other' %}selected{% endif %}>Other</option>
         </select>
         <div class="location-input">
             <span class="material-icons">location_on</span>

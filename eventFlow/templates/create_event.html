@@ -129,7 +129,7 @@
           </div>
           <div class="currency-section">
             <div class="header-actions">
-              <div class="currency-selection">
+              <div class="currency-selection form-group">
                 <label for="currency" class="form-label currency-label">Currency</label>
                 {{ form.currency(class='form-select', required=false) }}
                 {% if form.currency.errors %}
@@ -198,10 +198,7 @@
 
                 <div class="form-group">
                   {{ ticket.form.price.label }}
-                  <div class="price-input-wrapper">
-                    <span class="currency-symbol">{{ form.currency.data }}</span>
-                    {{ ticket.form.price(class='form-control', type='number', step='0.01', min='0') }}
-                  </div>
+                  {{ ticket.form.price(class='form-control', type='number', step='0.01', min='0') }}
                   {% if ticket.form.price.errors %}
                     {% for error in ticket.form.price.errors %}
                       <span class="error-message">{{ error }}</span>
@@ -239,7 +236,13 @@
                   Add Images
                 </button>
               </div>
-              {{ form.images(class='form-control-file', accept='image/jpeg,image/png', multiple=true, style='display: none;') }}
+              <input type="file" 
+                     name="images" 
+                     class="form-control-file" 
+                     accept="image/jpeg,image/png" 
+                     multiple 
+                     style="display: none;"
+                     aria-label="Event images">
               <div class="upload-message">No images selected yet</div>
               <div class="image-previews"></div>
             </div>

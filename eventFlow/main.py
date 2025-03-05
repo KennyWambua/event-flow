@@ -17,30 +17,22 @@ def before_request():
 
 @main.route('/')
 def home():
-    featured_events = [
-        {
-            'id': 1,
-            'title': 'Easter Music Festival',
-            'date': 'April 15, 2025',
-            'location': 'Uhuru Gardens, Nairobi',
-            'image_url': '/static/images/audience.jpg'
-        },
-            {
-            'id': 2,
-            'title': 'Food & Wine Festival',
-            'date': 'May 5, 2025',
-            'location': 'Carnivore, Westlands',
-            'image_url': '/static/images/glasses.jpg'
-        },
-        {
-            'id': 3,
-            'title': 'Tech Conference 2025',
-            'date': 'July 20, 2025',
-            'location': 'Convention Center, SF',
-            'image_url': '/static/images/conference.jpg'
-        }
-    ]
-    return render_template('home.html', featured_events=featured_events, now=g.now)
+    # Get 4 random upcoming events
+    featured_events = Event.query\
+        .filter(Event.date >= datetime.now(timezone.utc))\
+        .order_by(db.func.random())\
+        .limit(3)\
+        .all()
+    
+    # Get some statistics for the hero section
+    upcoming_events = Event.query.filter(Event.date >= datetime.now(timezone.utc)).count()
+        
+    return render_template('home.html', 
+                         featured_events=featured_events, 
+                         now=g.now,
+                         stats={
+                             'upcoming_events': upcoming_events
+                         })
 
 @main.route('/event/create', methods=['GET', 'POST'])
 @login_required

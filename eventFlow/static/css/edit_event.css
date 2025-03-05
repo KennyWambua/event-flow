@@ -4,12 +4,27 @@
   margin: 0 auto;
   padding: 2rem;
 
-  h1 {
-    font-size: 2.5rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
+  .section-header {
     text-align: center;
-  }
+    margin-bottom: 2rem;
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(to right, hsl(var(--primary)), hsl(var(--primary) / 0.8));
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .subtitle {
+      color: hsl(var(--muted-foreground));
+      font-size: 1.125rem;
+    }
+}
+
 }
 
 .event-form {
@@ -25,14 +40,14 @@
 
   .form-group {
     margin-bottom: 0.5rem;
-
+    
     & label {
       display: block;
       margin-bottom: 0.5rem;
       font-weight: 500;
       color: hsl(var(--foreground));
     }
-
+    
     .form-control, .form-select {
       width: 100%;
       padding: 1rem;
@@ -49,15 +64,18 @@
         border-color: hsl(var(--primary));
         box-shadow: 0 0 0 2px hsl(var(--primary) / 0.25);
       }
-
-      textarea.form-control {
-        min-height: 100px;
-        resize: vertical;
-      }
     }
 
     &.full-width {
       grid-column: span 2;
+
+      & textarea {
+        min-height: 100px;
+        max-height: 200px;
+        resize: vertical;
+        overflow: auto;
+        max-width: 100%;
+      }
     }
   }
 
@@ -122,6 +140,13 @@
       margin-top: 1rem;
       align-items: end;
 
+      & button {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+
+      }
+
     }
   }
 
@@ -167,8 +192,25 @@
 
       .ticket-type-grid {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 1.5rem;
+
+        & .form-group {
+          margin-bottom: 0.25rem;
+          
+          &.full-width {
+            grid-column: span 3;
+
+            & textarea {
+              min-height: 100px;
+              max-height: 200px;
+              resize: vertical;
+              overflow: auto;
+              max-width: 100%;
+            }
+          }
+        }
+
       }
     }
   }
