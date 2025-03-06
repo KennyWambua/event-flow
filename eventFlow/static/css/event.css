@@ -1,14 +1,210 @@
 .event-details-container {
+    max-width: 1280px;
+    margin: 0 auto;
     padding: 2rem;
 }
 
-.event-details-container h1 {
+.event-header {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    margin-bottom: 3rem;
+}
+
+.event-images {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+.primary-image {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    border-radius: var(--radius);
+}
+
+.secondary-image {
+    width: 100%;
+    aspect-ratio: 16/9;
+    object-fit: cover;
+    border-radius: var(--radius);
+}
+
+.event-info {
+    padding: 1rem;
+}
+
+.event-date {
+    color: hsl(var(--primary));
+    font-size: 0.875rem;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.event-info h1 {
     font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: hsl(var(--foreground));
+}
+
+.event-location {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    color: hsl(var(--muted-foreground));
+}
+
+.event-category {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    color: hsl(var(--muted-foreground));
+}
+
+.ticket-info {
+    margin-top: 2rem;
+    padding: 1rem;
+    background: hsl(var(--accent));
+    border-radius: var(--radius);
+
+    h3 {
+        color: hsl(var(--accent-foreground));
+        font-size: 1.25rem;
+        font-weight: 600;
+    }
+}
+
+.event-content {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    gap: 2rem;
+}
+
+.main-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.event-description {
+    padding: 2rem;
+    background: hsl(var(--card));
+    border-radius: var(--radius);
+    border: 1px solid hsl(var(--border));
+}
+
+.event-description h2 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+    color: hsl(var(--foreground));
+}
+
+.ticket-types {
+    margin-top: 2rem;
+}
+
+.ticket-grid {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.ticket-card {
+    padding: 1.5rem;
+    background: hsl(var(--card));
+    border-radius: var(--radius);
+    border: 1px solid hsl(var(--border));
+}
+
+.ticket-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 1rem;
 }
 
-.event-details-container p {
-    margin: 0.5rem 0;
+.ticket-header h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: hsl(var(--foreground));
+}
+
+.ticket-price {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: hsl(var(--primary));
+}
+
+.ticket-description {
+    color: hsl(var(--muted-foreground));
+    margin-bottom: 1rem;
+}
+
+.ticket-quantity {
+    color: hsl(var(--muted-foreground));
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.btn-buy-ticket {
+    width: 100%;
+    padding: 0.75rem;
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border: none;
+    border-radius: var(--radius);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-buy-ticket:hover {
+    background: hsl(var(--primary) / 0.9);
+}
+
+.event-organizer {
+    padding: 1.5rem;
+    background: hsl(var(--card));
+    border-radius: var(--radius);
+    border: 1px solid hsl(var(--border));
+}
+
+.organizer-info {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    color: hsl(var(--foreground));
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+
+    .event-header,
+    .event-content {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .event-details-container {
+        padding: 1rem;
+    }
+
+    .event-info h1 {
+        font-size: 1.5rem;
+    }
 }
 
 .btn-primary {
@@ -23,4 +219,192 @@
 
 .btn-primary:hover {
     background: hsl(var(--primary) / 0.9);
-} 
+}
+
+/* Add these new styles */
+.event-status {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius);
+    font-weight: 500;
+    margin-bottom: 1rem;
+}
+
+.event-status.upcoming {
+    background: hsl(var(--success) / 0.2);
+    color: hsl(var(--success));
+}
+
+.event-status.past {
+    background: hsl(var(--muted) / 0.2);
+    color: hsl(var(--muted-foreground));
+}
+
+.price-range {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.price-range .label {
+    color: hsl(var(--muted-foreground));
+    font-size: 0.875rem;
+}
+
+.price-range .amount {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: hsl(var(--primary));
+}
+
+.quantity-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.btn-quantity {
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    background: transparent;
+    cursor: pointer;
+}
+
+.quantity-selector input {
+    width: 3rem;
+    text-align: center;
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    padding: 0.25rem;
+}
+
+.share-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+
+    .btn-icon {
+        width: 2.5rem;
+        height: 2.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: hsl(var(--accent));
+        color: hsl(var(--accent-foreground));
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+            background: hsl(var(--accent) / 0.8);
+            transform: scale(1.01);
+            -webkit-transform: scale(1.01);
+            -moz-transform: scale(1.01);
+            -ms-transform: scale(1.01);
+            -o-transform: scale(1.01);
+        }
+    }
+}
+
+/* Add these new styles */
+.cart-items {
+    margin-bottom: 1.5rem;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid hsl(var(--border));
+}
+
+.cart-item:last-child {
+    border-bottom: none;
+}
+
+.cart-item-details h4 {
+    margin: 0;
+    font-size: 1rem;
+    color: hsl(var(--foreground));
+}
+
+.cart-item-details p {
+    margin: 0.25rem 0 0;
+    font-size: 0.875rem;
+    color: hsl(var(--muted-foreground));
+}
+
+.cart-item-subtotal {
+    font-weight: 500;
+    color: hsl(var(--foreground));
+}
+
+.cart-summary {
+    padding: 1rem;
+    background: hsl(var(--accent));
+    border-radius: var(--radius);
+    margin: 1rem 0;
+}
+
+.cart-total {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+    font-size: 1.125rem;
+}
+
+.notification {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 1rem 1.5rem;
+    border-radius: var(--radius);
+    background: hsl(var(--success));
+    color: hsl(var(--success-foreground));
+    animation: slideIn 0.3s ease forwards;
+    z-index: 1000;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+/* Update existing styles */
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.secondary-images {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+    gap: 0.5rem;
+}
+
+.secondary-images img {
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.secondary-images img:hover {
+    opacity: 0.8;
+}

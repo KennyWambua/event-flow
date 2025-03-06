@@ -19,6 +19,7 @@
 .auth-card:hover {
   border: 1px solid hsl(var(--border));
 }
+
 .auth-card h1 {
   font-size: 2.25rem;
   font-weight: 600;
@@ -107,14 +108,28 @@
   margin-bottom: 0;
 }
 
+.login-input-group {
+  position: relative;
+}
+
+.login-input-group label {
+  position: absolute;
+  top: 0.25rem;
+  left: 0.875rem;
+  color: hsl(var(--muted-foreground));
+  font-size: 0.875rem;
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
 .form-group label {
   font-weight: 500;
   font-size: 0.875rem;
 }
 
 .form-control {
-  padding: 0.75rem 1rem;
-  height: 2.75rem;
+  padding: 1.5rem 1rem 0.5rem;
+  /* height: 2.75rem; */
   border: 1px solid hsl(var(--border));
   border-radius: calc(var(--radius) * 0.5);
   font-size: 0.875rem;
@@ -125,6 +140,10 @@
   outline: none;
   border-color: hsl(var(--primary));
   box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
+}
+
+.form-group:focus>.form-group label {
+  color: hsl(var(--primary));
 }
 
 .remember-me, .terms {
@@ -153,6 +172,7 @@
     opacity: 0;
     transform: translateY(-10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -161,7 +181,7 @@
 
 .auth-footer {
   margin-top: 2rem;
-  text-align: center;
+  text-align: left;
   font-size: 0.875rem;
 }
 
@@ -315,11 +335,6 @@
   box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
 }
 
-/* Form Control Improvements */
-.form-control::placeholder {
-  color: hsl(var(--muted-foreground));
-}
-
 /* Signup Steps */
 .signup-step {
   display: none;
@@ -408,6 +423,7 @@
 /* Update button text */
 #continue-btn {
   font-weight: 500;
+  margin-top: 2rem;
   height: 2.75rem;
   display: flex;
   align-items: center;
@@ -415,7 +431,7 @@
 }
 
 /* Hide Get Started heading in step two */
-.signup-step:not(#step-one) .auth-card > h1,
+.signup-step:not(#step-one) .auth-card>h1,
 .signup-step:not(#step-one) .auth-subtitle {
   display: none;
 }

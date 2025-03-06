@@ -22,7 +22,18 @@
       <!-- Step One -->
       <div id="step-one" class="signup-step active">
         <h1>Get Started</h1>
-        <p class="auth-subtitle">Create your account to start organizing and discovering events</p>
+        <p class="auth-subtitle">Create an account & Discover amazing events</p>
+
+        <div class="form-group login-input-group">
+          <label for="initial-email">Email</label>
+          <input type="email" id="initial-email" class="form-control" />
+        </div>
+
+        <button type="button" id="continue-btn" class="btn btn-primary btn-block">Continue</button>
+
+        <div class="divider">
+          <span>or</span>
+        </div>
 
         <div class="social-login">
           <button class="social-btn google-btn">
@@ -30,17 +41,6 @@
             Sign in with Google
           </button>
         </div>
-
-        <div class="divider">
-          <span>or</span>
-        </div>
-
-        <div class="form-group">
-          <label for="initial-email">Email</label>
-          <input type="email" id="initial-email" class="form-control" placeholder="name@example.com" />
-        </div>
-
-        <button type="button" id="continue-btn" class="btn btn-primary btn-block">Continue with Email</button>
 
         <div class="auth-footer">
           <p>
@@ -52,7 +52,7 @@
       <!-- Step Two -->
       <div id="step-two" class="signup-step">
         <h2 class="step-title">Complete Your Profile</h2>
-        <p class="step-description">Fill in your details to finish creating your account</p>
+        <p class="step-description">Fill in your details to finish creating an account</p>
 
         <form method="POST" action="{{ url_for('auth.signup') }}" class="auth-form" id="signupForm">
           {{ form.hidden_tag() }}
@@ -61,7 +61,6 @@
           <div class="form-section">
             <div class="form-group">
               <div class="email-field-wrapper">
-                {{ form.email.label }}
                 <div class="input-with-icon">
                   {{ form.email(class='form-control', readonly=true) }}
                   <button type="button" class="edit-email-btn" aria-label="Edit email"><span class="material-icons">edit</span></button>
@@ -69,9 +68,9 @@
               </div>
             </div>
 
-            <div class="form-group">
+            <div class="form-group login-input-group">
               {{ form.confirm_email.label }}
-              {{ form.confirm_email(class='form-control', placeholder='Confirm email') }}
+              {{ form.confirm_email(class='form-control') }}
               {% if form.confirm_email.errors %}
                 {% for error in form.confirm_email.errors %}
                   <span class="error-message">{{ error }}</span>
@@ -83,9 +82,9 @@
           <!-- Name Fields -->
           <div class="form-section">
             <div class="name-row">
-              <div class="form-group">
+              <div class="form-group login-input-group">
                 {{ form.first_name.label }}
-                {{ form.first_name(class='form-control', placeholder='First name') }}
+                {{ form.first_name(class='form-control') }}
                 {% if form.first_name.errors %}
                   {% for error in form.first_name.errors %}
                     <span class="error-message">{{ error }}</span>
@@ -93,9 +92,9 @@
                 {% endif %}
               </div>
 
-              <div class="form-group">
+              <div class="form-group login-input-group">
                 {{ form.last_name.label }}
-                {{ form.last_name(class='form-control', placeholder='Last name') }}
+                {{ form.last_name(class='form-control') }}
                 {% if form.last_name.errors %}
                   {% for error in form.last_name.errors %}
                     <span class="error-message">{{ error }}</span>
@@ -107,9 +106,9 @@
 
           <!-- Password Field -->
           <div class="form-section">
-            <div class="form-group">
+            <div class="form-group login-input-group">
               {{ form.password.label }}
-              {{ form.password(class='form-control', placeholder='••••••••') }}
+              {{ form.password(class='form-control') }}
               {% if form.password.errors %}
                 {% for error in form.password.errors %}
                   <span class="error-message">{{ error }}</span>
@@ -144,7 +143,7 @@
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
       const stepOne = document.getElementById('step-one')
       const stepTwo = document.getElementById('step-two')
       const continueBtn = document.getElementById('continue-btn')
@@ -153,14 +152,14 @@
       const confirmEmail = document.querySelector('[name="confirm_email"]')
       const editEmailBtn = document.querySelector('.edit-email-btn')
       let errorDiv = null
-
+    
       function removeErrorMessage() {
         if (errorDiv && errorDiv.parentNode) {
           errorDiv.parentNode.removeChild(errorDiv)
           errorDiv = null
         }
       }
-
+    
       function showErrorMessage(message, element) {
         removeErrorMessage()
         errorDiv = document.createElement('div')
@@ -168,11 +167,11 @@
         errorDiv.textContent = message
         element.parentNode.appendChild(errorDiv)
       }
-
+    
       function isValidEmail(email) {
         return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
       }
-
+    
       async function checkEmailAvailability(email) {
         try {
           const response = await fetch('/auth/check-email', {
@@ -189,7 +188,7 @@
           return false
         }
       }
-
+    
       function switchToStepTwo(email) {
         stepOne.classList.remove('active')
         stepTwo.classList.add('active')
@@ -197,55 +196,51 @@
         confirmEmail.value = ''
         signupEmail.readOnly = true
       }
-
+    
       function switchToStepOne(email) {
         stepTwo.classList.remove('active')
         stepOne.classList.add('active')
         initialEmail.value = email.toLowerCase()
         removeErrorMessage()
       }
-
-      continueBtn.addEventListener('click', async function() {
+    
+      continueBtn.addEventListener('click', async function () {
         const email = initialEmail.value.trim()
         removeErrorMessage()
-
+    
         if (!email) {
           showErrorMessage('Please enter your email address', initialEmail)
           return
         }
-
+    
         if (!isValidEmail(email)) {
           showErrorMessage('Please enter a valid email address', initialEmail)
           return
         }
-
+    
         // Check if email is available
         const isAvailable = await checkEmailAvailability(email)
         if (!isAvailable) {
-          showErrorMessage('An account with this email already exists. Please log in instead.', initialEmail)
-          // Redirect to login page after a delay
-          setTimeout(() => {
-            window.location.href = "{{ url_for('auth.login') }}"
-          }, 3000)
+          showErrorMessage('An account with this email already exists. Log in or use a different email', initialEmail)
           return
         }
-
+    
         switchToStepTwo(email)
       })
-
-      editEmailBtn.addEventListener('click', function() {
+    
+      editEmailBtn.addEventListener('click', function () {
         switchToStepOne(signupEmail.value)
       })
-
-      confirmEmail.addEventListener('input', function() {
+    
+      confirmEmail.addEventListener('input', function () {
         removeErrorMessage()
         if (confirmEmail.value.toLowerCase() !== signupEmail.value.toLowerCase()) {
           showErrorMessage('Email addresses do not match. Please try again', confirmEmail)
         }
       })
-
+    
       const signupForm = document.getElementById('signupForm')
-      signupForm.addEventListener('submit', function(e) {
+      signupForm.addEventListener('submit', function (e) {
         if (confirmEmail.value.toLowerCase() !== signupEmail.value.toLowerCase()) {
           e.preventDefault()
           showErrorMessage('Email addresses do not match. Please try again', confirmEmail)

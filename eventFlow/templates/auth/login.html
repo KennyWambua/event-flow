@@ -24,24 +24,13 @@
       <h1>Welcome Back</h1>
       <p class="auth-subtitle">Log in to manage your events, tickets, and discover new experiences</p>
 
-      <div class="social-login">
-        <button class="social-btn google-btn">
-          <img src="/static/images/google.svg" alt="Google" width="20" height="20" />
-          Continue with Google
-        </button>
-      </div>
-
-      <div class="divider">
-        <span>or</span>
-      </div>
-
       <form method="POST" action="{{ url_for('auth.login', next=next) }}" class="auth-form">
         {{ form.hidden_tag() }}
-        <input type="hidden" name="next" value="{{ next or '' }}">
+        <input type="hidden" name="next" value="{{ next or '' }}" />
 
-        <div class="form-group">
+        <div class="form-group login-input-group">
           {{ form.email.label }}
-          {{ form.email(class='form-control', placeholder='name@example.com') }}
+          {{ form.email(class='form-control login-input') }}
           {% if form.email.errors %}
             {% for error in form.email.errors %}
               <span class="error-message">{{ error }}</span>
@@ -49,9 +38,9 @@
           {% endif %}
         </div>
 
-        <div class="form-group">
+        <div class="form-group login-input-group">
           {{ form.password.label }}
-          {{ form.password(class='form-control', placeholder='••••••••') }}
+          {{ form.password(class='form-control') }}
           {% if form.password.errors %}
             {% for error in form.password.errors %}
               <span class="error-message">{{ error }}</span>
@@ -67,6 +56,17 @@
 
         <button type="submit" class="btn btn-primary btn-block">Log In</button>
       </form>
+
+      <div class="divider">
+        <span>or</span>
+      </div>
+
+      <div class="social-login">
+        <button class="social-btn google-btn">
+          <img src="/static/images/google.svg" alt="Google" width="20" height="20" />
+          Continue with Google
+        </button>
+      </div>
 
       <div class="auth-footer">
         <p>
