@@ -7,277 +7,171 @@
 {% block title %}Edit {{ event.title }} - eventFlow{% endblock %}
 
 {% block breadcrumb_items %}
-<div class="breadcrumb-wrapper">
-    <ul class="breadcrumb-list">
-        <li class="breadcrumb-item">
-            <a href="{{ url_for('main.home') }}">Home</a>
-        </li>
-        <li class="breadcrumb-item">
-            <a href="{{ url_for('main.myEvents') }}">My Events</a>
-        </li>
-        <li class="breadcrumb-item active">Edit Event</li>
-    </ul>
-</div>
+	<div class="breadcrumb-wrapper">
+			<ul class="breadcrumb-list">
+					<li class="breadcrumb-item">
+							<a href="{{ url_for('main.home') }}">Home</a>
+					</li>
+					<li class="breadcrumb-item">
+							<a href="{{ url_for('main.myEvents') }}">My Events</a>
+					</li>
+					<li class="breadcrumb-item active">Edit Event</li>
+			</ul>
+	</div>
 {% endblock %}
 
 {% block content %}
-<div class="edit-event-container">
-	<div class="section-header">
-		<h1>Edit Event</h1>
-		<p class="subtitle">Update your event details</p>
-	</div>
+	<div class="edit-event-container">
+		<div class="section-header">
+			<h1>Edit Event</h1>
+			<p class="subtitle">Update your event details</p>
+		</div>
 
-    <form method="POST" enctype="multipart/form-data" class="event-form">
-        {{ form.csrf_token }}
-        
-        <div class="form-grid">
-            <div class="form-group">
-                <label for="title">Event Title</label>
-                {{ form.title(class="form-control") }}
-            </div>
-            <div class="form-group">
-                <label for="category">Category</label>
-                {{ form.category(class="form-select") }}
-            </div>
-            <div class="form-group">
-                <label for="date">Event Date & Time</label>
-                {{ form.date(class="form-control", type="datetime-local") }}
-            </div>
-            <div class="form-group">
-                <label for="location">Location</label>
-                {{ form.location(class="form-control") }}
-            </div>
-            <div class="form-group full-width">
-                <label for="description">Event Description</label>
-                {{ form.description(class="form-control", rows=5) }}
-            </div>
-            
-            <div class="form-group full-width">
-                <label>Event Type</label>
-                <div class="event-type-options">
-                    {% for subfield in form.event_type %}
-                    <div class="event-type-option {% if (subfield.data == 'paid' and event.is_paid_event) or (subfield.data == 'free' and not event.is_paid_event) %}selected{% endif %}" onclick="selectEventType(this)">
-                        {{ subfield(class="form-radio", style="display: none;") }}
-                        <div class="event-type-icon">
-                            <span class="material-icons">
-                                {% if subfield.data == 'free' %}card_giftcard{% else %}payments{% endif %}
-                            </span>
-                        </div>
-                        <div class="event-type-content">
-                            <div class="event-type-title">{{ subfield.label.text }}</div>
-                            <div class="event-type-description">
-                                {% if subfield.data == 'free' %}Open to all, no ticket required{% else %}Set up ticket types and pricing{% endif %}
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
+		<form method="POST" enctype="multipart/form-data" class="event-form" id="eventForm">
+				{{ form.csrf_token }}
+				
+				<div class="form-grid">
+						<div class="form-group">
+								<label for="title">Event Title</label>
+								{{ form.title(class="form-control") }}
+						</div>
+						<div class="form-group">
+								<label for="category">Category</label>
+								{{ form.category(class="form-select") }}
+						</div>
+						<div class="form-group">
+								<label for="date">Event Date & Time</label>
+								{{ form.date(class="form-control", type="datetime-local") }}
+						</div>
+						<div class="form-group">
+								<label for="location">Location</label>
+								{{ form.location(class="form-control") }}
+						</div>
+						<div class="form-group full-width">
+								<label for="description">Event Description</label>
+								{{ form.description(class="form-control", rows=5) }}
+						</div>
+						
+						<div class="form-group full-width">
+								<label for="event-type">Event Type</label>
+								<div class="event-type-options">
+										{% for subfield in form.event_type %}
+										<div class="event-type-option {% if (subfield.data == 'paid' and event.is_paid_event) or (subfield.data == 'free' and not event.is_paid_event) %}selected{% endif %}">
+												{{ subfield(class="form-radio", style="display: none;") }}
+												<div class="event-type-icon">
+														<span class="material-icons">
+																{% if subfield.data == 'free' %}card_giftcard{% else %}payments{% endif %}
+														</span>
+												</div>
+												<div class="event-type-content">
+														<div class="event-type-title">{{ subfield.label.text }}</div>
+														<div class="event-type-description">
+																{% if subfield.data == 'free' %}Open to all, no ticket required{% else %}Set up ticket types and pricing{% endif %}
+														</div>
+												</div>
+										</div>
+										{% endfor %}
+								</div>
+						</div>
 
-            <div id="ticketSection" class="form-group full-width ticket-section" {% if not event.is_paid_event %}style="display: none;"{% endif %}>
-                <div class="ticket-types-header">
-                    <div class="header-content">
-                        <h3>Ticket Types</h3>
-                        <p class="section-description">Define different ticket categories for your event</p>
-                    </div>
+						<div id="ticketSection" class="form-group full-width ticket-section" {% if not event.is_paid_event %}style="display: none;"{% endif %}>
+								<div class="ticket-types-header">
+										<div class="header-content">
+												<h3>Ticket Types</h3>
+												<p class="section-description">Define different ticket categories for your event</p>
+										</div>
 										<div class="header-actions">
 											<div id="currencySection" class="form-group">
 												<label for="currency">Currency</label>
 												{{ form.currency(class="form-select") }}
 											</div>
-                    	<button type="button" class="btn btn-secondary" onclick="addTicketType()">
-                        <span class="material-icons">add</span>
-                        Add Ticket Type
-                    	</button>
+											<button type="button" class="btn btn-secondary" id="addTicketTypeBtn">
+												<span class="material-icons">add</span>
+												Add Ticket Type
+											</button>
 										</div>
-                </div>
+								</div>
 
-                <div id="ticketTypes" class="ticket-types">
-                    {% for ticket in event.ticket_types %}
-                    <div class="ticket-type-item">
-                        <div class="ticket-type-header">
-                            <h4>Ticket Type <span class="ticket-counter">{{ loop.index }}</span></h4>
-                            {% if not loop.first %}
-                            <button type="button" class="remove-ticket" onclick="this.closest('.ticket-type-item').remove()">
-                                <span class="material-icons">delete</span>
-                                Remove
-                            </button>
-                            {% endif %}
-                        </div>
-                        <div class="ticket-type-grid">
-                            <div class="form-group">
-                                <label>Ticket Type</label>
-                                <input type="text" name="ticket_types-{{ loop.index0 }}-ticket_type" 
-                                       class="form-control" value="{{ ticket.ticket_type }}" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Quantity</label>
-                                <input type="number" name="ticket_types-{{ loop.index0 }}-quantity" 
-                                       class="form-control" value="{{ ticket.quantity }}" min="1" required>
-                            </div>
-                            <div class="form-group">
-                                <label>Price</label>
-                                <input type="number" name="ticket_types-{{ loop.index0 }}-price" 
-                                       class="form-control" value="{{ ticket.price }}" min="0" step="0.01" required>
-                            </div>
-                            <div class="form-group full-width">
-                                <label>Description</label>
-                                <textarea name="ticket_types-{{ loop.index0 }}-description" 
-                                          class="form-control" rows="3">{{ ticket.description }}</textarea>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
+								<div id="ticketTypes" class="ticket-types">
+										{% for ticket in event.ticket_types %}
+										<div class="ticket-type-item">
+												<div class="ticket-type-header">
+														<h4>Ticket Type <span class="ticket-counter">{{ loop.index }}</span></h4>
+														{% if not loop.first %}
+														<button type="button" class="remove-ticket" onclick="this.closest('.ticket-type-item').remove()">
+																<span class="material-icons">delete</span>
+																Remove
+														</button>
+														{% endif %}
+												</div>
+												<div class="ticket-type-grid">
+														<div class="form-group">
+																<label>Ticket Type</label>
+																<input type="text" name="ticket_types-{{ loop.index0 }}-ticket_type" 
+																			class="form-control" value="{{ ticket.ticket_type }}" required>
+														</div>
+														<div class="form-group">
+																<label>Quantity</label>
+																<input type="number" name="ticket_types-{{ loop.index0 }}-quantity" 
+																			class="form-control" value="{{ ticket.quantity }}" min="1" required>
+														</div>
+														<div class="form-group">
+																<label>Price</label>
+																<input type="number" name="ticket_types-{{ loop.index0 }}-price" 
+																			class="form-control" value="{{ ticket.price }}" min="0" step="0.01" required>
+														</div>
+														<div class="form-group full-width">
+																<label>Description</label>
+																<textarea name="ticket_types-{{ loop.index0 }}-description" 
+																					class="form-control" rows="3">{{ ticket.description }}</textarea>
+														</div>
+												</div>
+										</div>
+										{% endfor %}
+								</div>
+						</div>
 
-            <div class="form-group full-width">
-                <label>Current Images</label>
-                <div class="current-images">
-                    {% for image in event.images %}
-                    <div class="image-preview">
-                        <img src="{{ url_for('main.get_image', image_id=image.id) }}" alt="Event image">
-                    </div>
-                    {% endfor %}
-                </div>
-                
-                <label for="images">Upload New Images (Optional)</label>
-                {{ form.images(class="form-control", multiple=true, onchange="previewImages(this)") }}
-                <p class="help-text">Upload new images to replace current ones</p>
-                
-                <div id="newImagesPreview" class="new-images-preview"></div>
-            </div>
-        </div>
+						<div class="form-group full-width">
+							<label for="images">Event Images</label>
+							<input type="file" 
+										name="images"
+										id="images" 
+										class="image-input-file"
+										multiple
+										accept="image/jpeg,image/png"
+										style="display: none;">
+							<button type="button" class="btn btn-secondary btn-add-image">
+								<span class="material-icons">add_photo_alternate</span>
+								Add More Images
+							</button>
+							
+							<div class="current-images image-container" id="imageContainer">
+								{% for image in event.images %}
+								<div class="image-preview" id="image-{{ image.id }}">
+										<img src="{{ url_for('main.get_image', image_id=image.id) }}" alt="Event image">
+										<button type="button" class="remove-image remove-existing-image" data-image-id="{{ image.id }}">
+												<span class="material-icons">close</span>
+										</button>
+								</div>
+								{% endfor %}
+						</div>
+							<p class="help-text">You can upload up to 5 images in total</p>
+									
+							<input type="hidden" name="removed_images" id="removedImages">							
+						</div>
+				</div>
 
-        <div class="form-actions">
-            <a href="{{ url_for('main.event', event_id=event.id) }}" class="btn btn-secondary">Cancel</a>
-            <button type="submit" class="btn btn-primary">
-                <span class="material-icons">save</span>
-                Update Event
-            </button>
-        </div>
-    </form>
-</div>
-
-<script>
-function selectEventType(element) {
-    // Remove selected class from all options
-    document.querySelectorAll('.event-type-option').forEach(opt => {
-        opt.classList.remove('selected');
-    });
-    
-    // Add selected class to clicked option
-    element.classList.add('selected');
-    
-    // Check the radio input
-    const radio = element.querySelector('input[type="radio"]');
-    radio.checked = true;
-    
-    // Show/hide currency and ticket sections
-    const currencySection = document.getElementById('currencySection');
-    const ticketSection = document.getElementById('ticketSection');
-    
-    if (radio.value === 'paid') {
-        currencySection.style.display = 'block';
-        ticketSection.style.display = 'block';
-    } else {
-        currencySection.style.display = 'none';
-        ticketSection.style.display = 'none';
-    }
-}
-
-function addTicketType() {
-    const ticketTypes = document.getElementById('ticketTypes');
-    const ticketCount = ticketTypes.children.length;
-    
-    const newTicket = document.createElement('div');
-    newTicket.className = 'ticket-type-item';
-    newTicket.innerHTML = `
-        <div class="ticket-type-header">
-            <h4>Ticket Type <span class="ticket-counter">${ticketCount + 1}</span></h4>
-            <button type="button" class="remove-ticket" onclick="this.closest('.ticket-type-item').remove()">
-                <span class="material-icons">delete</span>
-                Remove
-            </button>
-        </div>
-        <div class="ticket-type-grid">
-            <div class="form-group">
-                <label>Ticket Type</label>
-                <input type="text" name="ticket_types-${ticketCount}-ticket_type" 
-                       class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label>Quantity</label>
-                <input type="number" name="ticket_types-${ticketCount}-quantity" 
-                       class="form-control" required>
-            </div>
-            <div class="form-group">
-                <label>Quantity</label>
-                <input type="number" name="ticket_types-${ticketCount}-quantity" 
-                       class="form-control" min="1" required>
-            </div>
-            <div class="form-group">
-                <label>Price</label>
-                <input type="number" name="ticket_types-${ticketCount}-price" 
-                       class="form-control" min="0" step="0.01" required>
-            </div>
-            <div class="form-group full-width">
-                <label>Description</label>
-                <textarea name="ticket_types-${ticketCount}-description" 
-                          class="form-control" rows="3"></textarea>
-            </div>
-        </div>
-    `;
-    ticketTypes.appendChild(newTicket);
-}
-
-function previewImages(input) {
-    const previewContainer = document.getElementById('newImagesPreview');
-    previewContainer.innerHTML = '';
-    
-    if (input.files) {
-        Array.from(input.files).forEach((file, index) => {
-            if (file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const previewDiv = document.createElement('div');
-                    previewDiv.className = 'new-image-preview';
-                    previewDiv.innerHTML = `
-                        <img src="${e.target.result}" alt="New image preview">
-                        <button type="button" class="remove-image" onclick="removeNewImage(${index})">
-                            <span class="material-icons">close</span>
-                        </button>
-                    `;
-                    previewContainer.appendChild(previewDiv);
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-}
-
-function removeNewImage(index) {
-    const input = document.querySelector('input[type="file"]');
-    const container = document.getElementById('newImagesPreview');
-    
-    const dt = new DataTransfer();
-    Array.from(input.files).forEach((file, i) => {
-        if (i !== index) dt.items.add(file);
-    });
-    
-    input.files = dt.files;
-    container.children[index].remove();
-}
-
-// Initialize event type state
-document.addEventListener('DOMContentLoaded', function() {
-    const eventType = document.querySelector('input[name="event_type"]:checked');
-    if (eventType) {
-        const option = eventType.closest('.event-type-option');
-        if (option) {
-            selectEventType(option);
-        }
-    }
-});
-</script>
+				<div class="form-actions">
+						<a onclick="window.location.href='{{ url_for('main.myEvents') }}'" class="btn btn-secondary">Cancel</a>
+						<button type="submit" class="btn btn-primary">
+								<span class="material-icons">save</span>
+								Update Event
+						</button>
+				</div>
+		</form>
+	</div>
 {% endblock %} 
+
+{% block scripts %}
+	<script src="{{ url_for('static', filename='js/edit_event.js') }}"></script>
+{% endblock %}

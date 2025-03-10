@@ -18,12 +18,12 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    
+
     .subtitle {
       color: hsl(var(--muted-foreground));
       font-size: 1.125rem;
     }
-}
+  }
 
 }
 
@@ -40,14 +40,14 @@
 
   .form-group {
     margin-bottom: 0.5rem;
-    
+
     & label {
       display: block;
       margin-bottom: 0.5rem;
       font-weight: 500;
       color: hsl(var(--foreground));
     }
-    
+
     .form-control, .form-select {
       width: 100%;
       padding: 1rem;
@@ -197,7 +197,7 @@
 
         & .form-group {
           margin-bottom: 0.25rem;
-          
+
           &.full-width {
             grid-column: span 3;
 
@@ -240,24 +240,32 @@
 }
 
 
-.new-images-preview {
+.image-container {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 1rem;
   margin-top: 1rem;
 
-  .new-image-preview {
+  .image-preview {
     position: relative;
-    aspect-ratio: 16/9;
+    width: 150px;
+    height: 150px;
     border-radius: var(--radius);
     overflow: hidden;
-    border: 1px solid hsl(var(--primary));
 
     & img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
+
+    &:hover {
+			transform: translateY(-2px);
+
+      .remove-image {
+        display: block;
+      }
+		}
   }
 
   .remove-image {
@@ -271,7 +279,7 @@
     width: 2rem;
     height: 2rem;
     cursor: pointer;
-    display: flex;
+    display: none;
     align-items: center;
     justify-content: center;
     transition: all 0.2s ease;
@@ -286,7 +294,7 @@
 /* Form Actions */
 .form-actions {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   gap: 1rem;
   margin-top: 2rem;
 

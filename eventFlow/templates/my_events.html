@@ -39,13 +39,6 @@
             <div class="event-image">
               <img src="{{ event.get_primary_image_url() }}" alt="{{ event.title }}" />
             </div>
-            <div class="event-status">
-              {% if event.date > now %}
-                <span class="status upcoming">Upcoming</span>
-              {% else %}
-                <span class="status past">Past</span>
-              {% endif %}
-            </div>
             <div class="event-details">
               <div class="event-info">
                 <span class="event-date">{{ event.date.strftime('%B %d, %Y at %I:%M %p') }}</span>
@@ -55,12 +48,19 @@
                   {{ event.location }}
                 </p>
               </div>
+              <div class="event-status">
+                {% if event.date > now %}
+                  <span class="status upcoming">Upcoming</span>
+                {% else %}
+                  <span class="status past">Past</span>
+                {% endif %}
+              </div>
               <div class="event-actions">
-                <a href="{{ url_for('main.event', event_id=event.id) }}" class="btn btn-view">
+                <a onclick="window.location.href='{{ url_for('main.event', event_id=event.id) }}'" class="btn btn-view">
                   <span class="material-icons">visibility</span>
                   View
                 </a>
-                <button class="btn btn-edit" onclick="editEvent({{ event.id }})">
+                <button class="btn btn-edit" onclick="editEvent('{{ event.id }}', '{{ url_for('main.editEvent', event_id=event.id) }}')">
                   <span class="material-icons">edit</span>
                   Edit
                 </button>
@@ -125,37 +125,37 @@
   </div>
 
   <script>
-    let eventToDelete = null;
-
+    let eventToDelete = null
+    
     function showDeleteModal(eventId) {
-      eventToDelete = eventId;
-      const modal = document.getElementById('deleteModal');
-      modal.style.display = 'flex';
-      modal.classList.add('active');
+      eventToDelete = eventId
+      const modal = document.getElementById('deleteModal')
+      modal.style.display = 'flex'
+      modal.classList.add('active')
     }
-
+    
     function closeDeleteModal() {
-      eventToDelete = null;
-      const modal = document.getElementById('deleteModal');
-      modal.classList.remove('active');
+      eventToDelete = null
+      const modal = document.getElementById('deleteModal')
+      modal.classList.remove('active')
       setTimeout(() => {
-        modal.style.display = 'none';
-      }, 300);
+        modal.style.display = 'none'
+      }, 300)
     }
-
+    
     function deleteEvent(eventId) {
-      showDeleteModal(eventId);
+      showDeleteModal(eventId)
     }
-
+    
     function editEvent(eventId) {
-      window.location.href = `/event/${eventId}/edit`;
+      window.location.href = `/event/${eventId}/edit`
     }
-
+    
     function confirmDelete() {
-      if (!eventToDelete) return;
-      
-      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-      
+      if (!eventToDelete) return
+    
+      const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+    
       fetch(`/event/${eventToDelete}/delete`, {
         method: 'DELETE',
         headers: {
@@ -163,61 +163,65 @@
           'X-CSRFToken': csrfToken
         }
       })
-      .then(response => {
-        if (!response.ok) throw new Error('Failed to delete event');
-        return response.json();
-      })
-      .then(data => {
-        if (data.success) {
-          const eventCard = document.querySelector(`[data-event-id="${eventToDelete}"]`);
-          if (eventCard) {
-            eventCard.style.animation = 'fadeOut 0.3s ease';
-            setTimeout(() => {
-              eventCard.remove();
-              // Check if there are no more events
-              const remainingEvents = document.querySelectorAll('.event-card');
-              if (remainingEvents.length === 0) {
-                location.reload(); // Show the "No Events" message
-              }
-            }, 300);
+        .then((response) => {
+          if (!response.ok) {
+            return response.json().then((err) => {
+              throw new Error(err.message || 'Failed to delete event')
+            })
           }
-          closeDeleteModal();
-          // Show success message
-          showNotification('Event deleted successfully', 'success');
-        } else {
-          throw new Error(data.error || 'Failed to delete event');
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        showNotification('Error deleting event. Please try again.', 'error');
-        closeDeleteModal();
-      });
+          return response.json()
+        })
+        .then((data) => {
+          if (data.success) {
+            const eventCard = document.querySelector(`[data-event-id="${eventToDelete}"]`)
+            if (eventCard) {
+              eventCard.style.animation = 'fadeOut 0.3s ease'
+              setTimeout(() => {
+                eventCard.remove()
+                // Check if there are no more events
+                const remainingEvents = document.querySelectorAll('.event-card')
+                if (remainingEvents.length === 0) {
+                  location.reload() // Show the "No Events" message
+                }
+              }, 300)
+            }
+            closeDeleteModal()
+            // Show success message
+            showNotification('Event deleted successfully', 'success')
+          } else {
+            throw new Error(data.error || 'Failed to delete event')
+          }
+        })
+        .catch((error) => {
+          console.error('Error:', error)
+          showNotification('Error deleting event. Please try again.', 'error')
+          closeDeleteModal()
+        })
     }
-
+    
     // Add notification system
     function showNotification(message, type = 'success') {
-      const notification = document.createElement('div');
-      notification.className = `notification ${type}`;
-      notification.textContent = message;
-      
-      document.body.appendChild(notification);
-      
+      const notification = document.createElement('div')
+      notification.className = `notification ${type}`
+      notification.textContent = message
+    
+      document.body.appendChild(notification)
+    
       // Trigger animation
-      setTimeout(() => notification.classList.add('show'), 100);
-      
+      setTimeout(() => notification.classList.add('show'), 100)
+    
       // Remove notification after 3 seconds
       setTimeout(() => {
-        notification.classList.remove('show');
-        setTimeout(() => notification.remove(), 300);
-      }, 3000);
+        notification.classList.remove('show')
+        setTimeout(() => notification.remove(), 300)
+      }, 3000)
     }
-
+    
     // Close modal when clicking outside
-    window.onclick = function(event) {
-      const modal = document.getElementById('deleteModal');
+    window.onclick = function (event) {
+      const modal = document.getElementById('deleteModal')
       if (event.target === modal) {
-        closeDeleteModal();
+        closeDeleteModal()
       }
     }
   </script>
