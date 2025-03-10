@@ -1,7 +1,7 @@
 .homeContainer {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem 1rem;
+  padding: 2rem 0;
 }
 
 .hero {
@@ -552,6 +552,13 @@
 
   .material-icons {
     font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 1280px) {
+  .homeContainer {
+      width: 100%;
+      padding: 2rem;
   }
 }
 

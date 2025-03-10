@@ -40,12 +40,8 @@
           <p>Find events that match your interests</p>
         </div>
         <div class="categoryControls">
-          <button class="btn btn-icon swiper-button-prev" id="prevCategory">
-            <span class="material-icons">chevron_left</span>
-          </button>
-          <button class="btn btn-icon swiper-button-next" id="nextCategory">
-            <span class="material-icons">chevron_right</span>
-          </button>
+          <button class="btn btn-icon swiper-button-prev" id="prevCategory"><span class="material-icons">chevron_left</span></button>
+          <button class="btn btn-icon swiper-button-next" id="nextCategory"><span class="material-icons">chevron_right</span></button>
         </div>
       </div>
       <div class="swiper categorySwiper">
@@ -128,7 +124,7 @@
               <a href="{{ url_for('main.event', event_id=event.id) }}" class="eventImageLink">
                 <div class="eventImage">
                   {% if event.images %}
-                    <img src="{{ url_for('main.get_image', image_id=event.images[0].id) }}" alt="{{ event.title }}" loading="lazy">
+                    <img src="{{ url_for('main.get_image', image_id=event.images.0.id) }}" alt="{{ event.title }}" loading="lazy" />
                   {% else %}
                     <div class="placeholder-image">
                       <span class="material-icons">event</span>
@@ -168,7 +164,7 @@
                     View Details
                   </a>
                   {% if event.is_paid_event and event.ticket_types %}
-                    <span class="eventPrice">From {{ event.ticket_types[0].price }} {{ event.currency }}</span>
+                    <span class="eventPrice">From {{ event.ticket_types.0.price }} {{ event.currency }}</span>
                   {% endif %}
                 </div>
               </div>
@@ -234,9 +230,7 @@
       </form>
     </section>
 
-    <button id="backToTop" class="backToTop" aria-label="Back to top">
-      <span class="material-icons">arrow_upward</span>
-    </button>
+    <button id="backToTop" class="backToTop" aria-label="Back to top"><span class="material-icons">arrow_upward</span></button>
   </main>
 
   <script>
@@ -246,21 +240,21 @@
       spaceBetween: 20,
       navigation: {
         nextEl: '.swiper-button-next',
-        prevEl: '.swiper-button-prev',
+        prevEl: '.swiper-button-prev'
       },
       breakpoints: {
         640: {
-          slidesPerView: 2,
+          slidesPerView: 2
         },
         768: {
-          slidesPerView: 3,
+          slidesPerView: 3
         },
         1024: {
-          slidesPerView: 4,
-        },
+          slidesPerView: 4
+        }
       }
-    });
-
+    })
+    
     // Back to top button functionality
     const backToTopButton = document.getElementById('backToTop')
     
