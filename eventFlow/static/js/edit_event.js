@@ -3,9 +3,14 @@ document.addEventListener('DOMContentLoaded', function () {
   const eventForm = document.getElementById('eventForm');
   const imageContainer = document.getElementById('imageContainer');
   const addImageBtn = document.querySelector('.btn-add-image')
+  const addTicketTypeBtn = document.getElementById('addTicketTypeBtn');
+  const addUrlBtn = document.querySelector('.btn-add-url');
+  const urlInput = document.getElementById('image_url');
   const imageInput = document.querySelector('.image-input-file')
+  const ticketTypes = document.getElementById('ticketTypes');
   const maxImages = 5
   let removedImages = new Set();
+  let ticketTypeCounter = 0;
   let imageCount = 0;
 
   function selectEventType(element) {
@@ -25,54 +30,114 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (radio.value === 'paid') {
       ticketSection.style.display = 'block';
+      if (!document.querySelector('.ticket-type-item')) {
+        addTicketType();
+      }
     } else {
       ticketSection.style.display = 'none';
     }
   }
 
   function addTicketType() {
-    const ticketTypes = document.getElementById('ticketTypes');
-    const ticketCount = ticketTypes.children.length;
 
-    const newTicket = document.createElement('div');
-    newTicket.className = 'ticket-type-item';
-    newTicket.innerHTML = `
-					<div class="ticket-type-header">
-							<h4>Ticket Type <span class="ticket-counter">${ticketCount + 1}</span></h4>
-							<button type="button" class="remove-ticket" onclick="this.closest('.ticket-type-item').remove()">
-									<span class="material-icons">delete</span>
-									Remove
-							</button>
-					</div>
-					<div class="ticket-type-grid">
-							<div class="form-group">
-									<label>Ticket Type</label>
-									<input type="text" name="ticket_types-${ticketCount}-ticket_type" 
-												 class="form-control" required>
-							</div>
-							<div class="form-group">
-									<label>Quantity</label>
-									<input type="number" name="ticket_types-${ticketCount}-quantity" 
-												 class="form-control" required>
-							</div>
-							<div class="form-group">
-									<label>Quantity</label>
-									<input type="number" name="ticket_types-${ticketCount}-quantity" 
-												 class="form-control" min="1" required>
-							</div>
-							<div class="form-group">
-									<label>Price</label>
-									<input type="number" name="ticket_types-${ticketCount}-price" 
-												 class="form-control" min="0" step="0.01" required>
-							</div>
-							<div class="form-group full-width">
-									<label>Description</label>
-									<textarea name="ticket_types-${ticketCount}-description" 
-														class="form-control" rows="3"></textarea>
-							</div>
-					</div>
-			`;
+    const ticketHtml = `
+      <div class="ticket-type-item">
+        <div class="ticket-type-header">
+          <h4 class="ticket-type-label">Ticket Type ${ticketTypeCounter + 1}</h4>
+          ${ticketTypeCounter > 0 ?
+          '<button type="button" class="remove-ticket"><span class="material-icons">delete</span> Remove</button>' : ''}
+        </div>
+        <div class="ticket-type-grid">
+          <div class="form-group">
+            <label>Ticket Type *</label>
+            <select name="ticket_types-${ticketTypeCounter}-ticket_type" class="form-control ticket-type-select" required>
+              <option value="">Select Ticket Type</option>
+              <option value="early-bird">Early Bird</option>
+              <option value="regular">Regular</option>
+              <option value="vip">VIP</option>
+              <option value="vvip">VVIP</option>
+              <option value="student">Student</option>
+              <option value="group">Group</option>
+              <option value="custom">Custom</option>
+            </select>
+          </div>
+
+          <div class="form-group custom-type-field" style="display: none;">
+            <label>Custom Type Name *</label>
+            <input type="text" 
+              name="ticket_types-${ticketTypeCounter}-custom_type" 
+              class="form-control" 
+              placeholder="Enter custom ticket type name">
+          </div>
+
+          <div class="form-group">
+            <label>Quantity *</label>
+            <input type="number" 
+              name="ticket_types-${ticketTypeCounter}-quantity" 
+              class="form-control" 
+              min="1" 
+              value="100" 
+              required>
+          </div>
+
+          <div class="form-group">
+            <label>Price *</label>
+            <input type="number" 
+              name="ticket_types-${ticketTypeCounter}-price" 
+              class="form-control" 
+              min="0" 
+              step="0.01" 
+              value="0.00" 
+              required>
+          </div>
+
+          <div class="form-group full-width">
+            <label>Description</label>
+            <textarea name="ticket_types-${ticketTypeCounter}-description" 
+              class="form-control" rows="3">
+            </textarea>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const ticketDiv = document.createElement('div');
+    ticketDiv.innerHTML = ticketHtml
+    const newTicket = ticketDiv.firstElementChild 
+
+    // Add ticket type change handler
+		const ticketTypeSelect = newTicket.querySelector('.ticket-type-select');
+		const customTypeField = newTicket.querySelector('.custom-type-field');
+
+		ticketTypeSelect.addEventListener('change', function () {
+			if (this.value === 'custom') {
+				customTypeField.style.display = 'block';
+				customTypeField.querySelector('input').required = true;
+			} else {
+				customTypeField.style.display = 'none';
+				customTypeField.querySelector('input').required = false;
+			}
+		});
+
+    	// Add remove button handler
+		const removeBtn = newTicket.querySelector('.remove-ticket');
+		if (removeBtn) {
+			removeBtn.addEventListener('click', function () {
+				newTicket.remove();
+				ticketTypeCounter--;
+				// Renumber remaining tickets
+				const ticketTypeItem = document.querySelectorAll('.ticket-type-item');
+				ticketTypeItem.forEach((container, index) => {
+					const ticketLabel = container.querySelector('.ticket-type-label');
+					if (ticketLabel) {
+						ticketLabel.textContent = `Ticket Type ${index + 1}`;
+					}
+				});
+			});
+		}
+
     ticketTypes.appendChild(newTicket);
+    ticketTypeCounter++;
   }
 
   function addImagePreview(src, filename, file = null) {
@@ -117,30 +182,17 @@ document.addEventListener('DOMContentLoaded', function () {
 		imageCount++;
   }
 
-  function checkImageLimit() {
-    const currentImages = document.querySelectorAll(".image-preview").length;
-    const imagesInput = document.getElementById("images");
-
-    if (currentImages >= 5) {
-      imagesInput.disabled = true;
-      imagesInput.style.opacity = '0.5';
-    } else {
-      imagesInput.disabled = false;
-      imagesInput.style.opacity = '1';
-    }
-  }
-
   document.querySelectorAll('.event-type-option').forEach(option => {
     option.addEventListener('click', function () {
       selectEventType(this);
     });
   });
 
-  const addTicketTypeBtn = document.getElementById('addTicketTypeBtn');
-  addTicketTypeBtn.addEventListener('click', function () {
-    addTicketType();
-  });
-
+  if (addTicketTypeBtn) {
+    addTicketTypeBtn.addEventListener('click', function () {
+      addTicketType();
+    });
+  }
 
   if (eventType) {
     const option = eventType.closest('.event-type-option');
@@ -179,6 +231,41 @@ document.addEventListener('DOMContentLoaded', function () {
 		e.target.value = '';    
   });
 
+  addUrlBtn.addEventListener('click', async () => {
+		const url = urlInput.value.trim();
+		if (!url) {
+			showUrlError('Please enter an image URL');
+			return;
+		}
+
+		if (imageCount >= maxImages) {
+			showUrlError(`Maximum ${maxImages} images allowed`);
+			return;
+		}
+
+		try {
+			const response = await fetch(url);
+			if (!response.ok) throw new Error('Invalid URL');
+			
+			const contentType = response.headers.get('content-type');
+			if (!contentType || !contentType.includes('image')) {
+				throw new Error('URL does not point to a valid image');
+			}
+
+			// Convert URL image to blob
+			const blob = await response.blob();
+			const file = new File([blob], 'url-image-' + Date.now() + '.jpg', { type: 'image/jpeg' });
+			
+			// Create object URL for preview
+			const objectUrl = URL.createObjectURL(file);
+			addImagePreview(objectUrl, file.name, file);
+			
+			urlInput.value = '';
+		} catch (error) {
+			showUrlError('Invalid image URL. Please check the URL and try again.');
+		}
+	});
+
   // Handle image removal (both existing and new images)
   imageContainer.addEventListener('click', function (e) {
     const removeButton = e.target.closest('.remove-image');
@@ -207,8 +294,6 @@ document.addEventListener('DOMContentLoaded', function () {
     checkImageLimit();
   });
 
-  // Initial check for image limit
-  checkImageLimit();
 
   eventForm.addEventListener('submit', async function (e) {
     e.preventDefault();
