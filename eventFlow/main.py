@@ -8,6 +8,7 @@ from flask import (
     flash,
     jsonify,
     make_response,
+    session,
 )
 
 from flask_login import login_required, current_user
@@ -50,6 +51,16 @@ def home():
         now=g.now,
         stats={"upcoming_events": upcoming_events},
     )
+
+
+def get_events_per_page():
+    screen_width = session.get("screen_width", 1280)
+    if screen_width <= 480:
+        return 4
+    elif screen_width <= 768:
+        return 6
+    else:
+        return 12
 
 
 @main.route("/event/create", methods=["GET", "POST"])
@@ -203,7 +214,7 @@ def createEvent():
 def findEvent():
     # Get pagination and search parameters
     page = request.args.get("page", 1, type=int)
-    per_page = 9  # Number of items per page
+    events_per_page = get_events_per_page()
     query = request.args.get("query", "").strip()
     category = request.args.get("category", "").strip()
     location = request.args.get("location", "").strip()
@@ -241,7 +252,9 @@ def findEvent():
 
     # Paginate results
     try:
-        events = events_query.paginate(page=page, per_page=per_page, error_out=False)
+        events = events_query.paginate(
+            page=page, per_page=events_per_page, error_out=False
+        )
 
         if not events.items and page > 1:
             # If no items found and we're not on first page, redirect to page 1
@@ -257,7 +270,9 @@ def findEvent():
 
     except Exception as e:
         print(f"Pagination error: {str(e)}")
-        events = events_query.paginate(page=1, per_page=per_page, error_out=False)
+        events = events_query.paginate(
+            page=1, per_page=events_per_page, error_out=False
+        )
 
     return render_template("find_event.html", events=events, now=g.now)
 
@@ -277,15 +292,15 @@ def event(event_id):
 @login_required
 def editEvent(event_id):
     event = Event.query.get_or_404(event_id)
-    
+
     # Check if user owns the event
     if event.user_id != current_user.id:
-        flash('You do not have permission to edit this event.', 'error')
-        return redirect(url_for('main.myEvents'))
-    
+        flash("You do not have permission to edit this event.", "error")
+        return redirect(url_for("main.myEvents"))
+
     form = EventForm()
-    
-    if request.method == 'POST':
+
+    if request.method == "POST":
         try:
             # Update basic event details
             event.title = form.title.data
@@ -293,11 +308,13 @@ def editEvent(event_id):
             event.location = form.location.data
             event.description = form.description.data
             event.category = form.category.data
-            event.is_paid_event = (form.event_type.data == 'paid')
-            event.currency = form.currency.data if form.event_type.data == 'paid' else None
+            event.is_paid_event = form.event_type.data == "paid"
+            event.currency = (
+                form.currency.data if form.event_type.data == "paid" else None
+            )
 
             # Handle image deletions if any
-            removed_images = request.form.get('removed_images', '').split(',')
+            removed_images = request.form.get("removed_images", "").split(",")
             if removed_images[0]:  # Check if there are actually IDs to delete
                 for image_id in removed_images:
                     image = EventImage.query.get(int(image_id))
@@ -305,76 +322,82 @@ def editEvent(event_id):
                         db.session.delete(image)
 
             # Handle new image uploads if any
-            files = request.files.getlist('images')
+            files = request.files.getlist("images")
             if any(f.filename for f in files):
-                current_image_count = len(event.images) - len([id for id in removed_images if id])
+                current_image_count = len(event.images) - len(
+                    [id for id in removed_images if id]
+                )
                 allowed_new_images = 5 - current_image_count
-                
+
                 for file in files[:allowed_new_images]:
                     if file and file.filename:
                         try:
                             image_data = file.read()
                             image_type = imghdr.what(None, image_data)
-                            if image_type in ['jpeg', 'png']:
+                            if image_type in ["jpeg", "png"]:
                                 event_image = EventImage(
                                     image_data=image_data,
-                                    image_mime_type=f'image/{image_type}'
+                                    image_mime_type=f"image/{image_type}",
                                 )
                                 event.images.append(event_image)
                         except Exception as e:
                             print(f"Error processing image: {str(e)}")
 
             # Update ticket types if it's a paid event
-            if form.event_type.data == 'paid':
+            if form.event_type.data == "paid":
                 # Clear existing ticket types
                 for ticket in event.ticket_types:
                     db.session.delete(ticket)
                 event.ticket_types = []
-                
+
                 # Add new ticket types
                 for i in range(100):  # Reasonable limit
-                    prefix = f'ticket_types-{i}-'
-                    ticket_type = request.form.get(f'{prefix}ticket_type')
+                    prefix = f"ticket_types-{i}-"
+                    ticket_type = request.form.get(f"{prefix}ticket_type")
                     if not ticket_type:
                         break
-                        
-                    quantity = int(request.form.get(f'{prefix}quantity', 0))
-                    price = float(request.form.get(f'{prefix}price', 0))
-                    description = request.form.get(f'{prefix}description', '')
-                    
+
+                    quantity = int(request.form.get(f"{prefix}quantity", 0))
+                    price = float(request.form.get(f"{prefix}price", 0))
+                    description = request.form.get(f"{prefix}description", "")
+
                     ticket = TicketType(
                         ticket_type=ticket_type,
                         quantity=quantity,
                         price=price,
-                        description=description
+                        description=description,
                     )
                     event.ticket_types.append(ticket)
 
             db.session.commit()
-            return jsonify({
-                'success': True,
-                'redirect': url_for('main.event', event_id=event.id)
-            })
+            return jsonify(
+                {"success": True, "redirect": url_for("main.event", event_id=event.id)}
+            )
 
         except Exception as e:
             db.session.rollback()
             print(f"Error updating event: {str(e)}")
-            return jsonify({
-                'success': False,
-                'message': 'Error updating event. Please try again.'
-            }), 500
+            return (
+                jsonify(
+                    {
+                        "success": False,
+                        "message": "Error updating event. Please try again.",
+                    }
+                ),
+                500,
+            )
 
     # Pre-populate form for GET request
-    if request.method == 'GET':
+    if request.method == "GET":
         form.title.data = event.title
         form.date.data = event.date
         form.location.data = event.location
         form.description.data = event.description
         form.category.data = event.category
-        form.event_type.data = 'paid' if event.is_paid_event else 'free'
+        form.event_type.data = "paid" if event.is_paid_event else "free"
         form.currency.data = event.currency if event.is_paid_event else None
 
-    return render_template('edit_event.html', form=form, event=event)
+    return render_template("edit_event.html", form=form, event=event)
 
 
 @main.route("/event/<int:event_id>/delete", methods=["DELETE"])
@@ -431,6 +454,7 @@ def profile():
 @login_required
 def myEvents():
     page = request.args.get("page", 1, type=int)
+    events_per_page = get_events_per_page()
 
     # Make sure we're using timezone-aware datetime for comparison
     current_time = datetime.now(timezone.utc)
@@ -438,7 +462,7 @@ def myEvents():
     events = (
         Event.query.filter_by(user_id=current_user.id)
         .order_by(Event.date.desc())
-        .paginate(page=page, per_page=9, error_out=False)
+        .paginate(page=page, per_page=events_per_page, error_out=False)
     )
 
     # Convert event dates to timezone-aware
@@ -470,3 +494,14 @@ def get_image(image_id):
     )
 
     return response
+
+
+@main.route("/update-screen-width", methods=["POST"])
+def update_screen_width():
+    if request.is_json:
+        width = request.json.get("width")
+        if width:
+            session["screen_width"] = width
+            return jsonify({"success": True})
+
+        return jsonify({"success": False}), 400

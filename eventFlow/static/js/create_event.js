@@ -19,6 +19,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	const addUrlBtn = document.querySelector('.btn-add-url');
 	const urlInput = document.getElementById('image_url');
 	const maxImages = 5;
+	const MAX_FILE_SIZE = 5 * 1024 * 1024;
 	let ticketTypeCounter = 0;
 	let imageCount = 0;
 
@@ -228,10 +229,10 @@ document.addEventListener('DOMContentLoaded', function () {
 	// Handle file input change
 	addImageBtn.addEventListener('click', () => imageInput.click());
 
-	imageInput.addEventListener('change', function(e) {
+	imageInput.addEventListener('change', function (e) {
 		const files = Array.from(e.target.files);
 		console.log('Files selected:', files.length);
-		
+
 		if (imageCount + files.length > maxImages) {
 			alert(`You can only upload up to ${maxImages} images. Please select fewer images.`);
 			return;
@@ -243,8 +244,13 @@ document.addEventListener('DOMContentLoaded', function () {
 				return;
 			}
 
+			if (file.size > MAX_FILE_SIZE) {
+				alert(`File "${file.name}" is too large. Maximum file size is 5MB.`);
+				return;
+			}
+
 			const reader = new FileReader();
-			reader.onload = function(e) {
+			reader.onload = function (e) {
 				addImagePreview(e.target.result, file.name, file);
 			};
 			reader.readAsDataURL(file);
@@ -270,7 +276,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		try {
 			const response = await fetch(url);
 			if (!response.ok) throw new Error('Invalid URL');
-			
+
 			const contentType = response.headers.get('content-type');
 			if (!contentType || !contentType.includes('image')) {
 				throw new Error('URL does not point to a valid image');
@@ -279,11 +285,11 @@ document.addEventListener('DOMContentLoaded', function () {
 			// Convert URL image to blob
 			const blob = await response.blob();
 			const file = new File([blob], 'url-image-' + Date.now() + '.jpg', { type: 'image/jpeg' });
-			
+
 			// Create object URL for preview
 			const objectUrl = URL.createObjectURL(file);
 			addImagePreview(objectUrl, file.name, file);
-			
+
 			urlInput.value = '';
 			updateUploadMessage();
 		} catch (error) {
@@ -294,7 +300,7 @@ document.addEventListener('DOMContentLoaded', function () {
 	function addImagePreview(src, filename, file = null) {
 		const wrapper = document.createElement('div');
 		wrapper.className = 'image-preview-wrapper';
-		
+
 		wrapper.innerHTML = `
 			<img src="${src}" alt="${filename}">
 			<button type="button" class="remove-image" title="Remove image">
@@ -309,12 +315,12 @@ document.addEventListener('DOMContentLoaded', function () {
 			fileInput.type = 'file';
 			fileInput.style.display = 'none';
 			fileInput.name = 'images';
-			
+
 			// Create a new FileList containing just this file
 			const dataTransfer = new DataTransfer();
 			dataTransfer.items.add(file);
 			fileInput.files = dataTransfer.files;
-			
+
 			wrapper.appendChild(fileInput);
 		} else {
 			// For URL images
@@ -325,7 +331,7 @@ document.addEventListener('DOMContentLoaded', function () {
 			wrapper.appendChild(urlInput);
 		}
 
-		wrapper.querySelector('.remove-image').addEventListener('click', function() {
+		wrapper.querySelector('.remove-image').addEventListener('click', function () {
 			wrapper.remove();
 			imageCount--;
 			updateUploadMessage();
@@ -343,7 +349,7 @@ document.addEventListener('DOMContentLoaded', function () {
 		} else {
 			uploadMessage.style.display = 'none';
 		}
-		
+
 		addImageBtn.disabled = imageCount >= maxImages;
 	}
 
@@ -351,10 +357,10 @@ document.addEventListener('DOMContentLoaded', function () {
 		const errorDiv = document.createElement('div');
 		errorDiv.className = 'error-message';
 		errorDiv.textContent = message;
-		
+
 		const existingError = urlInput.parentElement.querySelector('.error-message');
 		if (existingError) existingError.remove();
-		
+
 		urlInput.parentElement.appendChild(errorDiv);
 		setTimeout(() => errorDiv.remove(), 3000);
 	}
@@ -366,7 +372,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
 		try {
 			const formData = new FormData(this);
-			
+
 			// Remove any existing image fields
 			for (let pair of formData.entries()) {
 				if (pair[0] === 'images') {

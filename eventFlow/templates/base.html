@@ -32,9 +32,11 @@
               <li class="nav-item">
                 <a href="{{ url_for('main.findEvent') }}" class="nav-link">Find Events</a>
               </li>
+              {% if current_user.role == "organizer" %}
               <li class="nav-item">
                 <a href="{{ url_for('main.createEvent') }}" class="nav-link">Create Event</a>
               </li>
+              {% endif %}
               <li class="nav-item dropdown">
                 <button class="dropdownTitle nav-link">
                   Help Center
@@ -156,6 +158,33 @@
       </div>
     </footer>
     <script src="/static/js/base.js"></script>
-    {% block scripts %}{% endblock %}
+    {% block scripts %}
+    <script>
+    function updateScreenWidth() {
+        const width = window.innerWidth;
+        fetch('/update-screen-width', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ width: width })
+        });
+    }
+
+    // Update on page load and resize
+    document.addEventListener('DOMContentLoaded', updateScreenWidth);
+    window.addEventListener('resize', debounce(updateScreenWidth, 250));
+
+    // Debounce function to prevent too many requests
+    function debounce(func, wait) {
+        let timeout;
+        return function() {
+            clearTimeout(timeout);
+            timeout = setTimeout(() => func.apply(this, arguments), wait);
+        };
+    }
+    </script>
+    {% endblock %}
   </body>
 </html>
