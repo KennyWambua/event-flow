@@ -117,6 +117,40 @@
             </div>
           </div>
 
+          <!-- Role field -->
+          <div class="form-section">
+            <div class="form-group">
+              <label>Join as a</label>
+              <div class="role-options">
+                <div class="role-option" data-role="attendee">
+                  <input type="radio" name="role" id="role-attendee" value="attendee" class="role-radio" checked />
+                  <label for="role-attendee" class="role-label">
+                    <div class="role-icon">
+                      <span class="material-icons">person</span>
+                    </div>
+                    <div class="role-content">
+                      <h3>Attendee</h3>
+                      <p>Discover and attend amazing events</p>
+                    </div>
+                  </label>
+                </div>
+
+                <div class="role-option" data-role="organizer">
+                  <input type="radio" name="role" id="role-organizer" value="organizer" class="role-radio" />
+                  <label for="role-organizer" class="role-label">
+                    <div class="role-icon">
+                      <span class="material-icons">event</span>
+                    </div>
+                    <div class="role-content">
+                      <h3>Event Organizer</h3>
+                      <p>Create and manage your own events</p>
+                    </div>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Terms Checkbox -->
           <div class="form-section">
             <div class="checkbox-wrapper">
@@ -246,6 +280,33 @@
           showErrorMessage('Email addresses do not match. Please try again', confirmEmail)
           return
         }
+    
+        // Validate role selection
+        const selectedRole = document.querySelector('input[name="role"]:checked')
+        if (!selectedRole) {
+          e.preventDefault()
+          showErrorMessage('Please select a role', document.querySelector('.role-options'))
+          return
+        }
+      })
+    
+      // Add role selection handling
+      const roleOptions = document.querySelectorAll('.role-option')
+    
+      roleOptions.forEach((option) => {
+        const radio = option.querySelector('.role-radio')
+    
+        radio.addEventListener('change', function () {
+          // Remove selected class from all options
+          roleOptions.forEach((opt) => {
+            opt.classList.remove('selected')
+          })
+    
+          // Add selected class to chosen option
+          if (this.checked) {
+            option.classList.add('selected')
+          }
+        })
       })
     })
   </script>

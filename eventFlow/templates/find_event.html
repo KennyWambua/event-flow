@@ -36,7 +36,7 @@
         </select>
         <div class="location-input">
             <span class="material-icons">location_on</span>
-            <input type="text" name="location" placeholder="Nairobi" class="form-control" value="{{ request.args.get('location', '') }}" />
+            <input type="text" name="location" placeholder="Location" class="form-control" value="{{ request.args.get('location', '') }}" />
         </div>
         <button type="submit" class="btn btn-primary">Search</button>
     </form>
@@ -50,7 +50,7 @@
             </div>
           </a>
           <div class="eventDetails">
-            <span class="eventDate">{{ event.date }}</span>
+            <span class="eventDate">{{ event.date.strftime('%B %d, %Y at %I:%M %p') }}</span>
             <h3>{{ event.title }}</h3>
             <p>{{ event.location }}</p>
             <a href="{{ url_for('main.event', event_id=event.id) }}" class="btn btn-primary">Get ticket</a>

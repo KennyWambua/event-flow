@@ -71,7 +71,6 @@
 		padding: 1rem;
 		border: 1px solid hsl(var(--border));
 		border-radius: var(--radius);
-		background: hsl(var(--background));
 		transition: all 0.2s ease;
 		-webkit-border-radius: var(--radius);
 		-moz-border-radius: var(--radius);
@@ -653,10 +652,6 @@
 	color: hsl(var(--muted-foreground));
 	font-size: 0.875rem;
 }
-
-
-
-
 
 /* Ticket Type Counter Badge */
 .ticket-counter {

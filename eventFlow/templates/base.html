@@ -10,10 +10,11 @@
       <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
       <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons" />
       <script src="https://kit.fontawesome.com/ffd076d270.js" crossorigin="anonymous"></script>
-      <meta name="csrf-token" content="{{ csrf_token() }}">
+      <meta name="csrf-token" content="{{ csrf_token() }}" />
       <title>
         {% block title %}
-        {% endblock %} - eventFlow
+
+        {% endblock %}- eventFlow
       </title>
     {% endblock %}
   </head>
@@ -23,18 +24,18 @@
         <div class="companyName">
           <a href="{{ url_for('main.home') }}">eventFlow</a>
         </div>
-        <button class="mobileMenuBtn" aria-label="Toggle menu">
-          <span class="material-icons">menu</span>
-        </button>
+        <button class="mobileMenuBtn" aria-label="Toggle menu"><span class="material-icons">menu</span></button>
         <div class="navSection">
           <nav>
             <ul class="mainNavbar">
               <li class="nav-item">
                 <a href="{{ url_for('main.findEvent') }}" class="nav-link">Find Events</a>
               </li>
-              <li class="nav-item">
-                <a href="{{ url_for('main.createEvent') }}" class="nav-link">Create Event</a>
-              </li>
+              {% if current_user.role == 'organizer' %}
+                <li class="nav-item">
+                  <a href="{{ url_for('main.createEvent') }}" class="nav-link">Create Event</a>
+                </li>
+              {% endif %}
               <li class="nav-item dropdown">
                 <button class="dropdownTitle nav-link">
                   Help Center
@@ -42,14 +43,22 @@
                 </button>
                 <div class="dropdownContent">
                   <ul class="dropdownList">
-                    <li><a href="{{ url_for('main.helpCenter') }}">Help Center</a></li>
-                    <li><a href="{{ url_for('main.findMyTickets') }}">Find Your Tickets</a></li>
-                    <li><a href="{{ url_for('main.contactOrganizer') }}">Contact Your Event Organizer</a></li>
+                    <li>
+                      <a href="{{ url_for('main.helpCenter') }}">Help Center</a>
+                    </li>
+                    <li>
+                      <a href="{{ url_for('main.findMyTickets') }}">Find Your Tickets</a>
+                    </li>
+                    <li>
+                      <a href="{{ url_for('main.contactOrganizer') }}">Contact Your Event Organizer</a>
+                    </li>
                   </ul>
                 </div>
               </li>
               <li class="nav-item">
-                <a href="{{ url_for('main.findMyTickets') }}" class="nav-link">Find my tickets</a>
+                <a href="{{ url_for('main.myTickets') }}" class="nav-link">
+                  Find My Tickets
+                </a>
               </li>
             </ul>
           </nav>
@@ -63,11 +72,19 @@
                 </button>
                 <div class="dropdownContent">
                   <ul class="dropdownList">
-                    <li><a href="{{ url_for('main.profile') }}">My Profile</a></li>
-                    <li><a href="{{ url_for('main.myEvents') }}">My Events</a></li>
-                    <li><a href="{{ url_for('main.settings') }}">Settings</a></li>
+                    <li>
+                      <a href="{{ url_for('main.profile') }}">My Profile</a>
+                    </li>
+                    <li>
+                      <a href="{{ url_for('main.myEvents') }}">My Events</a>
+                    </li>
+                    <li>
+                      <a href="{{ url_for('main.settings') }}">Settings</a>
+                    </li>
                     <li class="divider"></li>
-                    <li><a href="{{ url_for('auth.logout') }}" class="logout-link">Log Out</a></li>
+                    <li>
+                      <a href="{{ url_for('auth.logout') }}" class="logout-link">Log Out</a>
+                    </li>
                   </ul>
                 </div>
               </div>
@@ -84,7 +101,9 @@
       </div>
     </header>
     <div class="breadcrumbs">
-        {% block breadcrumb_items %}{% endblock %}
+      {% block breadcrumb_items %}
+
+      {% endblock %}
     </div>
     <div class="flash-container">
       {% with messages=get_flashed_messages(with_categories=true) %}
@@ -92,9 +111,7 @@
           {% for category, message in messages %}
             <div class="flash-message flash-{{ category }}">
               <span class="flash-text">{{ message }}</span>
-              <button class="flash-close">
-                <span class="material-icons">close</span>
-              </button>
+              <button class="flash-close"><span class="material-icons">close</span></button>
             </div>
           {% endfor %}
         {% endif %}
@@ -102,6 +119,7 @@
     </div>
     <main class="main-content">
       {% block content %}
+
       {% endblock %}
     </main>
     <footer class="site-footer">
@@ -120,42 +138,99 @@
         <div class="footer-section">
           <h3>Quick Links</h3>
           <ul>
-            <li><a href="{{ url_for('main.findEvent') }}">Find Events</a></li>
-            <li><a href="{{ url_for('main.createEvent') }}">Create Event</a></li>
-            <li><a href="{{ url_for('main.helpCenter') }}">Help Center</a></li>
-            <li><a href="{{ url_for('main.findMyTickets') }}">My Tickets</a></li>
+            <li>
+              <a href="{{ url_for('main.findEvent') }}">Find Events</a>
+            </li>
+            <li>
+              <a href="{{ url_for('main.createEvent') }}">Create Event</a>
+            </li>
+            <li>
+              <a href="{{ url_for('main.helpCenter') }}">Help Center</a>
+            </li>
+            <li>
+              <a href="{{ url_for('main.findMyTickets') }}">My Tickets</a>
+            </li>
           </ul>
         </div>
 
         <div class="footer-section">
           <h3>Categories</h3>
           <ul>
-            <li><a href="#">Music & Concerts</a></li>
-            <li><a href="#">Food & Drink</a></li>
-            <li><a href="#">Business & Professional</a></li>
-            <li><a href="#">Arts & Culture</a></li>
-            <li><a href="#">Sports & Fitness</a></li>
-            <li><a href="#">Technology</a></li>
+            <li>
+              <a href="{{ url_for('main.findEvent', category='music') }}">Music & Concerts</a>
+            </li>
+            <li>
+              <a href="{{ url_for('main.findEvent', category='education') }}">Education</a>
+            </li>
+            <li>
+              <a href="{{ url_for('main.findEvent', category='arts') }}">Arts & Culture</a>
+            </li>
+            <li>
+              <a href="{{ url_for('main.findEvent', category='sports') }}">Sports & Fitness</a>
+            </li>
+            <li>
+              <a href="{{ url_for('main.findEvent', category='gaming') }}">Gaming</a>
+            </li>
+            <li>
+              <a href="{{ url_for('main.findEvent', category='business') }}">Business & Professional</a>
+            </li>
           </ul>
         </div>
 
         <div class="footer-section">
           <h3>Support</h3>
           <ul>
-            <li><a href="#">Contact Us</a></li>
-            <li><a href="#">FAQs</a></li>
-            <li><a href="#">Terms of Service</a></li>
-            <li><a href="#">Privacy Policy</a></li>
-            <li><a href="#">Cookie Policy</a></li>
+            <li>
+              <a href="#">Contact Us</a>
+            </li>
+            <li>
+              <a href="#">FAQs</a>
+            </li>
+            <li>
+              <a href="#">Terms of Service</a>
+            </li>
+            <li>
+              <a href="#">Privacy Policy</a>
+            </li>
+            <li>
+              <a href="#">Cookie Policy</a>
+            </li>
           </ul>
         </div>
       </div>
 
       <div class="footer-bottom">
-        <p>&copy; {{ now.year if now else 2024 }} eventFlow. All rights reserved.</p>
+        <p>&copy; 2025 eventFlow. All rights reserved.</p>
       </div>
     </footer>
     <script src="/static/js/base.js"></script>
-    {% block scripts %}{% endblock %}
+    {% block scripts %}
+      <script>
+        function updateScreenWidth() {
+          const width = window.innerWidth
+          fetch('/update-screen-width', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'X-CSRFToken': document.querySelector('meta[name="csrf-token"]').content
+            },
+            body: JSON.stringify({ width: width })
+          })
+        }
+        
+        // Update on page load and resize
+        document.addEventListener('DOMContentLoaded', updateScreenWidth)
+        window.addEventListener('resize', debounce(updateScreenWidth, 250))
+        
+        // Debounce function to prevent too many requests
+        function debounce(func, wait) {
+          let timeout
+          return function () {
+            clearTimeout(timeout)
+            timeout = setTimeout(() => func.apply(this, arguments), wait)
+          }
+        }
+      </script>
+    {% endblock %}
   </body>
 </html>

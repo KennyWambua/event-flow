@@ -135,6 +135,8 @@
 .btn-primary {
   background: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
+  display: flex;
+  align-items: center;
 
   &:hover {
     background: hsl(var(--primary) / 0.9);
@@ -145,6 +147,8 @@
   background: transparent;
   border: 1px solid hsl(var(--primary));
   color: hsl(var(--primary));
+  display: flex;
+  align-items: center;
 
   &:hover {
     background: hsl(var(--primary));
@@ -191,7 +195,7 @@
       }
 
       &.swiper-button-disabled {
-        opacity: 0.5;
+        opacity: 0;
         cursor: not-allowed;
       }
     }
@@ -258,6 +262,9 @@
     gap: 2rem;
 
     .eventCard {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
       background: hsl(var(--card));
       border-radius: var(--radius);
       overflow: hidden;
@@ -271,6 +278,10 @@
         -moz-transform: translateY(-2px);
         -ms-transform: translateY(-2px);
         -o-transform: translateY(-2px);
+
+        img {
+          transform: scale(1.05);
+        }
       }
 
       .eventImageLink {
@@ -287,10 +298,6 @@
             height: 100%;
             object-fit: cover;
             transition: transform 0.3s ease;
-          }
-        
-          &:hover img {
-            transform: scale(1.05);
           }
 
           .placeholder-image {
@@ -334,7 +341,12 @@
 
 
 .eventDetails {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: space-between;
   padding: 1.5rem;
+
 }
 
 .eventMeta {
@@ -383,7 +395,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 1.5rem;
+  margin-top: auto;
 }
 
 .eventPrice {
@@ -416,28 +428,29 @@
 
 .whyChooseUs {
   margin-bottom: 4rem;
-  padding: 4rem 0;
-  background: hsl(var(--accent));
-  border-radius: var(--radius);
 }
 
 .featuresGrid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
   gap: 2rem;
-  padding: 0 2rem;
 }
 
 .featureCard {
   text-align: center;
-  padding: 2rem;
-  background: hsl(var(--background));
+  padding: 2rem 0;
+  background: hsl(var(--card));
   border-radius: var(--radius);
   transition: transform 0.2s ease;
 
   &:hover {
-    transform: translateY(-4px);
-  }
+    transform: translateY(-2px);
+    -webkit-transform: translateY(-2px);
+    -moz-transform: translateY(-2px);
+    -ms-transform: translateY(-2px);
+    -o-transform: translateY(-2px);
+    background: hsl(var(--accent) / 0.8);
+}
 
   .material-icons {
     font-size: 3rem;
@@ -520,10 +533,10 @@
 
 .backToTop {
   position: fixed;
-  bottom: 2rem;
-  right: 2rem;
-  width: 3rem;
-  height: 3rem;
+  bottom: 1.5rem;
+  right: 1rem;
+  width: 2rem;
+  height: 2rem;
   border-radius: 50%;
   background: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
