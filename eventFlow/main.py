@@ -14,7 +14,7 @@ from flask import (
 from flask_login import login_required, current_user
 from datetime import datetime, timezone
 from sqlalchemy import or_
-from .models import Event, EventImage, db, TicketType, User
+from .models import Event, EventImage, db, TicketType, User, EventRegistration, Order
 from .forms import EventForm, TicketTypeForm
 import imghdr
 import requests
@@ -449,6 +449,10 @@ def contactOrganizer():
 def profile():
     return render_template("profile.html", now=g.now)
 
+@main.route("/contact")
+@login_required
+def contact():
+    return render_template("contact.html", now=g.now)
 
 @main.route("/my-events")
 @login_required
@@ -505,3 +509,144 @@ def update_screen_width():
             return jsonify({"success": True})
 
         return jsonify({"success": False}), 400
+
+
+@main.route('/register-free-event', methods=['POST'])
+@login_required
+def register_free_event():
+    try:
+        data = request.get_json()
+        event_id = data.get('eventId')
+        
+        event = Event.query.get_or_404(event_id)
+        
+        # Make current time timezone-aware
+        current_time = datetime.now(timezone.utc)
+        
+        # Ensure event date is timezone-aware
+        event_date = event.date
+        if event_date.tzinfo is None:
+            event_date = event_date.replace(tzinfo=timezone.utc)
+        
+        # Verify event is free and upcoming
+        if event.is_paid_event:
+            return jsonify({
+                'success': False,
+                'message': 'This is not a free event'
+            }), 400
+            
+        if event_date < current_time:
+            return jsonify({
+                'success': False,
+                'message': 'This event has already passed'
+            }), 400
+            
+        # Check if user is already registered
+        existing_registration = EventRegistration.query.filter_by(
+            user_id=current_user.id,
+            event_id=event_id
+        ).first()
+        
+        if existing_registration:
+            return jsonify({
+                'success': False,
+                'message': 'You are already registered for this event'
+            }), 400
+        
+        # Create registration record
+        registration = EventRegistration(
+            user_id=current_user.id,
+            event_id=event_id
+        )
+        
+        db.session.add(registration)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'redirect': url_for('main.myTickets')
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"Registration error: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': 'An error occurred during registration'
+        }), 500
+
+
+@main.route('/my-tickets')
+@login_required
+def myTickets():
+    # Get both paid orders and free registrations
+    current_time = datetime.now(timezone.utc)
+    
+    # Get free event registrations with timezone-aware dates
+    free_registrations = (
+        EventRegistration.query
+        .join(Event)
+        .filter(EventRegistration.user_id == current_user.id)
+        .order_by(Event.date.desc())
+        .all()
+    )
+    
+    # Get paid event orders
+    paid_orders = (
+        Order.query
+        .filter_by(user_id=current_user.id)
+        .order_by(Order.created_at.desc())
+        .all()
+    )
+    
+    # Ensure all event dates are timezone-aware
+    for registration in free_registrations:
+        if registration.event.date.tzinfo is None:
+            registration.event.date = registration.event.date.replace(tzinfo=timezone.utc)
+    
+    for order in paid_orders:
+        if order.event.date.tzinfo is None:
+            order.event.date = order.event.date.replace(tzinfo=timezone.utc)
+    
+    return render_template(
+        'my_tickets.html',
+        free_registrations=free_registrations,
+        paid_orders=paid_orders,
+        now=current_time
+    )
+
+@main.route('/cancel-registration/<int:registration_id>', methods=['POST'])
+@login_required
+def cancel_registration(registration_id):
+    try:
+        registration = EventRegistration.query.get_or_404(registration_id)
+        
+        # Verify ownership
+        if registration.user_id != current_user.id:
+            return jsonify({
+                'success': False,
+                'message': 'Unauthorized'
+            }), 403
+            
+        # Check if event is in the future
+        if registration.event.date < datetime.now(timezone.utc):
+            return jsonify({
+                'success': False,
+                'message': 'Cannot cancel registration for past events'
+            }), 400
+            
+        db.session.delete(registration)
+        db.session.commit()
+        
+        return jsonify({
+            'success': True,
+            'message': 'Registration cancelled successfully'
+        })
+        
+    except Exception as e:
+        db.session.rollback()
+        print(f"Cancellation error: {str(e)}")
+        return jsonify({
+            'success': False,
+            'message': 'Error cancelling registration'
+        }), 500

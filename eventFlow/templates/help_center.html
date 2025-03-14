@@ -1,26 +1,150 @@
 {% extends 'base.html' %}
 {% block head %}
-    {{ super() }}
-    <link rel="stylesheet" href="/static/css/help_center.css" />
+  {{ super() }}
+  <link rel="stylesheet" href="/static/css/help_center.css" />
 {% endblock %}
 
-{% block title %}Help Center{% endblock %}
-
-{% block breadcrumb_items %}
-<li class="breadcrumb-item active">Help Center</li>
+{% block title %}
+  Help Center - eventFlow
 {% endblock %}
 
 {% block content %}
-<div class="help-center-container">
-    <h1>Help Center</h1>
-    <p class="subtitle">Find answers to your questions.</p>
-    <div class="faq-section">
-        <h2>Frequently Asked Questions</h2>
-        <ul>
-            <li><strong>How do I create an event?</strong> - You can create an event by navigating to the Create Event page.</li>
-            <li><strong>How do I find my tickets?</strong> - You can find your tickets in the My Tickets section.</li>
-            <li><strong>How do I contact support?</strong> - You can contact support through the Contact Us page.</li>
-        </ul>
+  <div class="help-center-container">
+    <div class="help-header">
+      <h1>How can we help?</h1>
+      <p class="subtitle">Browse through our frequently asked questions or contact our support team</p>
+      <div class="search-box">
+        <span class="material-icons">search</span>
+        <input type="text" id="faqSearch" placeholder="Search for help..." />
+      </div>
     </div>
-</div>
-{% endblock %} 
+
+    <div class="help-categories">
+      <div class="category-card">
+        <span class="material-icons">event</span>
+        <h3>Events</h3>
+        <p>Learn about creating and managing events</p>
+      </div>
+      <div class="category-card">
+        <span class="material-icons">confirmation_number</span>
+        <h3>Tickets</h3>
+        <p>Information about tickets and bookings</p>
+      </div>
+      <div class="category-card">
+        <span class="material-icons">account_circle</span>
+        <h3>Account</h3>
+        <p>Account settings and management</p>
+      </div>
+      <div class="category-card">
+        <span class="material-icons">payments</span>
+        <h3>Payments</h3>
+        <p>Payment methods and refunds</p>
+      </div>
+    </div>
+
+    <div class="faq-section">
+      <h2>Frequently Asked Questions</h2>
+      <div class="faq-grid">
+        <div class="faq-category">
+          <h3>Event Creation & Management</h3>
+          <div class="accordion">
+            <div class="accordion-item">
+              <button class="accordion-header">
+                How do I create an event?
+                <span class="material-icons">expand_more</span>
+              </button>
+              <div class="accordion-content">
+                <p>To create an event:</p>
+                <ol>
+                  <li>Log in to your account</li>
+                  <li>Click on "Create Event" in the navigation menu</li>
+                  <li>Fill in your event details</li>
+                  <li>Add images and ticket information</li>
+                  <li>Click "Create Event" to publish</li>
+                </ol>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <button class="accordion-header">
+                How do I edit my event?
+                <span class="material-icons">expand_more</span>
+              </button>
+              <div class="accordion-content">
+                <p>You can edit your event by going to "My Events" and clicking the "Edit" button on the event you want to modify.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="faq-category">
+          <h3>Tickets & Bookings</h3>
+          <div class="accordion">
+            <div class="accordion-item">
+              <button class="accordion-header">
+                How do I find my tickets?
+                <span class="material-icons">expand_more</span>
+              </button>
+              <div class="accordion-content">
+                <p>Your tickets can be found in the "My Tickets" section of your account dashboard.</p>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <button class="accordion-header">
+                Can I get a refund?
+                <span class="material-icons">expand_more</span>
+              </button>
+              <div class="accordion-content">
+                <p>Refund policies vary by event. Please check the event's refund policy or contact the event organizer.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="contact-section">
+      <h2>Still need help?</h2>
+      <p>Our support team is here to assist you</p>
+      <div class="contact-options">
+        <a href="{{ url_for('main.contact') }}" class="contact-card">
+          <span class="material-icons">mail</span>
+          <h3>Email Support</h3>
+          <p>Get help via email</p>
+        </a>
+        <div class="contact-card">
+          <span class="material-icons">chat</span>
+          <h3>Live Chat</h3>
+          <p>Chat with our support team</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      // Accordion functionality
+      document.querySelectorAll('.accordion-header').forEach((button) => {
+        button.addEventListener('click', () => {
+          const accordionContent = button.nextElementSibling
+          button.classList.toggle('active')
+    
+          if (button.classList.contains('active')) {
+            accordionContent.style.maxHeight = accordionContent.scrollHeight + 'px'
+          } else {
+            accordionContent.style.maxHeight = 0
+          }
+        })
+      })
+    
+      // Search functionality
+      const searchInput = document.getElementById('faqSearch')
+      searchInput.addEventListener('input', function () {
+        const searchTerm = this.value.toLowerCase()
+        document.querySelectorAll('.accordion-item').forEach((item) => {
+          const text = item.textContent.toLowerCase()
+          item.style.display = text.includes(searchTerm) ? 'block' : 'none'
+        })
+      })
+    })
+  </script>
+{% endblock %}

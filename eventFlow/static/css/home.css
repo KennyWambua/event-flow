@@ -262,6 +262,9 @@
     gap: 2rem;
 
     .eventCard {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
       background: hsl(var(--card));
       border-radius: var(--radius);
       overflow: hidden;
@@ -275,6 +278,10 @@
         -moz-transform: translateY(-2px);
         -ms-transform: translateY(-2px);
         -o-transform: translateY(-2px);
+
+        img {
+          transform: scale(1.05);
+        }
       }
 
       .eventImageLink {
@@ -291,10 +298,6 @@
             height: 100%;
             object-fit: cover;
             transition: transform 0.3s ease;
-          }
-        
-          &:hover img {
-            transform: scale(1.05);
           }
 
           .placeholder-image {
@@ -338,7 +341,10 @@
 
 
 .eventDetails {
-
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  justify-content: space-between;
   padding: 1.5rem;
 
 }
@@ -389,7 +395,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 1.5rem;
+  margin-top: auto;
 }
 
 .eventPrice {

@@ -49,7 +49,7 @@
 
       <div class="event-info">
         <div class="event-meta">
-          <div class="event-status {% if event.date > now %}
+          <div class="event-status {% if event.date_utc > now %}
               
               
               upcoming
@@ -62,7 +62,7 @@
 
 
             {% endif %}">
-            {% if event.date > now %}
+            {% if event.date_utc > now %}
               Upcoming
             {% else %}
               Past
@@ -124,9 +124,22 @@
           <div class="ticket-info free">
             <span class="free-label">Free Event</span>
             {% if current_user.is_authenticated %}
-              <button class="btn btn-primary btn-book">Register Now</button>
+                {% if event.date_utc > now %}
+                    <button class="btn btn-primary btn-book" onclick="registerFreeEvent()">
+                        <span class="material-icons">how_to_reg</span>
+                        Register Now
+                    </button>
+                {% else %}
+                    <button class="btn btn-secondary" disabled>
+                        <span class="material-icons">event_busy</span>
+                        Event Ended
+                    </button>
+                {% endif %}
             {% else %}
-              <a href="{{ url_for('auth.login', next=request.path) }}" class="btn btn-primary">Login to Register</a>
+                <a href="{{ url_for('auth.login', next=request.path) }}" class="btn btn-primary">
+                    <span class="material-icons">login</span>
+                    Login to Register
+                </a>
             {% endif %}
           </div>
         {% endif %}
@@ -196,6 +209,30 @@
         </div>
       </div>
     {% endif %}
+
+    <div id="registrationModal" class="modal">
+        <div class="modal-content">
+            <h2>Event Registration</h2>
+            <p>You are registering for: <strong>{{ event.title }}</strong></p>
+            <div class="registration-details">
+                <div class="detail-row">
+                    <span class="label">Date:</span>
+                    <span class="value">{{ event.date.strftime('%B %d, %Y at %I:%M %p') }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="label">Location:</span>
+                    <span class="value">{{ event.location }}</span>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn btn-secondary" onclick="closeRegistrationModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmRegistration()" id="confirmRegBtn">
+                    <span class="material-icons">check</span>
+                    Confirm Registration
+                </button>
+            </div>
+        </div>
+    </div>
   </div>
 {% endblock %}
 
@@ -340,6 +377,46 @@
       notification.textContent = 'Link copied to clipboard!'
       document.body.appendChild(notification)
       setTimeout(() => notification.remove(), 3000)
+    }
+
+    function registerFreeEvent() {
+        document.getElementById('registrationModal').style.display = 'flex';
+    }
+
+    function closeRegistrationModal() {
+        document.getElementById('registrationModal').style.display = 'none';
+    }
+
+    function confirmRegistration() {
+        const confirmBtn = document.getElementById('confirmRegBtn');
+        const originalText = confirmBtn.innerHTML;
+        confirmBtn.innerHTML = '<span class="material-icons loading">sync</span> Processing...';
+        confirmBtn.disabled = true;
+
+        fetch('/register-free-event', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                eventId: '{{ event.id }}'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                window.location.href = data.redirect;
+            } else {
+                throw new Error(data.message || 'Registration failed');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert(error.message || 'Error processing registration. Please try again.');
+            confirmBtn.innerHTML = originalText;
+            confirmBtn.disabled = false;
+        });
     }
   </script>
 {% endblock %}
