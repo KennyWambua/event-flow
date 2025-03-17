@@ -26,7 +26,7 @@ from wtforms.validators import (
     Optional,
     NumberRange,
 )
-from .models import User
+from .models import User, UserRole
 from flask_wtf.file import FileAllowed, FileRequired
 from datetime import datetime
 import traceback
@@ -42,68 +42,25 @@ class LoginForm(FlaskForm):
 
 
 class SignupForm(FlaskForm):
-    email = StringField(
-        "Email",
-        validators=[
-            DataRequired(),
-            Email(message="Please enter a valid email address"),
-        ],
-    )
-    confirm_email = StringField(
-        "Confirm Email",
-        validators=[
-            DataRequired(),
-            Email(message="Please enter a valid email address"),
-            EqualTo("email", message="Emails must match"),
-        ],
-    )
-    first_name = StringField(
-        "First Name",
-        validators=[
-            DataRequired(),
-            Length(
-                min=2, max=50, message="First name must be between 2 and 50 characters"
-            ),
-        ],
-    )
-    last_name = StringField(
-        "Last Name",
-        validators=[
-            DataRequired(),
-            Length(
-                min=2, max=50, message="Last name must be between 2 and 50 characters"
-            ),
-        ],
-    )
+    email = StringField('Email', validators=[DataRequired(), Email()])
+    confirm_email = StringField('Confirm Email', validators=[
+        DataRequired(),
+        EqualTo('email', message='Email addresses must match')
+    ])
+    first_name = StringField('First Name', validators=[DataRequired(), Length(min=2, max=50)])
+    last_name = StringField('Last Name', validators=[DataRequired(), Length(min=2, max=50)])
+    password = PasswordField('Password', validators=[DataRequired(), Length(min=6)])
     role = RadioField(
-        "Role",
-        choices=[("attendee", "Attendee"), ("organizer", "Event Organizer")],
-        default="attendee",
-        validators=[DataRequired()],
-    )
-    password = PasswordField(
-        "Password",
-        validators=[
-            DataRequired(),
-            Length(min=6, message="Password must be at least 6 characters long"),
+        'Role',
+        choices=[
+            (UserRole.ATTENDEE.name, 'Attendee'),
+            (UserRole.ORGANIZER.name, 'Organizer')
         ],
+        validators=[DataRequired()],
+        default=UserRole.ATTENDEE.name
     )
-    accept_terms = BooleanField(
-        "I accept the Terms and Conditions",
-        validators=[DataRequired(message="You must accept the terms and conditions")],
-    )
-    submit = SubmitField("Sign Up")
-
-    def validate_email(self, field):
-        print(f"Validating email: {field.data}")
-        # Check if email already exists
-        user = User.query.filter_by(email=field.data.lower()).first()
-        if user:
-            print(f"Found existing user with email: {field.data}")
-            raise ValidationError(
-                "An account with this email already exists. Please use a different email or log."
-            )
-        print("Email validation passed")
+    accept_terms = BooleanField('I accept the Terms of Service', validators=[DataRequired()])
+    submit = SubmitField('Sign Up')
 
 
 class BaseForm(FlaskForm):

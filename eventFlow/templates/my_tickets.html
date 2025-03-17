@@ -22,117 +22,138 @@
     <div class="tickets-header">
         <h1>My Tickets</h1>
         <p class="subtitle">Manage your event tickets and registrations</p>
+        
+        <!-- Add ticket filters -->
+        <div class="ticket-filters">
+            <button class="filter-btn active" data-filter="all">All Tickets</button>
+            <button class="filter-btn" data-filter="upcoming">Upcoming</button>
+            <button class="filter-btn" data-filter="past">Past</button>
+        </div>
     </div>
 
     <div class="tickets-content">
         {% set has_tickets = free_registrations or paid_orders %}
         
         {% if has_tickets %}
-            <div class="tickets-grid">
-                {# Free Event Registrations #}
-                {% for registration in free_registrations %}
-                    <div class="ticket-card">
-                        <div class="ticket-image">
-                            <img src="{{ registration.event.get_primary_image_url() }}" alt="{{ registration.event.title }}">
-                        </div>
-                        <div class="ticket-details">
-                            <div class="ticket-status {% if registration.event.date_utc > now %}upcoming{% else %}past{% endif %}">
-                                {{ "Upcoming" if registration.event.date_utc > now else "Past" }}
-                            </div>
-                            <h3>{{ registration.event.title }}</h3>
-                            <div class="ticket-info">
-                                <div class="info-item">
-                                    <span class="material-icons">event</span>
-                                    <span>{{ registration.event.date.strftime('%B %d, %Y at %I:%M %p') }}</span>
-                                </div>
-                                <div class="info-item">
-                                    <span class="material-icons">location_on</span>
-                                    <span>{{ registration.event.location }}</span>
-                                </div>
-                                <div class="info-item">
-                                    <span class="material-icons">confirmation_number</span>
-                                    <span>Free Registration</span>
-                                </div>
-                            </div>
-                            <div class="ticket-actions">
-                                <a href="{{ url_for('main.event', event_id=registration.event.id) }}" class="btn btn-secondary">
-                                    <span class="material-icons">visibility</span>
-                                    View Event
-                                </a>
-                                {% if registration.event.date_utc > now %}
-                                    <button class="btn btn-danger" onclick="cancelRegistration({{ registration.id }})">
-                                        <span class="material-icons">cancel</span>
-                                        Cancel Registration
-                                    </button>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
+					<div class="tickets-grid">
+						{# Free Event Registrations #}
+						{% for registration in free_registrations %}
+								<div class="ticket-card" data-status="{{ 'upcoming' if registration.event.is_upcoming(now) else 'past' }}">
+										<div class="ticket-image">
+												<img src="{{ registration.event.get_primary_image_url() }}" alt="{{ registration.event.title }}">
+												<div class="ticket-type-badge free">Free Event</div>
+										</div>
+										<div class="ticket-details">
+												<div class="ticket-header">
+														<div class="ticket-status {% if registration.event.is_upcoming(now) %}upcoming{% else %}past{% endif %}">
+																{{ "Upcoming" if registration.event.is_upcoming(now) else "Past" }}
+														</div>
+														<div class="event-category">
+																<span class="material-icons">category</span>
+																{{ registration.event.category }}
+														</div>
+												</div>
+												<h3>{{ registration.event.title }}</h3>
+												<div class="ticket-info">
+														<div class="info-item">
+																<span class="material-icons">event</span>
+																<span>{{ registration.event.date.strftime('%B %d, %Y at %I:%M %p') }}</span>
+														</div>
+														<div class="info-item">
+																<span class="material-icons">location_on</span>
+																<span>{{ registration.event.location }}</span>
+														</div>
+														<div class="info-item">
+																<span class="material-icons">person</span>
+																<span>{{ registration.event.user.first_name }} {{ registration.event.user.last_name }}</span>
+														</div>
+												</div>
+												<div class="ticket-actions">
+														<a href="{{ url_for('main.event', event_id=registration.event.id) }}" class="btn btn-secondary">
+																<span class="material-icons">visibility</span>
+																View Event
+														</a>
+														{% if registration.event.is_upcoming(now) %}
+																<button class="btn btn-danger" onclick="cancelRegistration({{ registration.id }})">
+																		<span class="material-icons">cancel</span>
+																		Cancel Registration
+																</button>
+														{% endif %}
+												</div>
+										</div>
+								</div>
+						{% endfor %}
 
-                {# Paid Event Orders #}
-                {% for order in paid_orders %}
-                    <div class="ticket-card">
-                        <div class="ticket-image">
-                            <img src="{{ order.event.get_primary_image_url() }}" alt="{{ order.event.title }}">
-                        </div>
-                        <div class="ticket-details">
-                            <div class="ticket-status {% if order.event.date_utc > now %}upcoming{% else %}past{% endif %}">
-                                {{ "Upcoming" if order.event.date_utc > now else "Past" }}
-                            </div>
-                            <h3>{{ order.event.title }}</h3>
-                            <div class="ticket-info">
-                                <div class="info-item">
-                                    <span class="material-icons">event</span>
-                                    <span>{{ order.event.date.strftime('%B %d, %Y at %I:%M %p') }}</span>
-                                </div>
-                                <div class="info-item">
-                                    <span class="material-icons">location_on</span>
-                                    <span>{{ order.event.location }}</span>
-                                </div>
-                                <div class="info-item">
-                                    <span class="material-icons">confirmation_number</span>
-                                    <span>Paid Tickets</span>
-                                </div>
-                                <div class="ticket-details-list">
-                                    {% for ticket in order.ticket_details %}
-                                        <div class="ticket-type-item">
-                                            <span>{{ ticket.quantity }}x {{ ticket.ticket_type }}</span>
-                                            <span>{{ ticket.price }} {{ order.event.currency }}</span>
-                                        </div>
-                                    {% endfor %}
-                                    <div class="total">
-                                        <span>Total</span>
-                                        <span>{{ order.total_amount }} {{ order.event.currency }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="ticket-actions">
-                                <a href="{{ url_for('main.event', event_id=order.event.id) }}" class="btn btn-secondary">
-                                    <span class="material-icons">visibility</span>
-                                    View Event
-                                </a>
-                                {% if order.event.date_utc > now %}
-                                    <button class="btn btn-primary" onclick="downloadTickets({{ order.id }})">
-                                        <span class="material-icons">download</span>
-                                        Download Tickets
-                                    </button>
-                                {% endif %}
-                            </div>
-                        </div>
-                    </div>
-                {% endfor %}
-            </div>
+						{# Paid Event Orders #}
+						{% for order in paid_orders %}
+								<div class="ticket-card" data-status="{{ 'upcoming' if order.event.date_utc > now else 'past' }}">
+										<div class="ticket-image">
+												<img src="{{ order.event.get_primary_image_url() }}" alt="{{ order.event.title }}">
+												<div class="ticket-type-badge paid">Paid Event</div>
+										</div>
+										<div class="ticket-details">
+												<div class="ticket-header">
+														<div class="ticket-status {% if order.event.date_utc > now %}upcoming{% else %}past{% endif %}">
+																{{ "Upcoming" if order.event.date_utc > now else "Past" }}
+														</div>
+														<div class="event-category">
+																<span class="material-icons">category</span>
+																{{ order.event.category }}
+														</div>
+												</div>
+												<h3>{{ order.event.title }}</h3>
+												<div class="ticket-info">
+														<div class="info-item">
+																<span class="material-icons">event</span>
+																<span>{{ order.event.date.strftime('%B %d, %Y at %I:%M %p') }}</span>
+														</div>
+														<div class="info-item">
+																<span class="material-icons">location_on</span>
+																<span>{{ order.event.location }}</span>
+														</div>
+														<div class="info-item">
+																<span class="material-icons">person</span>
+																<span>{{ order.event.user.first_name }} {{ order.event.user.last_name }}</span>
+														</div>
+														<div class="ticket-details-list">
+																{% for ticket_id, ticket in order.ticket_details.items() %}
+																		<div class="ticket-type-item">
+																				<span>{{ ticket.quantity }}x {{ ticket.name }}</span>
+																				<span>{{ ticket.subtotal }} {{ order.event.currency }}</span>
+																		</div>
+																{% endfor %}
+																<div class="total">
+																		<span>Total</span>
+																		<span>{{ order.total_amount }} {{ order.event.currency }}</span>
+																</div>
+														</div>
+												</div>
+												<div class="ticket-actions">
+														<a href="{{ url_for('main.event', event_id=order.event.id) }}" class="btn btn-secondary">
+																<span class="material-icons">visibility</span>
+																View Event
+														</a>
+														{% if order.event.date_utc > now %}
+																<button class="btn btn-primary" onclick="downloadTickets({{ order.id }})">
+																		<span class="material-icons">download</span>
+																		Download Tickets
+																</button>
+														{% endif %}
+												</div>
+										</div>
+								</div>
+						{% endfor %}
+					</div>
         {% else %}
-            <div class="no-tickets">
-                <span class="material-icons">confirmation_number</span>
-                <h2>No tickets found</h2>
-                <p>You haven't registered for any events yet.</p>
-                <a href="{{ url_for('main.findEvent') }}" class="btn btn-primary">
-                    <span class="material-icons">search</span>
-                    Find Events
-                </a>
-            </div>
+					<div class="no-tickets">
+						<span class="material-icons">confirmation_number</span>
+						<h2>No tickets found</h2>
+						<p>You haven't registered for any events yet.</p>
+						<a href="{{ url_for('main.findEvent') }}" class="btn btn-primary">
+							<span class="material-icons">search</span>
+							Find Events
+						</a>
+					</div>
         {% endif %}
     </div>
 </div>
@@ -144,13 +165,41 @@
         <p>Are you sure you want to cancel your registration? This action cannot be undone.</p>
         <div class="modal-actions">
             <button class="btn btn-secondary" onclick="closeCancelModal()">Keep Registration</button>
-            <button class="btn btn-danger" onclick="confirmCancellation()">Cancel Registration</button>
+            <button class="btn btn-danger" onclick="confirmCancellation()">
+                <span class="material-icons">cancel</span>
+                Cancel Registration
+            </button>
         </div>
     </div>
 </div>
 
 <script>
 let registrationToCancel = null;
+
+// Filter functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const filterButtons = document.querySelectorAll('.filter-btn');
+    
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remove active class from all buttons
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            // Add active class to clicked button
+            this.classList.add('active');
+            
+            const filter = this.dataset.filter;
+            const tickets = document.querySelectorAll('.ticket-card');
+            
+            tickets.forEach(ticket => {
+                if (filter === 'all') {
+                    ticket.style.display = 'grid';
+                } else {
+                    ticket.style.display = ticket.dataset.status === filter ? 'grid' : 'none';
+                }
+            });
+        });
+    });
+});
 
 function cancelRegistration(registrationId) {
     registrationToCancel = registrationId;
@@ -164,6 +213,11 @@ function closeCancelModal() {
 
 function confirmCancellation() {
     if (!registrationToCancel) return;
+    
+    const button = document.querySelector('.modal-actions .btn-danger');
+    const originalText = button.innerHTML;
+    button.innerHTML = '<span class="material-icons loading">sync</span> Processing...';
+    button.disabled = true;
 
     fetch(`/cancel-registration/${registrationToCancel}`, {
         method: 'POST',
@@ -172,25 +226,54 @@ function confirmCancellation() {
             'X-CSRFToken': '{{ csrf_token() }}'
         }
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
+    .then(response => response.json().then(data => ({
+        status: response.status,
+        data: data
+    })))
+    .then(({ status, data }) => {
+        if (status === 200 && data.success) {
+            // Show success message
+            const notification = document.createElement('div');
+            notification.className = 'notification success';
+            notification.textContent = data.message || 'Registration cancelled successfully';
+            document.body.appendChild(notification);
+            setTimeout(() => notification.remove(), 3000);
+            
+            // Reload the page after a short delay
+            setTimeout(() => location.reload(), 3000);
         } else {
-            alert(data.message || 'Failed to cancel registration');
+            throw new Error(data.message || 'Failed to cancel registration');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('Error canceling registration');
+        // Show error message
+        const notification = document.createElement('div');
+        notification.className = 'notification error';
+        notification.textContent = error.message || 'Error cancelling registration';
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 3000);
     })
     .finally(() => {
+        button.innerHTML = originalText;
+        button.disabled = false;
         closeCancelModal();
     });
 }
 
 function downloadTickets(orderId) {
+    const button = event.target.closest('button');
+    const originalText = button.innerHTML;
+    button.innerHTML = '<span class="material-icons loading">sync</span> Processing...';
+    button.disabled = true;
+
     window.location.href = `/download-tickets/${orderId}`;
+    
+    // Reset button after a short delay
+    setTimeout(() => {
+        button.innerHTML = originalText;
+        button.disabled = false;
+    }, 2000);
 }
 </script>
 {% endblock %} 

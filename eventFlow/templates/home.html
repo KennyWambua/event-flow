@@ -12,24 +12,45 @@
   <main class="homeContainer">
     <section class="hero">
       <div class="heroContent">
-        <h1>Discover Amazing Events Near You</h1>
-        <p>Find and join events that match your interests. Connect with people who share your passions.</p>
+        <h1>Discover Amazing Events</h1>
+        <p>Find and attend events that match your interests</p>
         <div class="heroStats">
           <div class="stat">
             <span class="statNumber">{{ stats.upcoming_events }}</span>
             <span class="statLabel">Upcoming Events</span>
           </div>
         </div>
-        <div class="heroActions">
-          <a href="{{ url_for('main.findEvent') }}" class="btn btn-primary">
-            <span class="material-icons">search</span>
-            Find Events
-          </a>
-          <a href="{{ url_for('main.createEvent') }}" class="btn btn-outline">
-            <span class="material-icons">add</span>
-            Create Event
-          </a>
-        </div>
+
+        {% if not current_user.is_authenticated %}
+          <div class="heroActions">
+            <a href="{{ url_for('auth.signup') }}" class="btn btn-outline">
+              <span class="material-icons">person_add</span>
+              Create Account
+            </a>
+            <a href="{{ url_for('main.findEvent') }}" class="btn btn-primary">
+              <span class="material-icons">search</span>
+              Find Events
+            </a>
+          </div>
+        {% elif current_user.is_organizer() %}
+          <div class="heroActions">
+            <a href="{{ url_for('main.createEvent') }}" class="btn btn-outline">
+              <span class="material-icons">add</span>
+              Create Event
+            </a>
+            <a href="{{ url_for('main.findEvent') }}" class="btn btn-primary">
+              <span class="material-icons">search</span>
+              Find Events
+            </a>
+          </div>
+        {% else %}
+          <div class="heroActions">
+            <a href="{{ url_for('main.findEvent') }}" class="btn btn-primary">
+              <span class="material-icons">search</span>
+              Find Events
+            </a>
+          </div>
+        {% endif %}
       </div>
     </section>
 

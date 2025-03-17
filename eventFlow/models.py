@@ -6,6 +6,11 @@ from datetime import datetime, timezone
 import random
 import string
 import base64
+import enum
+
+class UserRole(enum.Enum):
+    ATTENDEE = "ATTENDEE"
+    ORGANIZER = "ORGANIZER"
 
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -15,14 +20,23 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
     password_hash = db.Column(db.String(128), nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.now(timezone.utc))
-    role = db.Column(db.String(20), nullable=False, default='attendee')
-    # Add relationship to events
-    events = db.relationship('Event', backref='user', lazy=True)
-    registered_events = db.relationship('Event', 
-                                      secondary='event_registration',
-                                      backref=db.backref('registered_users', lazy=True))
-    # Add orders relationship
-    orders = db.relationship('Order', backref='purchaser', lazy=True)
+    role = db.Column(db.Enum(UserRole), nullable=False, default=UserRole.ATTENDEE)
+    
+    # Direct relationships
+    events = db.relationship('Event', back_populates='user', lazy=True)
+    orders = db.relationship('Order', back_populates='user', lazy=True)
+    
+    # Registration relationships with overlaps
+    registrations = db.relationship('EventRegistration', back_populates='user', lazy=True,
+                                  overlaps="registered_events,registered_users")
+    registered_events = db.relationship(
+        'Event',
+        secondary='event_registration',
+        back_populates='registered_users',
+        lazy=True,
+        overlaps="registrations,registered_users",
+        viewonly=True  # Make this relationship read-only
+    )
 
     @staticmethod
     def generate_username(first_name, last_name):
@@ -68,12 +82,21 @@ class User(UserMixin, db.Model):
         
         return {'free': free_tickets, 'paid': paid_tickets}
 
+    def is_organizer(self):
+        return self.role == UserRole.ORGANIZER
+
+    def is_attendee(self):
+        return self.role == UserRole.ATTENDEE
+
 class EventImage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
     image_data = db.Column(db.LargeBinary)
     image_mime_type = db.Column(db.String(30))
     is_primary = db.Column(db.Boolean, default=False)
+    
+    # Add back_populates
+    event = db.relationship('Event', back_populates='images', lazy=True)
 
     def get_url(self):
         if self.image_data:
@@ -90,6 +113,9 @@ class TicketType(db.Model):
     description = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
+    
+    # Add back_populates
+    event = db.relationship('Event', back_populates='ticket_types', lazy=True)
 
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -105,10 +131,23 @@ class Event(db.Model):
     is_paid_event = db.Column(db.Boolean, default=False)
     currency = db.Column(db.String(3), default='KES')
     
-    # Relationships
-    images = db.relationship('EventImage', backref='event', lazy=True, cascade='all, delete-orphan')
-    ticket_types = db.relationship('TicketType', backref='event', lazy=True, cascade='all, delete-orphan')
-    orders = db.relationship('Order', backref='ordered_event', lazy=True)
+    # Direct relationships
+    user = db.relationship('User', back_populates='events', lazy=True)
+    images = db.relationship('EventImage', back_populates='event', lazy=True, cascade='all, delete-orphan')
+    ticket_types = db.relationship('TicketType', back_populates='event', lazy=True, cascade='all, delete-orphan')
+    orders = db.relationship('Order', back_populates='event', lazy=True)
+    
+    # Registration relationships with overlaps
+    registrations = db.relationship('EventRegistration', back_populates='event', lazy=True,
+                                  overlaps="registered_events,registered_users")
+    registered_users = db.relationship(
+        'User',
+        secondary='event_registration',
+        back_populates='registered_events',
+        lazy=True,
+        overlaps="registrations,registered_events",
+        viewonly=True  # Make this relationship read-only
+    )
 
     def __repr__(self):
         return f"<Event('{self.title}', '{self.date}', '{self.location}'), '{self.description}', '{self.category}', '{self.images}')>"
@@ -143,15 +182,22 @@ class Event(db.Model):
             'free_registrations': free_registrations
         }
 
+    def is_upcoming(self, reference_time):
+        """Check if event is upcoming compared to given time"""
+        event_date = self.date_utc
+        return event_date > reference_time
+
 class EventRegistration(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
     registration_date = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     
-    # Relationships
-    user = db.relationship('User', backref=db.backref('registrations', lazy=True))
-    event = db.relationship('Event', backref=db.backref('registrations', lazy=True))
+    # Relationships with overlaps
+    user = db.relationship('User', back_populates='registrations', lazy=True,
+                          overlaps="registered_events,registered_users")
+    event = db.relationship('Event', back_populates='registrations', lazy=True,
+                          overlaps="registered_events,registered_users")
 
     def __repr__(self):
         return f'<EventRegistration {self.id}>'
@@ -161,16 +207,16 @@ class Order(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     event_id = db.Column(db.Integer, db.ForeignKey('event.id'), nullable=False)
     total_amount = db.Column(db.Float, nullable=False)
-    payment_id = db.Column(db.String(255), nullable=False, unique=True)
-    payment_status = db.Column(db.String(50), default='pending')
+    payment_id = db.Column(db.String(255), nullable=True)
+    payment_status = db.Column(db.String(50), nullable=False, default='pending')
     ticket_details = db.Column(db.JSON, nullable=False)
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), 
                           onupdate=lambda: datetime.now(timezone.utc))
     
-    # Relationships
-    user = db.relationship('User', backref='user_orders')
-    event = db.relationship('Event', backref='event_orders')
+    # Relationships with back_populates
+    user = db.relationship('User', back_populates='orders', lazy=True)
+    event = db.relationship('Event', back_populates='orders', lazy=True)
 
     def __repr__(self):
         return f'<Order {self.id} - {self.payment_status}>'

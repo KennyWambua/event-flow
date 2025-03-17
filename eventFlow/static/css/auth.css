@@ -353,6 +353,7 @@
   position: relative;
   display: flex;
   align-items: center;
+  
 }
 
 .input-with-icon .form-control {

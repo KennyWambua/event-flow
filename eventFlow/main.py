@@ -9,18 +9,21 @@ from flask import (
     jsonify,
     make_response,
     session,
+    current_app,
+    abort,
 )
 
 from flask_login import login_required, current_user
 from datetime import datetime, timezone
 from sqlalchemy import or_
-from .models import Event, EventImage, db, TicketType, User, EventRegistration, Order
+from .models import Event, EventImage, db, TicketType, User, EventRegistration, Order, UserRole
 from .forms import EventForm, TicketTypeForm
 import imghdr
 import requests
 import traceback
 from flask_wtf.csrf import generate_csrf
 from werkzeug.datastructures import ImmutableMultiDict
+from .auth import role_required
 
 main = Blueprint("main", __name__)
 
@@ -65,6 +68,7 @@ def get_events_per_page():
 
 @main.route("/event/create", methods=["GET", "POST"])
 @login_required
+@role_required(UserRole.ORGANIZER)
 def createEvent():
     form = EventForm()
 
@@ -290,13 +294,13 @@ def event(event_id):
 
 @main.route("/event/<int:event_id>/edit", methods=["GET", "POST"])
 @login_required
+@role_required(UserRole.ORGANIZER)
 def editEvent(event_id):
     event = Event.query.get_or_404(event_id)
 
     # Check if user owns the event
     if event.user_id != current_user.id:
-        flash("You do not have permission to edit this event.", "error")
-        return redirect(url_for("main.myEvents"))
+        abort(403)
 
     form = EventForm()
 
@@ -399,7 +403,6 @@ def editEvent(event_id):
 
     return render_template("edit_event.html", form=form, event=event)
 
-
 @main.route("/event/<int:event_id>/delete", methods=["DELETE"])
 @login_required
 def deleteEvent(event_id):
@@ -456,6 +459,7 @@ def contact():
 
 @main.route("/my-events")
 @login_required
+@role_required(UserRole.ORGANIZER)
 def myEvents():
     page = request.args.get("page", 1, type=int)
     events_per_page = get_events_per_page()
@@ -518,42 +522,34 @@ def register_free_event():
         data = request.get_json()
         event_id = data.get('eventId')
         
+        if not event_id:
+            return jsonify({
+                'success': False,
+                'message': 'Event ID is required'
+            }), 400
+
         event = Event.query.get_or_404(event_id)
-        
-        # Make current time timezone-aware
-        current_time = datetime.now(timezone.utc)
-        
-        # Ensure event date is timezone-aware
-        event_date = event.date
-        if event_date.tzinfo is None:
-            event_date = event_date.replace(tzinfo=timezone.utc)
-        
-        # Verify event is free and upcoming
+
+        # Check if event is actually free
         if event.is_paid_event:
             return jsonify({
                 'success': False,
                 'message': 'This is not a free event'
             }), 400
-            
-        if event_date < current_time:
-            return jsonify({
-                'success': False,
-                'message': 'This event has already passed'
-            }), 400
-            
+
         # Check if user is already registered
         existing_registration = EventRegistration.query.filter_by(
             user_id=current_user.id,
             event_id=event_id
         ).first()
-        
+
         if existing_registration:
             return jsonify({
                 'success': False,
                 'message': 'You are already registered for this event'
             }), 400
-        
-        # Create registration record
+
+        # Create new registration
         registration = EventRegistration(
             user_id=current_user.id,
             event_id=event_id
@@ -561,20 +557,20 @@ def register_free_event():
         
         db.session.add(registration)
         db.session.commit()
-        
+
         return jsonify({
             'success': True,
+            'message': 'Registration successful',
             'redirect': url_for('main.myTickets')
         })
-        
+
     except Exception as e:
         db.session.rollback()
-        print(f"Registration error: {str(e)}")
+        current_app.logger.error(f"Error in free event registration: {str(e)}")
         return jsonify({
             'success': False,
             'message': 'An error occurred during registration'
         }), 500
-
 
 @main.route('/my-tickets')
 @login_required
@@ -619,34 +615,122 @@ def myTickets():
 @login_required
 def cancel_registration(registration_id):
     try:
+        # Get the registration
         registration = EventRegistration.query.get_or_404(registration_id)
         
-        # Verify ownership
+        # Check if the registration belongs to the current user
         if registration.user_id != current_user.id:
             return jsonify({
                 'success': False,
-                'message': 'Unauthorized'
+                'message': 'Unauthorized to cancel this registration'
             }), 403
-            
-        # Check if event is in the future
-        if registration.event.date < datetime.now(timezone.utc):
+
+        # Get current time in UTC
+        current_time = datetime.now(timezone.utc)
+        
+        # Make event date timezone aware if it isn't
+        event_date = registration.event.date
+        if event_date.tzinfo is None:
+            event_date = event_date.replace(tzinfo=timezone.utc)
+
+        # Check if the event hasn't started yet
+        if event_date <= current_time:
             return jsonify({
                 'success': False,
                 'message': 'Cannot cancel registration for past events'
             }), 400
-            
+
+        # Delete the registration
         db.session.delete(registration)
         db.session.commit()
-        
+
         return jsonify({
             'success': True,
             'message': 'Registration cancelled successfully'
         })
-        
+
     except Exception as e:
         db.session.rollback()
-        print(f"Cancellation error: {str(e)}")
+        current_app.logger.error(f"Cancellation error: {str(e)}")
         return jsonify({
             'success': False,
-            'message': 'Error cancelling registration'
+            'message': 'An error occurred while cancelling the registration'
         }), 500
+
+@main.route('/create-order', methods=['POST'])
+@login_required
+def create_order():
+    try:
+        data = request.get_json()
+        event_id = data.get('eventId')
+        tickets = data.get('tickets')
+
+        if not event_id or not tickets:
+            return jsonify({'error': 'Invalid request data'}), 400
+
+        event = Event.query.get_or_404(event_id)
+        
+        # Validate ticket availability
+        for ticket_id, ticket_data in tickets.items():
+            ticket_type = TicketType.query.get(ticket_id)
+            if not ticket_type:
+                return jsonify({'error': f'Invalid ticket type: {ticket_id}'}), 400
+            
+            if ticket_type.quantity < ticket_data['quantity']:
+                return jsonify({
+                    'error': f'Not enough tickets available for {ticket_data["name"]}'
+                }), 400
+
+        # Calculate total amount
+        total_amount = sum(
+            ticket_data['subtotal'] 
+            for ticket_data in tickets.values()
+        )
+
+        # Create order with initial payment status
+        order = Order(
+            user_id=current_user.id,
+            event_id=event_id,
+            total_amount=total_amount,
+            payment_status='pending',
+            ticket_details=tickets
+        )
+
+        db.session.add(order)
+        db.session.commit()
+
+        # Generate payment URL with the order ID
+        payment_url = url_for('main.process_payment', order_id=order.id, _external=True)
+        
+        return jsonify({
+            'success': True,
+            'redirect_url': payment_url,
+            'order_id': order.id
+        })
+
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error creating order: {str(e)}")
+        return jsonify({'error': 'An error occurred while processing your order'}), 500
+
+@main.route('/process-payment/<int:order_id>')
+@login_required
+def process_payment(order_id):
+    order = Order.query.get_or_404(order_id)
+    
+    # Verify order belongs to current user
+    if order.user_id != current_user.id:
+        abort(403)
+    
+    try:
+        # Here you would integrate with your payment provider
+        # For now, we'll create a simple payment page
+        return render_template(
+            'payment.html',
+            order=order,
+            event=order.event,
+            tickets=order.ticket_details
+        )
+    except Exception as e:
+        current_app.logger.error(f"Error processing payment: {str(e)}")
+        return render_template('error.html', message="Error processing payment")

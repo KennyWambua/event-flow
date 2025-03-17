@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="payment-container">
+    <h1>Complete Your Payment</h1>
+    
+    <div class="order-summary">
+        <h2>Order Summary</h2>
+        <div class="event-details">
+            <h3>{{ event.title }}</h3>
+            <p>{{ event.date.strftime('%B %d, %Y at %I:%M %p') }}</p>
+        </div>
+        
+        <div class="ticket-summary">
+            {% for ticket_id, details in tickets.items() %}
+            <div class="ticket-item">
+                <div class="ticket-info">
+                    <span class="ticket-name">{{ details.name }}</span>
+                    <span class="ticket-quantity">× {{ details.quantity }}</span>
+                </div>
+                <span class="ticket-subtotal">{{ details.subtotal }} {{ event.currency }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="total-amount">
+            <span>Total Amount:</span>
+            <span class="amount">{{ order.total_amount }} {{ event.currency }}</span>
+        </div>
+    </div>
+    
+    <!-- Add your payment form/integration here -->
+    <div class="payment-methods">
+        <h2>Select Payment Method</h2>
+        <!-- Add payment method selection and form -->
+    </div>
+</div>
+{% endblock %} 

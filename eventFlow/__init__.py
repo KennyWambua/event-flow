@@ -7,6 +7,7 @@ from flask_session import Session
 from config import Config
 from flask_wtf.csrf import CSRFProtect
 
+
 db = SQLAlchemy()
 migrate = Migrate()
 login_manager = LoginManager()
@@ -17,7 +18,7 @@ def create_app():
 
   app.config.from_object(Config)
   app.config['SECRET_KEY'] = secrets.token_hex(16)
-  app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
+  app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///eventflow.db'
   app.config['SESSION_TYPE'] = 'filesystem'
   app.config['SESSION_FILE_DIR'] = '/tmp/flask_session'
   app.config['SESSION_PERMANENT'] = True 
@@ -47,13 +48,19 @@ def create_app():
 
   login_manager.init_app(app)
   
-  from .models import User
+  from .models import User, UserRole
   
   
   @login_manager.user_loader
   def load_user(id):
-    # since the user_id is just the primary key of our user table, use it in the query for the user
     return User.query.get(int(id))
+
+  # Make UserRole available to all templates
+  @app.context_processor
+  def inject_enums():
+    return {
+      'UserRole': UserRole
+    }
 
   # blueprint for auth routes
   from .auth import auth as auth_blueprint
@@ -62,5 +69,9 @@ def create_app():
   # blueprint for main routes 
   from .main import main as main_blueprint
   app.register_blueprint(main_blueprint)
+
+  # Create database tables within app context
+  with app.app_context():
+    db.create_all()
 
   return app

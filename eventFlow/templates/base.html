@@ -26,12 +26,25 @@
         </div>
         <button class="mobileMenuBtn" aria-label="Toggle menu"><span class="material-icons">menu</span></button>
         <div class="navSection">
-          <nav>
+          <nav class="navbar">
             <ul class="mainNavbar">
               <li class="nav-item">
                 <a href="{{ url_for('main.findEvent') }}" class="nav-link">Find Events</a>
               </li>
-              {% if current_user.role == 'organizer' %}
+              {% if current_user.is_authenticated %}
+                {% if current_user.role == UserRole.ORGANIZER %}
+                  <li class="nav-item">
+                    <a href="{{ url_for('main.createEvent') }}" class="nav-link">Create Event</a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{{ url_for('main.myEvents') }}" class="nav-link">My Events</a>
+                  </li>
+                {% else %}
+                  <li class="nav-item">
+                    <a href="{{ url_for('main.myTickets') }}" class="nav-link">My Tickets</a>
+                  </li>
+                {% endif %}
+              {% else %}
                 <li class="nav-item">
                   <a href="{{ url_for('main.createEvent') }}" class="nav-link">Create Event</a>
                 </li>
@@ -47,18 +60,13 @@
                       <a href="{{ url_for('main.helpCenter') }}">Help Center</a>
                     </li>
                     <li>
-                      <a href="{{ url_for('main.findMyTickets') }}">Find Your Tickets</a>
+                      <a href="{{ url_for('main.findMyTickets') }}">Find My Tickets</a>
                     </li>
                     <li>
-                      <a href="{{ url_for('main.contactOrganizer') }}">Contact Your Event Organizer</a>
+                      <a href="{{ url_for('main.contactOrganizer') }}">Contact Event Organizer</a>
                     </li>
                   </ul>
                 </div>
-              </li>
-              <li class="nav-item">
-                <a href="{{ url_for('main.myTickets') }}" class="nav-link">
-                  Find My Tickets
-                </a>
               </li>
             </ul>
           </nav>
@@ -75,9 +83,11 @@
                     <li>
                       <a href="{{ url_for('main.profile') }}">My Profile</a>
                     </li>
-                    <li>
-                      <a href="{{ url_for('main.myEvents') }}">My Events</a>
+                    {% if current_user.role == UserRole.ORGANIZER %}
+                    <li class="nav-item">
+                      <a href="{{ url_for('main.myTickets') }}">My Tickets</a>
                     </li>
+                    {% endif %}
                     <li>
                       <a href="{{ url_for('main.settings') }}">Settings</a>
                     </li>
