@@ -1,22 +1,79 @@
 {% extends 'base.html' %}
+
 {% block head %}
     {{ super() }}
     <link rel="stylesheet" href="/static/css/profile.css" />
 {% endblock %}
 
-{% block title %}My Profile{% endblock %}
+{% block title %}My Profile - eventFlow{% endblock %}
 
 {% block breadcrumb_items %}
-<li class="breadcrumb-item active">My Profile</li>
+    <li class="breadcrumb-item active">My Profile</li>
 {% endblock %}
 
 {% block content %}
 <div class="profile-container">
-    <h1>My Profile</h1>
-    <p>Username: {{ current_user.username }}</p>
-    <p>Email: {{ current_user.email }}</p>
-    <p>First Name: {{ current_user.first_name }}</p>
-    <p>Last Name: {{ current_user.last_name }}</p>
-    <button class="btn btn-primary">Edit Profile</button>
+    <div class="profile-header">
+        <div class="profile-picture">
+            <img src="{{ current_user.profile_picture or url_for('static', filename='images/default-profile.png') }}" alt="Profile Picture">
+        </div>
+        <div class="profile-info">
+            <h1>{{ current_user.first_name }} {{ current_user.last_name }}</h1>
+            <p class="username">@{{ current_user.username }}</p>
+            <p class="email">{{ current_user.email }}</p>
+        </div>
+    </div>
+
+    <!-- Edit Profile Form -->
+    <div class="profile-edit-section hidden">
+        <form method="POST" action="{{ url_for('main.updateProfile') }}" enctype="multipart/form-data" class="edit-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <div class="form-group">
+                <label for="first_name">First Name</label>
+                <input type="text" id="first_name" name="first_name" value="{{ current_user.first_name }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="last_name">Last Name</label>
+                <input type="text" id="last_name" name="last_name" value="{{ current_user.last_name }}" required>
+            </div>
+
+            <div class="form-group">
+                <label for="profile_picture">Profile Picture</label>
+                <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <button type="button" class="btn btn-secondary cancel-edit">Cancel</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Profile Actions -->
+    <div class="profile-actions">
+        <button class="btn btn-primary edit-profile">Edit Profile</button>
+    </div>
 </div>
-{% endblock %} 
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const editButton = document.querySelector('.edit-profile');
+            const cancelButton = document.querySelector('.cancel-edit');
+            const editSection = document.querySelector('.profile-edit-section');
+
+            editButton.addEventListener('click', () => {
+                editSection.classList.remove('hidden');
+                editButton.style.display = 'none';
+            });
+
+            cancelButton.addEventListener('click', () => {
+                editSection.classList.add('hidden');
+                editButton.style.display = 'inline-block';
+            });
+        });
+    </script>
+{% endblock %}

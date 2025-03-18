@@ -94,6 +94,26 @@
     color: #f57c00;
 }
 
+.payment-badge {
+    position: absolute;
+    top: 3.5rem;
+    left: 1rem;
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.payment-badge.pending {
+    background: hsl(var(--warning));
+    color: hsl(var(--warning-foreground));
+}
+
+.payment-badge.completed {
+    background: hsl(var(--success));
+    color: hsl(var(--success-foreground));
+}
+
 .ticket-details {
     padding: 1.5rem;
 }
@@ -187,6 +207,7 @@
     display: flex;
     gap: 1rem;
     margin-top: 1.5rem;
+    flex-wrap: wrap;
 }
 
 .btn {
@@ -289,7 +310,7 @@
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to { transform: rotate(360deg); -webkit-transform: rotate(360deg); -moz-transform: rotate(360deg); -ms-transform: rotate(360deg); -o-transform: rotate(360deg); }
 }
 
 @media (max-width: 768px) {
@@ -307,6 +328,7 @@
 
     .ticket-actions .btn {
         width: 100%;
+        justify-content: center;
     }
 
     .ticket-filters {
@@ -322,28 +344,22 @@
 /* Add these styles to your existing CSS */
 .notification {
     position: fixed;
-    top: 5rem;
-    right: 1rem;
-    padding: 1rem 1.5rem;
+    bottom: 20px;
+    right: 20px;
+    padding: 1rem 2rem;
     border-radius: var(--radius);
-    background: hsl(var(--background));
-    color: hsl(var(--foreground));
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    transform: translateY(100%);
-    opacity: 0;
-    transition: all 0.3s ease;
+    color: white;
+    font-weight: 500;
     z-index: 1000;
-    animation: slideIn 0.3s ease forwards;
+    animation: slideIn 0.3s ease-out;
 }
 
 .notification.success {
-    background: hsl(var(--success));
-    color: hsl(var(--success-foreground));
+    background-color: hsl(var(--success));
 }
 
 .notification.error {
-    background: hsl(var(--destructive));
-    color: hsl(var(--destructive-foreground));
+    background-color: hsl(var(--destructive));
 }
 
 @keyframes slideIn {
@@ -355,4 +371,28 @@
         transform: translateX(0);
         opacity: 1;
     }
+}
+
+.qr-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem;
+    background: white;
+    border-radius: var(--radius);
+    margin: 1.5rem 0;
+
+     img {
+        width: 200px;
+        height: 200px;
+        max-width: 100%;
+        display: block;
+        margin: 0 auto;
+    }
+}
+
+.qr-info {
+    text-align: center;
+    color: hsl(var(--muted-foreground));
+    margin-bottom: 1.5rem;
 } 

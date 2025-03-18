@@ -155,7 +155,7 @@ class Event(db.Model):
     def get_primary_image_url(self):
         """Returns the URL for the primary (first) image of the event"""
         if self.images:
-            return url_for('main.get_image', image_id=self.images[0].id)
+            return url_for('events.get_image', image_id=self.images[0].id)
         return url_for('static', filename='images/audience.jpg')
 
     def is_user_registered(self, user):

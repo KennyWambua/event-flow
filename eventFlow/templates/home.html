@@ -27,25 +27,25 @@
               <span class="material-icons">person_add</span>
               Create Account
             </a>
-            <a href="{{ url_for('main.findEvent') }}" class="btn btn-primary">
+            <a href="{{ url_for('events.findEvent') }}" class="btn btn-primary">
               <span class="material-icons">search</span>
               Find Events
             </a>
           </div>
         {% elif current_user.is_organizer() %}
           <div class="heroActions">
-            <a href="{{ url_for('main.createEvent') }}" class="btn btn-outline">
+            <a href="{{ url_for('events.createEvent') }}" class="btn btn-outline">
               <span class="material-icons">add</span>
               Create Event
             </a>
-            <a href="{{ url_for('main.findEvent') }}" class="btn btn-primary">
+            <a href="{{ url_for('events.findEvent') }}" class="btn btn-primary">
               <span class="material-icons">search</span>
               Find Events
             </a>
           </div>
         {% else %}
           <div class="heroActions">
-            <a href="{{ url_for('main.findEvent') }}" class="btn btn-primary">
+            <a href="{{ url_for('events.findEvent') }}" class="btn btn-primary">
               <span class="material-icons">search</span>
               Find Events
             </a>
@@ -68,56 +68,56 @@
       <div class="swiper categorySwiper">
         <div class="swiper-wrapper">
           <div class="swiper-slide">
-            <a href="{{ url_for('main.findEvent', category='music') }}" class="categoryCard">
+            <a href="{{ url_for('events.findEvent', category='music') }}" class="categoryCard">
               <span class="material-icons">music_note</span>
               <h3>Music</h3>
               <p>Concerts, festivals, and live performances</p>
             </a>
           </div>
           <div class="swiper-slide">
-            <a href="{{ url_for('main.findEvent', category='gaming') }}" class="categoryCard">
+            <a href="{{ url_for('events.findEvent', category='gaming') }}" class="categoryCard">
               <span class="material-icons">sports_esports</span>
               <h3>Gaming</h3>
               <p>E-sports, tournaments, and gaming meetups</p>
             </a>
           </div>
           <div class="swiper-slide">
-            <a href="{{ url_for('main.findEvent', category='arts') }}" class="categoryCard">
+            <a href="{{ url_for('events.findEvent', category='arts') }}" class="categoryCard">
               <span class="material-icons">theater_comedy</span>
               <h3>Arts</h3>
               <p>Exhibitions, performances, and workshops</p>
             </a>
           </div>
           <div class="swiper-slide">
-            <a href="{{ url_for('main.findEvent', category='sports') }}" class="categoryCard">
+            <a href="{{ url_for('events.findEvent', category='sports') }}" class="categoryCard">
               <span class="material-icons">sports</span>
               <h3>Sports</h3>
               <p>Matches, tournaments, and fitness events</p>
             </a>
           </div>
           <div class="swiper-slide">
-            <a href="{{ url_for('main.findEvent', category='education') }}" class="categoryCard">
+            <a href="{{ url_for('events.findEvent', category='education') }}" class="categoryCard">
               <span class="material-icons">school</span>
               <h3>Education</h3>
               <p>Workshops, seminars, and training sessions</p>
             </a>
           </div>
           <div class="swiper-slide">
-            <a href="{{ url_for('main.findEvent', category='business') }}" class="categoryCard">
+            <a href="{{ url_for('events.findEvent', category='business') }}" class="categoryCard">
               <span class="material-icons">business</span>
               <h3>Business</h3>
               <p>Networking, conferences, and meetups</p>
             </a>
           </div>
           <div class="swiper-slide">
-            <a href="{{ url_for('main.findEvent', category='food') }}" class="categoryCard">
+            <a href="{{ url_for('events.findEvent', category='food') }}" class="categoryCard">
               <span class="material-icons">restaurant</span>
               <h3>Food & Drinks</h3>
               <p>Food festivals, wine tasting, and culinary events</p>
             </a>
           </div>
           <div class="swiper-slide">
-            <a href="{{ url_for('main.findEvent', category='technology') }}" class="categoryCard">
+            <a href="{{ url_for('events.findEvent', category='technology') }}" class="categoryCard">
               <span class="material-icons">computer</span>
               <h3>Technology</h3>
               <p>Tech conferences, hackathons, and meetups</p>
@@ -133,7 +133,7 @@
           <h2>Featured Events</h2>
           <p>Discover the most exciting upcoming events in your area</p>
         </div>
-        <a href="{{ url_for('main.findEvent') }}" class="btn btn-outline">
+        <a href="{{ url_for('events.findEvent') }}" class="btn btn-outline">
           <span class="material-icons">event</span>
           View All Events
         </a>
@@ -142,10 +142,10 @@
         {% if featured_events %}
           {% for event in featured_events %}
             <div class="eventCard">
-              <a href="{{ url_for('main.event', event_id=event.id) }}" class="eventImageLink">
+              <a href="{{ url_for('events.event', event_id=event.id) }}" class="eventImageLink">
                 <div class="eventImage">
                   {% if event.images %}
-                    <img src="{{ url_for('main.get_image', image_id=event.images.0.id) }}" alt="{{ event.title }}" loading="lazy" />
+                    <img src="{{ url_for('events.get_image', image_id=event.images.0.id) }}" alt="{{ event.title }}" loading="lazy" />
                   {% else %}
                     <div class="placeholder-image">
                       <span class="material-icons">event</span>
@@ -176,7 +176,7 @@
                   </p>
                 </div>
                 <div class="eventActions">
-                  <a href="{{ url_for('main.event', event_id=event.id) }}" class="btn btn-primary">
+                  <a href="{{ url_for('events.event', event_id=event.id) }}" class="btn btn-primary">
                     <span class="material-icons">visibility</span>
                     View Details
                   </a>
@@ -192,7 +192,7 @@
             <span class="material-icons">event_busy</span>
             <h3>No Featured Events</h3>
             <p>Be the first to create an amazing event!</p>
-            <a href="{{ url_for('main.createEvent') }}" class="btn btn-primary">
+            <a href="{{ url_for('events.createEvent') }}" class="btn btn-primary">
               <span class="material-icons">add</span>
               Create Event
             </a>

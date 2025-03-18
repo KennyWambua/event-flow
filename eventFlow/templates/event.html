@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block head %}
-  {{ super() }}
-  <link rel="stylesheet" href="/static/css/event.css" />
+    {{ super() }}
+    <link rel="stylesheet" href="/static/css/event.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
 {% endblock %}
 
@@ -10,44 +10,44 @@
 {% endblock %}
 
 {% block breadcrumb_items %}
-  <div class="breadcrumb-wrapper">
+<div class="breadcrumb-wrapper">
     <ul class="breadcrumb-list">
-      <li class="breadcrumb-item">
-        <a href="{{ url_for('main.home') }}">Home</a>
-      </li>
-      <li class="breadcrumb-item">
-        <a href="{{ url_for('main.findEvent') }}">Events</a>
-      </li>
-      <li class="breadcrumb-item active">{{ event.title }}</li>
+        <li class="breadcrumb-item">
+            <a href="{{ url_for('main.home') }}">Home</a>
+        </li>
+        <li class="breadcrumb-item">
+            <a href="{{ url_for('events.findEvent') }}">Events</a>
+        </li>
+        <li class="breadcrumb-item active">{{ event.title }}</li>
     </ul>
-  </div>
+</div>
 {% endblock %}
 
 {% block content %}
-  <div class="event-details-container">
+<div class="event-details-container">
     <div class="event-header">
-      <div class="event-images">
+        <div class="event-images">
         <div class="swiper eventSwiper">
           <div class="swiper-wrapper">
             {% if event.images %}
               {% for image in event.images %}
                 <div class="swiper-slide">
-                  <img src="{{ url_for('main.get_image', image_id=image.id) }}" alt="{{ event.title }}" />
+                  <img src="{{ url_for('events.get_image', image_id=image.id) }}" alt="{{ event.title }}" />
                 </div>
-              {% endfor %}
+                    {% endfor %}
             {% else %}
               <div class="swiper-slide">
                 <img src="{{ url_for('static', filename='images/event-placeholder.jpg') }}" alt="{{ event.title }}" />
-              </div>
+                </div>
             {% endif %}
           </div>
           <div class="swiper-pagination"></div>
           <div class="swiper-button-next"></div>
           <div class="swiper-button-prev"></div>
         </div>
-      </div>
-
-      <div class="event-info">
+        </div>
+        
+        <div class="event-info">
         <div class="event-meta">
           <div class="event-status {% if event.date_utc > now %}
               upcoming
@@ -64,10 +64,10 @@
             <span class="material-icons">category</span>
             {{ event.category }}
           </div>
-        </div>
-
-        <h1>{{ event.title }}</h1>
-
+            </div>
+            
+            <h1>{{ event.title }}</h1>
+            
         <div class="event-details-grid">
           <div class="detail-item">
             <span class="material-icons">event</span>
@@ -78,7 +78,7 @@
           </div>
 
           <div class="detail-item">
-            <span class="material-icons">location_on</span>
+                <span class="material-icons">location_on</span>
             <div class="detail-content">
               <span class="label">Location</span>
               <span class="value">{{ event.location }}</span>
@@ -90,32 +90,33 @@
             <div class="detail-content">
               <span class="label">Organizer</span>
               <span class="value">{{ event.user.first_name }} {{ event.user.last_name }}</span>
+              <span class="value">{{ event.user.email }}</span>
             </div>
           </div>
-        </div>
-
-        {% if event.is_paid_event and event.ticket_types %}
-          <div class="ticket-info">
-            <div class="price-range">
+            </div>
+            
+            {% if event.is_paid_event and event.ticket_types %}
+            <div class="ticket-info">
+                <div class="price-range">
               <span class="label">Tickets starting from</span>
               <span class="amount">{{ event.ticket_types.0.price }} {{ event.currency }}</span>
+                </div>
+                {% if current_user.is_authenticated %}
+                    <button class="btn btn-primary btn-book" onclick="scrollToTickets()">
+                <span class="material-icons">confirmation_number</span>
+                Get Tickets
+                    </button>
+                {% else %}
+                    <a href="{{ url_for('auth.login', next=request.path) }}" class="btn btn-primary">
+                <span class="material-icons">confirmation_number</span>
+                Get Tickets
+                    </a>
+                {% endif %}
             </div>
-            {% if current_user.is_authenticated %}
-              <button class="btn btn-primary btn-book" onclick="scrollToTickets()">
-                <span class="material-icons">confirmation_number</span>
-                Get Tickets
-              </button>
             {% else %}
-              <a href="{{ url_for('auth.login', next=request.path) }}" class="btn btn-primary">
-                <span class="material-icons">confirmation_number</span>
-                Get Tickets
-              </a>
-            {% endif %}
-          </div>
-        {% else %}
-          <div class="ticket-info free">
-            <span class="free-label">Free Event</span>
-            {% if current_user.is_authenticated %}
+            <div class="ticket-info free">
+                <span class="free-label">Free Event</span>
+                {% if current_user.is_authenticated %}
               {% if event.date_utc > now %}
                 <button class="btn btn-primary btn-book" onclick="registerFreeEvent()">
                   <span class="material-icons">how_to_reg</span>
@@ -127,20 +128,20 @@
                   Event Ended
                 </button>
               {% endif %}
-            {% else %}
-              <a href="{{ url_for('auth.login', next=request.path) }}" class="btn btn-primary">
+                {% else %}
+                    <a href="{{ url_for('auth.login', next=request.path) }}" class="btn btn-primary">
                 <span class="material-icons">login</span>
                 Login to Register
-              </a>
+                    </a>
+                {% endif %}
+            </div>
             {% endif %}
-          </div>
-        {% endif %}
-      </div>
+        </div>
     </div>
 
     <div class="event-content">
-      <div class="main-content">
-        <div class="event-description">
+        <div class="main-content">
+            <div class="event-description">
           <h2>About the event</h2>
           {{ event.description|safe }}
         </div>
@@ -153,61 +154,61 @@
             <button class="btn btn-icon" onclick="copyEventLink()"><span class="material-icons">link</span></button>
           </div>
         </div>
-      </div>
+            </div>
 
-      {% if event.is_paid_event and event.ticket_types and current_user.is_authenticated %}
-        <div id="tickets" class="ticket-types">
-          <h2>Select Tickets</h2>
-          <div class="ticket-grid">
-            {% for ticket in event.ticket_types %}
-              <div class="ticket-card" data-ticket-id="{{ ticket.id }}" data-price="{{ ticket.price }}">
-                <div class="ticket-header">
-                  <h3>{{ ticket.custom_type or ticket.ticket_type }}</h3>
-                  <span class="ticket-price">{{ ticket.price }} {{ event.currency }}</span>
-                </div>
-                <p class="ticket-description">{{ ticket.description }}</p>
-                <div class="ticket-quantity">
+            {% if event.is_paid_event and event.ticket_types and current_user.is_authenticated %}
+            <div id="tickets" class="ticket-types">
+                <h2>Select Tickets</h2>
+                <div class="ticket-grid">
+                    {% for ticket in event.ticket_types %}
+                    <div class="ticket-card" data-ticket-id="{{ ticket.id }}" data-price="{{ ticket.price }}">
+                        <div class="ticket-header">
+                            <h3>{{ ticket.custom_type or ticket.ticket_type }}</h3>
+                            <span class="ticket-price">{{ ticket.price }} {{ event.currency }}</span>
+                        </div>
+                        <p class="ticket-description">{{ ticket.description }}</p>
+                        <div class="ticket-quantity">
                   <span>{{ ticket.quantity }} Tickets available</span>
-                </div>
-                <div class="ticket-actions">
-                  <div class="quantity-selector">
-                    <button class="btn-quantity" onclick="updateQuantity('{{ ticket.id }}', -1)">-</button>
+                        </div>
+                        <div class="ticket-actions">
+                            <div class="quantity-selector">
+                                <button class="btn-quantity" onclick="updateQuantity('{{ ticket.id }}', -1)">-</button>
                     <input type="number" id="quantity-{{ ticket.id }}" value="0" min="0" max="{{ ticket.quantity }}" onchange="updateCart()" />
-                    <button class="btn-quantity" onclick="updateQuantity('{{ ticket.id }}', 1)">+</button>
-                  </div>
-                </div>
-              </div>
-            {% endfor %}
-          </div>
+                                <button class="btn-quantity" onclick="updateQuantity('{{ ticket.id }}', 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+        </div>
 
           <div class="review-order-container">
             <button id="reviewOrderBtn" class="btn btn-primary" onclick="showCartModal()" style="display: none;">
               <span class="material-icons">shopping_cart</span>
               Review Order
-            </button>
-          </div>
+                    </button>
+            </div>
         </div>
       {% endif %}
-    </div>
+</div>
 
-    {% if current_user.is_authenticated %}
-      <div id="cartModal" class="modal">
-        <div class="modal-content">
-          <h2>Shopping Cart</h2>
-          <div id="cartItems" class="cart-items"></div>
-          <div class="cart-summary">
+{% if current_user.is_authenticated %}
+<div id="cartModal" class="modal">
+    <div class="modal-content">
+        <h2>Shopping Cart</h2>
+        <div id="cartItems" class="cart-items"></div>
+        <div class="cart-summary">
             <div class="cart-total">
               <span>Total</span>
-              <span id="cartTotal">0.00 {{ event.currency }}</span>
+                <span id="cartTotal">0.00 {{ event.currency }}</span>
             </div>
-          </div>
-          <div class="modal-actions">
+        </div>
+        <div class="modal-actions">
             <button class="btn btn-secondary" onclick="closeCartModal()">Continue</button>
             <button class="btn btn-primary" onclick="checkout()" id="checkoutBtn" disabled>Checkout</button>
-          </div>
         </div>
-      </div>
-    {% endif %}
+    </div>
+</div>
+{% endif %}
 
     <div id="registrationModal" class="modal">
       <div class="modal-content">
@@ -237,10 +238,10 @@
 
 {% block scripts %}
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-  <script>
+<script>
     const EVENT_CURRENCY = "{{ event.currency }}";
     const EVENT_ID = "{{ event.id }}";
     const CSRF_TOKEN = "{{ csrf_token() }}";
-  </script>
+</script>
   <script src="{{ url_for('static', filename='js/event.js') }}"></script>
-{% endblock %}
+{% endblock %} 

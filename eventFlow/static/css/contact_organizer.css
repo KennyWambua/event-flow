@@ -1,33 +1,105 @@
+/* Contact Organizer Page Styling */
 .contact-organizer-container {
-    padding: 2rem;
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+    background: hsl(var(--card));
+    border-radius: var(--radius);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.contact-header h1 {
+    font-size: 26px;
+    color: hsl(var(--foreground));
+    margin-bottom: 8px;
+    font-family: 'Poppins', sans-serif;
+}
+
+.contact-header p {
+    font-size: 16px;
+    color: hsl(var(--muted-foreground));
+    margin-bottom: 20px;
+}
+
+.contact-form-container {
+    padding: 20px;
 }
 
 .contact-form {
     display: flex;
     flex-direction: column;
-    gap: 1.5rem;
 }
 
 .form-group {
-    display: flex;
-    flex-direction: column;
+    margin-bottom: 15px;
+    text-align: left;
 }
 
 .form-group label {
-    font-weight: 500;
-    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: hsl(var(--foreground));
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.form-group label .material-icons {
+    font-size: 18px;
+    margin-right: 6px;
+    color: hsl(var(--primary));
+}
+
+.form-control {
+    width: 100%;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    /* background: hsl(var(--input)); */
+    color: hsl(var(--foreground));
+    transition: border 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: hsl(var(--primary));
+    outline: none;
+}
+
+textarea.form-control {
+    height: 120px;
+    resize: none;
 }
 
 .btn-primary {
-    background: hsl(var(--primary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 600;
     color: hsl(var(--primary-foreground));
+    background: hsl(var(--primary));
     border: none;
-    padding: 0.75rem 1.5rem;
     border-radius: var(--radius);
     cursor: pointer;
-    transition: background 0.2s ease;
+    transition: background 0.3s ease;
+}
+
+.btn-primary .material-icons {
+    font-size: 18px;
+    margin-right: 6px;
 }
 
 .btn-primary:hover {
-    background: hsl(var(--primary) / 0.9);
-} 
+    background: hsl(var(--ring));
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .contact-organizer-container {
+        width: 90%;
+    }
+}

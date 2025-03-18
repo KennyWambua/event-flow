@@ -1,14 +1,48 @@
 .profile-container {
+    max-width: 600px;
+    margin: 2rem auto;
     padding: 2rem;
+    background: hsl(var(--card));
+    border-radius: var(--radius);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
-.profile-container h1 {
-    font-size: 2rem;
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
     margin-bottom: 1rem;
 }
 
-.profile-container p {
-    margin: 0.5rem 0;
+.profile-picture img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid hsl(var(--primary));
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.profile-info h1 {
+    font-size: 1.5rem;
+    color: hsl(var(--foreground));
+}
+
+.username {
+    color: hsl(var(--muted-foreground));
+    font-size: 0.9rem;
+}
+
+.email {
+    font-size: 0.95rem;
+    color: hsl(var(--muted-foreground));
+}
+
+.profile-actions {
+    margin-top: 1rem;
 }
 
 .btn-primary {
@@ -19,8 +53,57 @@
     border-radius: var(--radius);
     cursor: pointer;
     transition: background 0.2s ease;
+    display: inline-block;
 }
 
 .btn-primary:hover {
     background: hsl(var(--primary) / 0.9);
-} 
+}
+
+.btn-secondary {
+    background: hsl(var(--muted));
+    color: hsl(var(--foreground));
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.btn-secondary:hover {
+    background: hsl(var(--muted) / 0.9);
+}
+
+.hidden {
+    display: none;
+}
+
+/* Edit Profile Form */
+.edit-form {
+    margin-top: 1rem;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    font-size: 0.95rem;
+    color: hsl(var(--foreground));
+    margin-bottom: 0.3rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius);
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+}
+
+.form-actions {
+    display: flex;
+    gap: 0.5rem;
+}

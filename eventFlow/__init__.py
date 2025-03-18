@@ -69,6 +69,14 @@ def create_app():
   # blueprint for main routes 
   from .main import main as main_blueprint
   app.register_blueprint(main_blueprint)
+  
+  # blueprint for events routes 
+  from .events import events as events_blueprint
+  app.register_blueprint(events_blueprint)
+  
+  # blueprint for events routes 
+  from .tickets import tickets as tickets_blueprint
+  app.register_blueprint(tickets_blueprint)
 
   # Create database tables within app context
   with app.app_context():

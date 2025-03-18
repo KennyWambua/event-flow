@@ -42,13 +42,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     const ticketHtml = `
       <div class="ticket-type-item">
-        <div class="ticket-type-header">
+					<div class="ticket-type-header">
           <h4 class="ticket-type-label">Ticket Type ${ticketTypeCounter + 1}</h4>
           ${ticketTypeCounter > 0 ?
           '<button type="button" class="remove-ticket"><span class="material-icons">delete</span> Remove</button>' : ''}
-        </div>
-        <div class="ticket-type-grid">
-          <div class="form-group">
+					</div>
+					<div class="ticket-type-grid">
+							<div class="form-group">
             <label>Ticket Type *</label>
             <select name="ticket_types-${ticketTypeCounter}-ticket_type" class="form-control ticket-type-select" required>
               <option value="">Select Ticket Type</option>
@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function () {
               <option value="group">Group</option>
               <option value="custom">Custom</option>
             </select>
-          </div>
+							</div>
 
           <div class="form-group custom-type-field" style="display: none;">
             <label>Custom Type Name *</label>
@@ -68,9 +68,9 @@ document.addEventListener('DOMContentLoaded', function () {
               name="ticket_types-${ticketTypeCounter}-custom_type" 
               class="form-control" 
               placeholder="Enter custom ticket type name">
-          </div>
+							</div>
 
-          <div class="form-group">
+							<div class="form-group">
             <label>Quantity *</label>
             <input type="number" 
               name="ticket_types-${ticketTypeCounter}-quantity" 
@@ -78,9 +78,9 @@ document.addEventListener('DOMContentLoaded', function () {
               min="1" 
               value="100" 
               required>
-          </div>
+							</div>
 
-          <div class="form-group">
+							<div class="form-group">
             <label>Price *</label>
             <input type="number" 
               name="ticket_types-${ticketTypeCounter}-price" 
@@ -89,17 +89,17 @@ document.addEventListener('DOMContentLoaded', function () {
               step="0.01" 
               value="0.00" 
               required>
-          </div>
+							</div>
 
-          <div class="form-group full-width">
-            <label>Description</label>
+							<div class="form-group full-width">
+									<label>Description</label>
             <textarea name="ticket_types-${ticketTypeCounter}-description" 
               class="form-control" rows="3">
             </textarea>
           </div>
-        </div>
-      </div>
-    `;
+							</div>
+					</div>
+			`;
 
     const ticketDiv = document.createElement('div');
     ticketDiv.innerHTML = ticketHtml
@@ -141,14 +141,14 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function addImagePreview(src, filename, file = null) {
-    const previewDiv = document.createElement('div');
-    previewDiv.className = 'image-preview';
-    previewDiv.innerHTML = `
+          const previewDiv = document.createElement('div');
+          previewDiv.className = 'image-preview';
+          previewDiv.innerHTML = `
       <img src="${src}" alt="${filename}">
       <button type="button" class="remove-image remove-new-image">
-          <span class="material-icons">close</span>
-      </button>
-    `;
+											<span class="material-icons">close</span>
+									</button>
+							`;
 
     if (file) {
       // Store the actual file object
@@ -189,9 +189,9 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   if (addTicketTypeBtn) {
-    addTicketTypeBtn.addEventListener('click', function () {
-      addTicketType();
-    });
+  addTicketTypeBtn.addEventListener('click', function () {
+    addTicketType();
+  });
   }
 
   if (eventType) {

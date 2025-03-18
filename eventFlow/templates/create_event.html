@@ -26,7 +26,7 @@
       <h1>Create a New Event</h1>
       <p class="subtitle">Share an amazing event with the community</p>
     </div>
-    <form method="POST" action="{{ url_for('main.createEvent') }}" class="event-form" enctype="multipart/form-data" id="eventForm">
+    <form method="POST" action="{{ url_for('events.createEvent') }}" class="event-form" enctype="multipart/form-data" id="eventForm">
       {{ form.csrf_token }}
 
       <div class="form-section">

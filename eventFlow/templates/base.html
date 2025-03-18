@@ -29,24 +29,24 @@
           <nav class="navbar">
             <ul class="mainNavbar">
               <li class="nav-item">
-                <a href="{{ url_for('main.findEvent') }}" class="nav-link">Find Events</a>
+                <a href="{{ url_for('events.findEvent') }}" class="nav-link">Find Events</a>
               </li>
               {% if current_user.is_authenticated %}
                 {% if current_user.role == UserRole.ORGANIZER %}
                   <li class="nav-item">
-                    <a href="{{ url_for('main.createEvent') }}" class="nav-link">Create Event</a>
+                    <a href="{{ url_for('events.createEvent') }}" class="nav-link">Create Event</a>
                   </li>
                   <li class="nav-item">
-                    <a href="{{ url_for('main.myEvents') }}" class="nav-link">My Events</a>
+                    <a href="{{ url_for('events.myEvents') }}" class="nav-link">My Events</a>
                   </li>
                 {% else %}
                   <li class="nav-item">
-                    <a href="{{ url_for('main.myTickets') }}" class="nav-link">My Tickets</a>
+                    <a href="{{ url_for('tickets.myTickets') }}" class="nav-link">My Tickets</a>
                   </li>
                 {% endif %}
               {% else %}
                 <li class="nav-item">
-                  <a href="{{ url_for('main.createEvent') }}" class="nav-link">Create Event</a>
+                  <a href="{{ url_for('events.createEvent') }}" class="nav-link">Create Event</a>
                 </li>
               {% endif %}
               <li class="nav-item dropdown">
@@ -59,8 +59,8 @@
                     <li>
                       <a href="{{ url_for('main.helpCenter') }}">Help Center</a>
                     </li>
-                    <li>
-                      <a href="{{ url_for('main.findMyTickets') }}">Find My Tickets</a>
+                    <li class="nav-item">
+                      <a href="{{ url_for('tickets.myTickets') }}">Find My Tickets</a>
                     </li>
                     <li>
                       <a href="{{ url_for('main.contactOrganizer') }}">Contact Event Organizer</a>
@@ -85,12 +85,9 @@
                     </li>
                     {% if current_user.role == UserRole.ORGANIZER %}
                     <li class="nav-item">
-                      <a href="{{ url_for('main.myTickets') }}">My Tickets</a>
+                      <a href="{{ url_for('tickets.myTickets') }}">My Tickets</a>
                     </li>
                     {% endif %}
-                    <li>
-                      <a href="{{ url_for('main.settings') }}">Settings</a>
-                    </li>
                     <li class="divider"></li>
                     <li>
                       <a href="{{ url_for('auth.logout') }}" class="logout-link">Log Out</a>
@@ -149,16 +146,16 @@
           <h3>Quick Links</h3>
           <ul>
             <li>
-              <a href="{{ url_for('main.findEvent') }}">Find Events</a>
+              <a href="{{ url_for('events.findEvent') }}">Find Events</a>
             </li>
             <li>
-              <a href="{{ url_for('main.createEvent') }}">Create Event</a>
+              <a href="{{ url_for('events.createEvent') }}">Create Event</a>
             </li>
             <li>
               <a href="{{ url_for('main.helpCenter') }}">Help Center</a>
             </li>
             <li>
-              <a href="{{ url_for('main.findMyTickets') }}">My Tickets</a>
+              <a href="{{ url_for('tickets.myTickets') }}">My Tickets</a>
             </li>
           </ul>
         </div>
@@ -167,22 +164,22 @@
           <h3>Categories</h3>
           <ul>
             <li>
-              <a href="{{ url_for('main.findEvent', category='music') }}">Music & Concerts</a>
+              <a href="{{ url_for('events.findEvent', category='music') }}">Music & Concerts</a>
             </li>
             <li>
-              <a href="{{ url_for('main.findEvent', category='education') }}">Education</a>
+              <a href="{{ url_for('events.findEvent', category='education') }}">Education</a>
             </li>
             <li>
-              <a href="{{ url_for('main.findEvent', category='arts') }}">Arts & Culture</a>
+              <a href="{{ url_for('events.findEvent', category='arts') }}">Arts & Culture</a>
             </li>
             <li>
-              <a href="{{ url_for('main.findEvent', category='sports') }}">Sports & Fitness</a>
+              <a href="{{ url_for('events.findEvent', category='sports') }}">Sports & Fitness</a>
             </li>
             <li>
-              <a href="{{ url_for('main.findEvent', category='gaming') }}">Gaming</a>
+              <a href="{{ url_for('events.findEvent', category='gaming') }}">Gaming</a>
             </li>
             <li>
-              <a href="{{ url_for('main.findEvent', category='business') }}">Business & Professional</a>
+              <a href="{{ url_for('events.findEvent', category='business') }}">Business & Professional</a>
             </li>
           </ul>
         </div>
