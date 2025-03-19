@@ -22,7 +22,7 @@
     <h1>Find Events</h1>
     <p class="subtitle">Discover events happening near you.</p>
 
-    <form class="search-bar" method="GET" action="{{ url_for('main.findEvent') }}">
+    <form class="search-bar" method="GET" action="{{ url_for('events.findEvent') }}">
         <input type="text" name="query" placeholder="Search by event name..." class="form-control-one" value="{{ request.args.get('query', '') }}" />
         <select name="category" class="form-control-two">
             <option value="">All Categories</option>
@@ -44,7 +44,7 @@
     <div class="eventSection">
       {% for event in events.items %}
         <div class="eventCard">
-          <a href="{{ url_for('main.event', event_id=event.id) }}">
+          <a href="{{ url_for('events.event', event_id=event.id) }}">
             <div class="eventImage">
               <img src="{{ event.get_primary_image_url() }}" alt="{{ event.title }}" />
             </div>
@@ -53,7 +53,7 @@
             <span class="eventDate">{{ event.date.strftime('%B %d, %Y at %I:%M %p') }}</span>
             <h3>{{ event.title }}</h3>
             <p>{{ event.location }}</p>
-            <a href="{{ url_for('main.event', event_id=event.id) }}" class="btn btn-primary">Get ticket</a>
+            <a href="{{ url_for('events.event', event_id=event.id) }}" class="btn btn-primary">Get ticket</a>
           </div>
         </div>
       {% endfor %}
@@ -63,7 +63,7 @@
     <div class="pagination">
         {# Previous button #}
         {% if events.has_prev %}
-            <a href="{{ url_for('main.findEvent', page=events.prev_num, query=request.args.get('query', ''), category=request.args.get('category', ''), location=request.args.get('location', '')) }}" 
+            <a href="{{ url_for('events.findEvent', page=events.prev_num, query=request.args.get('query', ''), category=request.args.get('category', ''), location=request.args.get('location', '')) }}" 
                class="pagination-button">Previous</a>
         {% else %}
             <span class="pagination-button disabled">Previous</span>

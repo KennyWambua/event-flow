@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+
+{% block head %}
+  {{ super() }}
+  <link rel="stylesheet" href="/static/css/payment.css" />
+{% endblock %}
+
+{% block title %}
+  Complete Payment - {{ event.title }} - eventFlow
+{% endblock %}
+
+{% block breadcrumb_items %}
+  <div class="breadcrumb-wrapper">
+    <ul class="breadcrumb-list">
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('main.home') }}">Home</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('events.event', event_id=event.id) }}">{{ event.title }}</a>
+      </li>
+      <li class="breadcrumb-item active">Payment</li>
+    </ul>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="payment-container">
+    <div class="payment-grid">
+      <!-- Order Summary Section -->
+      <div class="order-summary">
+        <div class="summary-header">
+          <h2>Order Summary</h2>
+          <div class="event-details">
+            <h3>{{ event.title }}</h3>
+            <div class="event-meta">
+              <span class="material-icons">event</span>
+              <span>{{ event.date.strftime('%B %d, %Y at %I:%M %p') }}</span>
+            </div>
+            <div class="event-meta">
+              <span class="material-icons">location_on</span>
+              <span>{{ event.location }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ticket-summary">
+          <h4>Ticket Details</h4>
+          {% for ticket_id, details in tickets.items() %}
+            <div class="ticket-item">
+              <div class="ticket-info">
+                <span class="ticket-name">{{ details.name }}</span>
+                <span class="ticket-quantity">× {{ details.quantity }}</span>
+              </div>
+              <span class="ticket-subtotal">{{ details.subtotal }} {{ event.currency }}</span>
+            </div>
+          {% endfor %}
+
+          <div class="total-amount">
+            <span>Total Amount</span>
+            <span class="amount">{{ order.total_amount }} {{ event.currency }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Section -->
+      <div class="payment-section">
+        <h2>Payment Method</h2>
+        <div class="payment-methods">
+          <div class="payment-method-selector">
+            <label class="method-option">
+              <input type="radio" name="payment_method" value="mpesa" checked />
+              <div class="method-content">
+                <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="48" height="48" viewBox="0 0 48 48">
+                  <path fill="#aed580" d="M31.003,7.001l-0.001-5.5c0-0.828,0.672-1.5,1.5-1.5	c0.828,0,1.5,0.672,1.5,1.5v5.5H31.003z"></path>
+                  <path fill="#aed580" d="M14.964,47.999h18.073c0.533,0,0.965-0.432,0.965-0.965V4.964c0-0.533-0.432-0.965-0.965-0.965	H14.964c-0.533,0-0.965,0.432-0.965,0.965v42.07C13.999,47.567,14.431,47.999,14.964,47.999z"></path>
+                  <path fill="#fff" fill-rule="evenodd" d="M17.739,29.001h12.524c0.962,0,1.741-0.78,1.741-1.741V10.743	c0-0.962-0.78-1.741-1.741-1.741H17.739c-0.962,0-1.741,0.78-1.741,1.741V27.26C15.997,28.222,16.777,29.001,17.739,29.001z" clip-rule="evenodd"></path>
+                  <path fill="#9b2310" fill-rule="evenodd" d="M12.001,22.001	c3.643-0.7,5.865-2.448,7-5c1.135,2.552,3.357,4.3,7,5H12.001z" clip-rule="evenodd"></path>
+                  <path fill="#e60023" fill-rule="evenodd" d="M12.001,22.001	c4.273,0.867,6.476,1,11,1c5.076,0,11.712-1.939,14-6l-9-4C24.039,18.139,21.863,22.001,12.001,22.001z" clip-rule="evenodd"></path>
+                </svg>
+                <span>M-PESA</span>
+              </div>
+            </label>
+          </div>
+
+          <form id="paymentForm" class="payment-form" action="{{ url_for('tickets.process_payment', order_id=order.id) }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}" />
+
+            <div class="form-group">
+              <label for="phone">M-PESA Phone Number</label>
+              <div class="phone-input">
+                <span class="prefix">+254</span>
+                <input type="tel" id="phone" name="phone" pattern="[0-9]{9}" placeholder="7XXXXXXXX" required />
+              </div>
+              <small>Enter the M-PESA registered phone number</small>
+            </div>
+
+            <div class="payment-actions">
+                <a href="{{ url_for('events.event', event_id=event.id) }}" class="btn btn-secondary">
+                    <span class="material-icons">arrow_back</span>
+                    Back to Event
+                </a>
+                <button type="submit" class="btn btn-primary" id="payButton">
+                    <span class="material-icons">payment</span>
+                    Pay {{ order.total_amount }} {{ event.currency }}
+                </button>              
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment Processing Modal -->
+  <div id="processingModal" class="modal">
+    <div class="modal-content">
+      <div class="processing-animation">
+        <span class="material-icons loading">sync</span>
+      </div>
+      <h2>Processing Payment</h2>
+      <p>Please check your phone for the M-PESA prompt and enter your PIN to complete the payment.</p>
+      <div class="processing-status">
+        <div class="status-step current">
+          <span class="material-icons">phone_android</span>
+          <span>Sending payment request...</span>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script>
+    const ORDER_ID = '{{ order.id }}'
+    const CSRF_TOKEN = '{{ csrf_token() }}'
+  </script>
+  <script src="{{ url_for('static', filename='js/payment.js') }}"></script>
+{% endblock %}

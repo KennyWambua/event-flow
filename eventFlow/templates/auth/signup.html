@@ -70,7 +70,7 @@
 
             <div class="form-group login-input-group">
               {{ form.confirm_email.label }}
-              {{ form.confirm_email(class='form-control') }}
+              {{ form.confirm_email(class='form-control confirm-email') }}
               {% if form.confirm_email.errors %}
                 {% for error in form.confirm_email.errors %}
                   <span class="error-message">{{ error }}</span>
@@ -122,8 +122,8 @@
             <div class="form-group">
               <label>Join as a</label>
               <div class="role-options">
-                <div class="role-option" data-role="attendee">
-                  <input type="radio" name="role" id="role-attendee" value="attendee" class="role-radio" checked />
+                <div class="role-option" data-role="ATTENDEE">
+                  <input type="radio" name="role" id="role-attendee" value="ATTENDEE" class="role-radio" checked />
                   <label for="role-attendee" class="role-label">
                     <div class="role-icon">
                       <span class="material-icons">person</span>
@@ -135,8 +135,8 @@
                   </label>
                 </div>
 
-                <div class="role-option" data-role="organizer">
-                  <input type="radio" name="role" id="role-organizer" value="organizer" class="role-radio" />
+                <div class="role-option" data-role="ORGANIZER">
+                  <input type="radio" name="role" id="role-organizer" value="ORGANIZER" class="role-radio" />
                   <label for="role-organizer" class="role-label">
                     <div class="role-icon">
                       <span class="material-icons">event</span>
@@ -286,6 +286,14 @@
         if (!selectedRole) {
           e.preventDefault()
           showErrorMessage('Please select a role', document.querySelector('.role-options'))
+          return
+        }
+
+        // Get the role value and ensure it's valid
+        const roleValue = selectedRole.value
+        if (!['ATTENDEE', 'ORGANIZER'].includes(roleValue)) {
+          e.preventDefault()
+          showErrorMessage('Invalid role selected', document.querySelector('.role-options'))
           return
         }
       })

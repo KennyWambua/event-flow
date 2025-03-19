@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% block head %}
+  {{ super() }}
+  <link rel="stylesheet" href="/static/css/contact.css" />
+{% endblock %}
+
+{% block title %}
+  Contact Us - eventFlow
+{% endblock %}
+
+{% block breadcrumb_items %}
+  <div class="breadcrumb-wrapper">
+    <ul class="breadcrumb-list">
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('main.home') }}">Home</a>
+      </li>
+      <li class="breadcrumb-item active">Contact Us</li>
+    </ul>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="contact-container">
+    <div class="contact-header">
+      <h1>Contact Us</h1>
+      <p>Have questions? We're here to help. Choose the best way to reach us.</p>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-info-section">
+        <div class="info-card">
+          <span class="material-icons">support_agent</span>
+          <h3>Customer Support</h3>
+          <p>Our support team is available 24/7 to assist you with any questions or concerns.</p>
+          <div class="contact-details">
+            <div class="contact-item">
+              <span class="material-icons">email</span>
+              <div>
+                <h4>Email</h4>
+                <p>support@eventflow.com</p>
+              </div>
+            </div>
+            <div class="contact-item">
+              <span class="material-icons">phone</span>
+              <div>
+                <h4>Phone</h4>
+                <p>+254 (768) 583-293</p>
+              </div>
+            </div>
+            <div class="contact-item">
+              <span class="material-icons">schedule</span>
+              <div>
+                <h4>Hours</h4>
+                <p>24/7 Support Available</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-card">
+          <span class="material-icons">location_on</span>
+          <h3>Office Location</h3>
+          <p>Visit us at our headquarters:</p>
+          <div class="address">
+            <p>428 Event Street</p>
+            <p>Westlands, CA 94105</p>
+            <p>Nairobi, Kenya</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="contact-form-section">
+        <div class="form-card">
+          <h2>Send us a Message</h2>
+          <form method="POST" action="{{ url_for('main.contact') }}" class="contact-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            
+            <div class="form-group">
+              <label for="name">
+                <span class="material-icons">person</span>
+                Your Name
+              </label>
+              <input 
+                type="text" 
+                id="name" 
+                name="name" 
+                class="form-control" 
+                placeholder="Enter your full name" 
+                required 
+                minlength="2"
+                maxlength="100"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="email">
+                <span class="material-icons">email</span>
+                Email Address
+              </label>
+              <input 
+                type="email" 
+                id="email" 
+                name="email" 
+                class="form-control" 
+                placeholder="Enter your email address" 
+                required 
+                pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="subject">
+                <span class="material-icons">subject</span>
+                Subject
+              </label>
+              <select id="subject" name="subject" class="form-control" required>
+                <option value="">Select a subject</option>
+                <option value="general">General Inquiry</option>
+                <option value="technical">Technical Support</option>
+                <option value="billing">Billing Issue</option>
+                <option value="feedback">Feedback</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="message">
+                <span class="material-icons">message</span>
+                Your Message
+              </label>
+              <textarea 
+                id="message" 
+                name="message" 
+                class="form-control" 
+                placeholder="Write your message here..." 
+                required 
+                rows="5"
+              ></textarea>
+            </div>
+
+            <div class="form-actions">
+              <button type="reset" class="btn btn-secondary">
+                <span class="material-icons">clear</span>
+                Clear Form
+              </button>
+              <button type="submit" class="btn btn-primary">
+                <span class="material-icons">send</span>
+                Send Message
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="faq-section">
+      <h2>Common Questions</h2>
+      <p>Check our FAQ section for quick answers to common questions.</p>
+      <a href="{{ url_for('main.helpCenter') }}" class="btn btn-secondary">
+        <span class="material-icons">help_outline</span>
+        Visit FAQ
+      </a>
+    </div>
+  </div>
+{% endblock %} 

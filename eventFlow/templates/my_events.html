@@ -26,7 +26,7 @@
         <h1>My Events</h1>
         <p class="subtitle">Manage and track your created events</p>
       </div>
-      <a href="{{ url_for('main.createEvent') }}" class="btn btn-create">
+      <a href="{{ url_for('events.createEvent') }}" class="btn btn-create">
         <span class="material-icons">add</span>
         Create New Event
       </a>
@@ -56,11 +56,11 @@
                 {% endif %}
               </div>
               <div class="event-actions">
-                <a onclick="window.location.href='{{ url_for('main.event', event_id=event.id) }}'" class="btn btn-view">
+                <a onclick="window.location.href='{{ url_for('events.event', event_id=event.id) }}'" class="btn btn-view">
                   <span class="material-icons">visibility</span>
                   View
                 </a>
-                <button class="btn btn-edit" onclick="editEvent('{{ event.id }}', '{{ url_for('main.editEvent', event_id=event.id) }}')">
+                <button class="btn btn-edit" onclick="window.location.href='{{ url_for('events.editEvent', event_id=event.id) }}'">
                   <span class="material-icons">edit</span>
                   Edit
                 </button>
@@ -77,7 +77,7 @@
       {% if events.pages > 1 %}
         <div class="pagination">
           {% if events.has_prev %}
-            <a href="{{ url_for('main.myEvents', page=events.prev_num) }}" class="pagination-button">
+            <a href="{{ url_for('events.myEvents', page=events.prev_num) }}" class="pagination-button">
               <span class="material-icons">chevron_left</span>
               Previous
             </a>
@@ -86,7 +86,7 @@
           <div class="page-numbers">
             {% for page in events.iter_pages() %}
               {% if page %}
-                <a href="{{ url_for('main.myEvents', page=page) }}" class="page-number {% if page == events.page %}active{% endif %}">{{ page }}</a>
+                <a href="{{ url_for('events.myEvents', page=page) }}" class="page-number {% if page == events.page %}active{% endif %}">{{ page }}</a>
               {% else %}
                 <span class="page-ellipsis">...</span>
               {% endif %}
@@ -94,7 +94,7 @@
           </div>
 
           {% if events.has_next %}
-            <a href="{{ url_for('main.myEvents', page=events.next_num) }}" class="pagination-button">
+            <a href="{{ url_for('events.myEvents', page=events.next_num) }}" class="pagination-button">
               Next
               <span class="material-icons">chevron_right</span>
             </a>
@@ -105,7 +105,7 @@
       <div class="no-events">
         <span class="material-icons">event_busy</span>
         <h2>No events created yet</h2>
-        <a href="{{ url_for('main.createEvent') }}" class="btn btn-create">
+        <a href="{{ url_for('events.createEvent') }}" class="btn btn-create">
           <span class="material-icons">add</span>
           Create My First Event
         </a>
@@ -129,6 +129,7 @@
     
     function showDeleteModal(eventId) {
       eventToDelete = eventId
+      console.log('Deleting event:', eventId)
       const modal = document.getElementById('deleteModal')
       modal.style.display = 'flex'
       modal.classList.add('active')
@@ -147,14 +148,12 @@
       showDeleteModal(eventId)
     }
     
-    function editEvent(eventId) {
-      window.location.href = `/event/${eventId}/edit`
-    }
-    
     function confirmDelete() {
       if (!eventToDelete) return
     
       const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      console.log('Deleting event:', eventToDelete)
+      console.log('CSRF Token:', csrfToken)
     
       fetch(`/event/${eventToDelete}/delete`, {
         method: 'DELETE',

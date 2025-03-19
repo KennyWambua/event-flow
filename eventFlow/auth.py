@@ -5,15 +5,15 @@ from flask import (
     url_for,
     flash,
     request,
-    session,
     jsonify,
+    abort,
 )
 from flask_login import login_user, logout_user, login_required, current_user
-from urllib.parse import urlparse
 from . import db
-from .models import User
+from .models import User, UserRole
 from .forms import LoginForm, SignupForm
 import traceback
+from functools import wraps
 
 # Create a Blueprint for authentication routes
 auth = Blueprint("auth", __name__)
@@ -79,13 +79,16 @@ def signup():
                 form.first_name.data.strip(), form.last_name.data.strip()
             )
 
+            # Get the role enum value
+            selected_role = UserRole[form.role.data] 
+
             # Create new user
             user = User(
                 username=username,
                 email=form.email.data.lower(),
                 first_name=form.first_name.data,
                 last_name=form.last_name.data,
-                role = form.role.data
+                role=selected_role 
             )
             user.set_password(form.password.data)
 
@@ -97,7 +100,8 @@ def signup():
 
         except Exception as e:
             db.session.rollback()
-            traceback.print_exc()  # Add detailed error logging
+            print(f"Signup error: {str(e)}")
+            traceback.print_exc()
             flash(
                 "An error occurred while creating your account. Please try again.",
                 "error",
@@ -121,12 +125,6 @@ def logout():
     flash("You have been logged out successfully.", "success")
     return redirect(url_for("main.home"))
 
-
-@auth.route("/forgot-password")
-def forgot_password():
-    return render_template("auth/forgotPassword.html")
-
-
 @auth.route("/check-email", methods=["POST"])
 def check_email():
     try:
@@ -145,3 +143,21 @@ def check_email():
     except Exception as e:
         print(f"Error checking email: {str(e)}")
         return jsonify({"available": False, "error": str(e)})
+
+def role_required(roles):
+    def decorator(f):
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+            if not current_user.is_authenticated:
+                return redirect(url_for('auth.login'))
+            
+            if isinstance(roles, (UserRole,)):
+                roles_to_check = [roles]
+            else:
+                roles_to_check = roles
+                
+            if current_user.role not in roles_to_check:
+                abort(403)
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator

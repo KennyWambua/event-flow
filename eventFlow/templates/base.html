@@ -26,14 +26,27 @@
         </div>
         <button class="mobileMenuBtn" aria-label="Toggle menu"><span class="material-icons">menu</span></button>
         <div class="navSection">
-          <nav>
+          <nav class="navbar">
             <ul class="mainNavbar">
               <li class="nav-item">
-                <a href="{{ url_for('main.findEvent') }}" class="nav-link">Find Events</a>
+                <a href="{{ url_for('events.findEvent') }}" class="nav-link">Find Events</a>
               </li>
-              {% if current_user.role == 'organizer' %}
+              {% if current_user.is_authenticated %}
+                {% if current_user.role == UserRole.ORGANIZER %}
+                  <li class="nav-item">
+                    <a href="{{ url_for('events.createEvent') }}" class="nav-link">Create Event</a>
+                  </li>
+                  <li class="nav-item">
+                    <a href="{{ url_for('events.myEvents') }}" class="nav-link">My Events</a>
+                  </li>
+                {% else %}
+                  <li class="nav-item">
+                    <a href="{{ url_for('tickets.myTickets') }}" class="nav-link">My Tickets</a>
+                  </li>
+                {% endif %}
+              {% else %}
                 <li class="nav-item">
-                  <a href="{{ url_for('main.createEvent') }}" class="nav-link">Create Event</a>
+                  <a href="{{ url_for('events.createEvent') }}" class="nav-link">Create Event</a>
                 </li>
               {% endif %}
               <li class="nav-item dropdown">
@@ -46,46 +59,53 @@
                     <li>
                       <a href="{{ url_for('main.helpCenter') }}">Help Center</a>
                     </li>
-                    <li>
-                      <a href="{{ url_for('main.findMyTickets') }}">Find Your Tickets</a>
+                    <li class="nav-item">
+                      <a href="{{ url_for('tickets.myTickets') }}">Find My Tickets</a>
                     </li>
                     <li>
-                      <a href="{{ url_for('main.contactOrganizer') }}">Contact Your Event Organizer</a>
+                      <a href="{{ url_for('main.contactOrganizer') }}">Contact Event Organizer</a>
                     </li>
                   </ul>
                 </div>
-              </li>
-              <li class="nav-item">
-                <a href="{{ url_for('main.myTickets') }}" class="nav-link">
-                  Find My Tickets
-                </a>
               </li>
             </ul>
           </nav>
           <div class="authSection">
             {% if current_user.is_authenticated %}
-              <div class="userMenu dropdown">
-                <button class="dropdownTitle nav-link">
-                  <span class="material-icons">account_circle</span>
-                  {{ current_user.username }}
-                  <span class="material-symbols-outlined">keyboard_arrow_down</span>
-                </button>
-                <div class="dropdownContent">
-                  <ul class="dropdownList">
-                    <li>
-                      <a href="{{ url_for('main.profile') }}">My Profile</a>
-                    </li>
-                    <li>
-                      <a href="{{ url_for('main.myEvents') }}">My Events</a>
-                    </li>
-                    <li>
-                      <a href="{{ url_for('main.settings') }}">Settings</a>
-                    </li>
-                    <li class="divider"></li>
-                    <li>
-                      <a href="{{ url_for('auth.logout') }}" class="logout-link">Log Out</a>
-                    </li>
-                  </ul>
+              <div class="user-menu">
+                <div class="user-menu-trigger">
+                  <img 
+                      src="{{ current_user.profile_picture or url_for('static', filename='images/default-profile.png') }}" 
+                      alt="{{ current_user.first_name }}'s profile"
+                      class="user-avatar"
+                      onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0yMCAyMXYtMmE0IDQgMCAwIDAtNC00SDhhNCA0IDAgMCAwLTQgNHYyIj48L3BhdGg+PGNpcmNsZSBjeD0iMTIiIGN5PSI3IiByPSI0Ij48L2NpcmNsZT48L3N2Zz4=';"
+                  >
+                  <span class="user-name">{{ current_user.first_name }}</span>
+                  <span class="material-icons">expand_more</span>
+                </div>
+                <div class="user-menu-dropdown">
+                  <a href="{{ url_for('main.profile') }}" class="menu-item">
+                    <span class="material-icons">person</span>
+                    My Profile
+                  </a>
+                  {% if current_user.role == UserRole.ORGANIZER %}
+                    <a href="{{ url_for('events.myEvents') }}" class="menu-item">
+                      <span class="material-icons">event</span>
+                      My Events
+                    </a>
+                    <a href="{{ url_for('reports.dashboard') }}" class="menu-item">
+                      <span class="material-icons">analytics</span>
+                      My Reports
+                    </a>
+                  {% endif %}
+                  <a href="{{ url_for('tickets.myTickets') }}" class="menu-item">
+                    <span class="material-icons">confirmation_number</span>
+                    My Tickets
+                  </a>
+                  <a href="{{ url_for('auth.logout') }}" class="menu-item">
+                    <span class="material-icons">logout</span>
+                    Logout
+                  </a>
                 </div>
               </div>
             {% else %}
@@ -139,16 +159,16 @@
           <h3>Quick Links</h3>
           <ul>
             <li>
-              <a href="{{ url_for('main.findEvent') }}">Find Events</a>
+              <a href="{{ url_for('events.findEvent') }}">Find Events</a>
             </li>
             <li>
-              <a href="{{ url_for('main.createEvent') }}">Create Event</a>
+              <a href="{{ url_for('events.createEvent') }}">Create Event</a>
             </li>
             <li>
               <a href="{{ url_for('main.helpCenter') }}">Help Center</a>
             </li>
             <li>
-              <a href="{{ url_for('main.findMyTickets') }}">My Tickets</a>
+              <a href="{{ url_for('tickets.myTickets') }}">My Tickets</a>
             </li>
           </ul>
         </div>
@@ -157,22 +177,22 @@
           <h3>Categories</h3>
           <ul>
             <li>
-              <a href="{{ url_for('main.findEvent', category='music') }}">Music & Concerts</a>
+              <a href="{{ url_for('events.findEvent', category='music') }}">Music & Concerts</a>
             </li>
             <li>
-              <a href="{{ url_for('main.findEvent', category='education') }}">Education</a>
+              <a href="{{ url_for('events.findEvent', category='education') }}">Education</a>
             </li>
             <li>
-              <a href="{{ url_for('main.findEvent', category='arts') }}">Arts & Culture</a>
+              <a href="{{ url_for('events.findEvent', category='arts') }}">Arts & Culture</a>
             </li>
             <li>
-              <a href="{{ url_for('main.findEvent', category='sports') }}">Sports & Fitness</a>
+              <a href="{{ url_for('events.findEvent', category='sports') }}">Sports & Fitness</a>
             </li>
             <li>
-              <a href="{{ url_for('main.findEvent', category='gaming') }}">Gaming</a>
+              <a href="{{ url_for('events.findEvent', category='gaming') }}">Gaming</a>
             </li>
             <li>
-              <a href="{{ url_for('main.findEvent', category='business') }}">Business & Professional</a>
+              <a href="{{ url_for('events.findEvent', category='business') }}">Business & Professional</a>
             </li>
           </ul>
         </div>

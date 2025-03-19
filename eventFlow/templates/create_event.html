@@ -26,7 +26,7 @@
       <h1>Create a New Event</h1>
       <p class="subtitle">Share an amazing event with the community</p>
     </div>
-    <form method="POST" action="{{ url_for('main.createEvent') }}" class="event-form" enctype="multipart/form-data" id="eventForm">
+    <form method="POST" action="{{ url_for('events.createEvent') }}" class="event-form" enctype="multipart/form-data" id="eventForm">
       {{ form.csrf_token }}
 
       <div class="form-section">
@@ -118,6 +118,14 @@
               <div class="event-type-description">Set up ticket types and pricing</div>
             </div>
           </label>
+        </div>
+
+        <div id="freeTicketQuantity" class="form-group" style="display: none;">
+          <label for="free_ticket_quantity">Number of Available Tickets</label>
+          <div class="input-wrapper">
+            <input type="number" id="free_ticket_quantity" name="free_ticket_quantity" class="form-control" min="1" value="100">
+            <small class="help-text">Maximum number of attendees for this free event</small>
+          </div>
         </div>
       </div>
 

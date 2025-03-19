@@ -20,12 +20,12 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background: url('/static/images/concert.jpg') center/cover;
-    /* opacity: 0.1; */
-    z-index: 0;
-    filter: blur(5px);
-    -webkit-filter: blur(5px);
-  }
+    background: url('/static/images/event-homepage-background.jpg') center/cover;
+    /*opacity: 0.1;
+    */z-index: 0;
+    filter: blur(2px);
+    -webkit-filter: blur(2px);
+}
 
   .heroContent {
     position: relative;
@@ -37,10 +37,11 @@
       font-size: 3.5rem;
       font-weight: 800;
       margin-bottom: 1.5rem;
-      background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
-      background-clip: text;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: hsl(var(--primary));
+      /* background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary))); */
+      /* background-clip: text; */
+      /* -webkit-background-clip: text; */
+      /* -webkit-text-fill-color: transparent; */
       line-height: 1.2;
     }
 
@@ -71,7 +72,8 @@
 
         .statLabel {
           font-size: 1rem;
-          color: hsl(var(--muted-foreground));
+          color: black;
+          font-weight: 600;
         }
       }
     }
@@ -143,12 +145,25 @@
   }
 }
 
+.btn-home {
+  color: white;
+  background: transparent;
+  border: 1px solid hsl(var(--primary));
+  display: flex;
+  align-items: center;  
+
+  &:hover {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+}
+
 .btn-outline {
   background: transparent;
   border: 1px solid hsl(var(--primary));
   color: hsl(var(--primary));
   display: flex;
-  align-items: center;
+  align-items: center;  
 
   &:hover {
     background: hsl(var(--primary));

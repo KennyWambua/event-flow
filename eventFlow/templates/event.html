@@ -16,7 +16,7 @@
         <a href="{{ url_for('main.home') }}">Home</a>
       </li>
       <li class="breadcrumb-item">
-        <a href="{{ url_for('main.findEvent') }}">Events</a>
+        <a href="{{ url_for('events.findEvent') }}">Events</a>
       </li>
       <li class="breadcrumb-item active">{{ event.title }}</li>
     </ul>
@@ -32,7 +32,7 @@
             {% if event.images %}
               {% for image in event.images %}
                 <div class="swiper-slide">
-                  <img src="{{ url_for('main.get_image', image_id=image.id) }}" alt="{{ event.title }}" />
+                  <img src="{{ url_for('events.get_image', image_id=image.id) }}" alt="{{ event.title }}" />
                 </div>
               {% endfor %}
             {% else %}
@@ -51,15 +51,11 @@
         <div class="event-meta">
           <div class="event-status {% if event.date_utc > now %}
               
-              
               upcoming
-
 
             {% else %}
               
-              
               past
-
 
             {% endif %}">
             {% if event.date_utc > now %}
@@ -98,20 +94,37 @@
             <div class="detail-content">
               <span class="label">Organizer</span>
               <span class="value">{{ event.user.first_name }} {{ event.user.last_name }}</span>
+              <span class="value">{{ event.user.email }}</span>
             </div>
           </div>
         </div>
 
-        {% if event.is_paid_event and event.ticket_types %}
+        {% if event.is_paid_event %}
           <div class="ticket-info">
             <div class="price-range">
-              <span class="label">Tickets starting from</span>
-              <span class="amount">{{ event.ticket_types.0.price }} {{ event.currency }}</span>
+              <span class="type-label">Tickets starting from</span>
+              {% if min_ticket_price %}
+                <span class="amount">{{ min_ticket_price }} {{ event.currency }}</span>
+              {% else %}
+                <span class="amount">Price not set</span>
+              {% endif %}
             </div>
-            {% if current_user.is_authenticated %}
-              <button class="btn btn-primary btn-book" onclick="scrollToTickets()">
-                <span class="material-icons">confirmation_number</span>
-                Get Tickets
+            {% if current_user.is_authenticated and current_user.id != event.user.id %}
+              {% if min_ticket_price %}
+                <button class="btn btn-primary btn-book" onclick="scrollToTickets()">
+                  <span class="material-icons">confirmation_number</span>
+                  Get Tickets
+                </button>
+              {% else %}
+                <button class="btn btn-secondary" disabled>
+                  <span class="material-icons">event_busy</span>
+                  Tickets not available
+                </button>
+              {% endif %}
+            {% elif current_user.is_authenticated and current_user.id == event.user.id %}
+              <button class="btn btn-organizer btn-secondary" disabled>
+                <span class="material-icons">event_busy</span>
+                You are the Event Organizer
               </button>
             {% else %}
               <a href="{{ url_for('auth.login', next=request.path) }}" class="btn btn-primary">
@@ -122,24 +135,42 @@
           </div>
         {% else %}
           <div class="ticket-info free">
-            <span class="free-label">Free Event</span>
+            <span class="type-label">Free Event</span>
+            <div class="ticket-availability">
+              <span class="material-icons">confirmation_number</span>
+              <span>{{ event.free_ticket_quantity or 0 }} tickets available</span>
+            </div>
             {% if current_user.is_authenticated %}
+              {% if current_user.id != event.user.id %}
                 {% if event.date_utc > now %}
+                  {% if (event.free_ticket_quantity or 0) > 0 %}
                     <button class="btn btn-primary btn-book" onclick="registerFreeEvent()">
-                        <span class="material-icons">how_to_reg</span>
-                        Register Now
+                      <span class="material-icons">how_to_reg</span>
+                      Register Now
                     </button>
-                {% else %}
+                  {% else %}
                     <button class="btn btn-secondary" disabled>
-                        <span class="material-icons">event_busy</span>
-                        Event Ended
+                      <span class="material-icons">event_busy</span>
+                      No Tickets Available
                     </button>
+                  {% endif %}
+                {% else %}
+                  <button class="btn btn-secondary" disabled>
+                    <span class="material-icons">event_busy</span>
+                    Event Ended
+                  </button>
                 {% endif %}
+              {% else %}
+                <button class="btn btn-secondary btn-organizer" disabled>
+                  <span class="material-icons">event_busy</span>
+                  You are the Event Organizer
+                </button>
+              {% endif %}
             {% else %}
-                <a href="{{ url_for('auth.login', next=request.path) }}" class="btn btn-primary">
-                    <span class="material-icons">login</span>
-                    Login to Register
-                </a>
+              <a href="{{ url_for('auth.login', next=request.path) }}" class="btn btn-primary">
+                <span class="material-icons">login</span>
+                Login to Register
+              </a>
             {% endif %}
           </div>
         {% endif %}
@@ -163,7 +194,7 @@
         </div>
       </div>
 
-      {% if event.is_paid_event and event.ticket_types and current_user.is_authenticated %}
+      {% if event.is_paid_event and event.ticket_types and current_user.is_authenticated and current_user.id != event.user.id %}
         <div id="tickets" class="ticket-types">
           <h2>Select Tickets</h2>
           <div class="ticket-grid">
@@ -186,6 +217,13 @@
                 </div>
               </div>
             {% endfor %}
+          </div>
+
+          <div class="review-order-container">
+            <button id="reviewOrderBtn" class="btn btn-primary" onclick="showCartModal()" style="display: none;">
+              <span class="material-icons">shopping_cart</span>
+              Review Order
+            </button>
           </div>
         </div>
       {% endif %}
@@ -211,27 +249,29 @@
     {% endif %}
 
     <div id="registrationModal" class="modal">
-        <div class="modal-content">
-            <h2>Event Registration</h2>
-            <p>You are registering for: <strong>{{ event.title }}</strong></p>
-            <div class="registration-details">
-                <div class="detail-row">
-                    <span class="label">Date:</span>
-                    <span class="value">{{ event.date.strftime('%B %d, %Y at %I:%M %p') }}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="label">Location:</span>
-                    <span class="value">{{ event.location }}</span>
-                </div>
-            </div>
-            <div class="modal-actions">
-                <button class="btn btn-secondary" onclick="closeRegistrationModal()">Cancel</button>
-                <button class="btn btn-primary" onclick="confirmRegistration()" id="confirmRegBtn">
-                    <span class="material-icons">check</span>
-                    Confirm Registration
-                </button>
-            </div>
+      <div class="modal-content">
+        <h2>Event Registration</h2>
+        <p>
+          You are registering for: <strong>{{ event.title }}</strong>
+        </p>
+        <div class="registration-details">
+          <div class="detail-row">
+            <span class="label">Date:</span>
+            <span class="value">{{ event.date.strftime('%B %d, %Y at %I:%M %p') }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Location:</span>
+            <span class="value">{{ event.location }}</span>
+          </div>
         </div>
+        <div class="modal-actions">
+          <button class="btn btn-secondary" onclick="closeRegistrationModal()">Cancel</button>
+          <button class="btn btn-primary" onclick="confirmRegistration()" id="confirmRegBtn">
+            <span class="material-icons">check</span>
+            Confirm Registration
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 {% endblock %}
@@ -239,184 +279,9 @@
 {% block scripts %}
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
   <script>
-    const swiper = new Swiper('.eventSwiper', {
-      loop: true,
-      pagination: {
-        el: '.swiper-pagination',
-        clickable: true
-      },
-      navigation: {
-        nextEl: '.swiper-button-next',
-        prevEl: '.swiper-button-prev'
-      },
-      autoplay: {
-        delay: 5000,
-        disableOnInteraction: false
-      }
-    })
-    
-    let cart = {}
-    
-    function scrollToTickets() {
-      document.getElementById('tickets').scrollIntoView({ behavior: 'smooth' })
-    }
-    
-    function updateQuantity(ticketId, change) {
-      const input = document.getElementById(`quantity-${ticketId}`)
-      const newValue = Math.max(0, Math.min(parseInt(input.value) + change, parseInt(input.max)))
-      input.value = newValue
-      updateCart()
-    }
-    
-    function updateCart() {
-      cart = {}
-      let total = 0
-      const cartItems = document.getElementById('cartItems')
-      cartItems.innerHTML = ''
-    
-      document.querySelectorAll('.ticket-card').forEach((card) => {
-        const ticketId = card.dataset.ticketId
-        const quantity = parseInt(document.getElementById(`quantity-${ticketId}`).value)
-        const price = parseFloat(card.dataset.price)
-        const ticketName = card.querySelector('h3').textContent
-    
-        if (quantity > 0) {
-          cart[ticketId] = {
-            name: ticketName,
-            quantity: quantity,
-            price: price,
-            subtotal: quantity * price
-          }
-          total += cart[ticketId].subtotal
-    
-          cartItems.innerHTML += `
-              <div class="cart-item">
-                  <div class="cart-item-details">
-                      <h4>${ticketName}</h4>
-                      <p>${quantity} × ${price} {{ event.currency }}</p>
-                  </div>
-                  <div class="cart-item-subtotal">
-                      ${cart[ticketId].subtotal.toFixed(2)} {{ event.currency }}
-                  </div>
-              </div>
-          `
-        }
-      })
-    
-      document.getElementById('cartTotal').textContent = `${total.toFixed(2)} {{ event.currency }}`
-      const checkoutBtn = document.getElementById('checkoutBtn')
-      checkoutBtn.disabled = total === 0
-    
-      if (total > 0) {
-        showCartModal()
-      }
-    }
-    
-    function showCartModal() {
-      document.getElementById('cartModal').style.display = 'flex'
-    }
-    
-    function closeCartModal() {
-      document.getElementById('cartModal').style.display = 'none'
-    }
-    
-    function checkout() {
-      // Implement checkout logic here
-      const ticketData = Object.entries(cart).map(([ticketId, data]) => ({
-        ticketId: ticketId,
-        quantity: data.quantity
-      }))
-    
-      fetch('/checkout', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': '{{ csrf_token() }}'
-        },
-        body: JSON.stringify({
-          eventId: '{{ event.id }}',
-          tickets: ticketData
-        })
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          if (data.success) {
-            window.location.href = data.checkoutUrl
-          } else {
-            alert('Error processing checkout. Please try again.')
-          }
-        })
-        .catch((error) => {
-          console.error('Error:', error)
-          alert('Error processing checkout. Please try again.')
-        })
-    }
-    
-    function shareEvent(platform) {
-      const url = encodeURIComponent(window.location.href)
-      const title = encodeURIComponent('{{ event.title }}')
-    
-      switch (platform) {
-        case 'facebook':
-          window.open(`https://www.facebook.com/sharer/sharer.php?u=${url}`)
-          break
-        case 'twitter':
-          window.open(`https://twitter.com/intent/tweet?url=${url}&text=${title}`)
-          break
-        case 'whatsapp':
-          window.open(`https://wa.me/?text=${title}%20${url}`)
-          break
-      }
-    }
-    
-    function copyEventLink() {
-      navigator.clipboard.writeText(window.location.href)
-      // Show success message
-      const notification = document.createElement('div')
-      notification.className = 'notification success'
-      notification.textContent = 'Link copied to clipboard!'
-      document.body.appendChild(notification)
-      setTimeout(() => notification.remove(), 3000)
-    }
-
-    function registerFreeEvent() {
-        document.getElementById('registrationModal').style.display = 'flex';
-    }
-
-    function closeRegistrationModal() {
-        document.getElementById('registrationModal').style.display = 'none';
-    }
-
-    function confirmRegistration() {
-        const confirmBtn = document.getElementById('confirmRegBtn');
-        const originalText = confirmBtn.innerHTML;
-        confirmBtn.innerHTML = '<span class="material-icons loading">sync</span> Processing...';
-        confirmBtn.disabled = true;
-
-        fetch('/register-free-event', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({
-                eventId: '{{ event.id }}'
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                window.location.href = data.redirect;
-            } else {
-                throw new Error(data.message || 'Registration failed');
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert(error.message || 'Error processing registration. Please try again.');
-            confirmBtn.innerHTML = originalText;
-            confirmBtn.disabled = false;
-        });
-    }
+    const EVENT_CURRENCY = '{{ event.currency }}'
+    const EVENT_ID = '{{ event.id }}'
+    const CSRF_TOKEN = '{{ csrf_token() }}'
   </script>
+  <script src="{{ url_for('static', filename='js/event.js') }}"></script>
 {% endblock %}

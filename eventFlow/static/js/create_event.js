@@ -192,19 +192,22 @@ document.addEventListener('DOMContentLoaded', function () {
 	eventTypeRadios.forEach(radio => {
 		radio.addEventListener('change', function () {
 			console.log('Event type changed:', this.value);
+			const freeTicketQuantity = document.getElementById('freeTicketQuantity');
 			const ticketSettings = document.getElementById('ticketSettings');
 			const currencySelect = document.querySelector('select[name="currency"]');
 
 			if (this.value === 'paid') {
 				enableTicketValidation();
 				ticketSettings.style.display = 'block';
+				freeTicketQuantity.style.display = 'none';
 				currencySelect.disabled = false;
 				currencySelect.required = true;
 				if (!document.querySelector('.ticket-type-item')) {
 					addTicketType();
 				}
-			} else {
+			} else if (this.value === 'free') {
 				disableTicketValidation();
+				freeTicketQuantity.style.display = 'block';
 				ticketSettings.style.display = 'none';
 				currencySelect.disabled = true;
 				currencySelect.required = false;
@@ -213,6 +216,11 @@ document.addEventListener('DOMContentLoaded', function () {
 				const ticketsList = document.getElementById('ticketTypesList');
 				if (ticketsList) {
 					ticketsList.innerHTML = '';
+				}
+				// Set default value for free ticket quantity
+				const freeTicketInput = document.getElementById('free_ticket_quantity');
+				if (freeTicketInput) {
+					freeTicketInput.value = '100';
 				}
 			}
 		});
