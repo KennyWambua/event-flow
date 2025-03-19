@@ -1,105 +1,187 @@
 /* Contact Organizer Page Styling */
 .contact-organizer-container {
-    max-width: 600px;
-    margin: 40px auto;
-    padding: 20px;
-    background: hsl(var(--card));
-    border-radius: var(--radius);
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+}
+
+.contact-header {
     text-align: center;
+    margin-bottom: 3rem;
 }
 
 .contact-header h1 {
-    font-size: 26px;
     color: hsl(var(--foreground));
-    margin-bottom: 8px;
-    font-family: 'Poppins', sans-serif;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
 }
 
 .contact-header p {
-    font-size: 16px;
     color: hsl(var(--muted-foreground));
-    margin-bottom: 20px;
+    font-size: 1.1rem;
 }
 
 .contact-form-container {
-    padding: 20px;
+    background: hsl(var(--card));
+    border-radius: var(--radius);
+    padding: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 3rem;
 }
 
 .contact-form {
     display: flex;
     flex-direction: column;
+    gap: 1.5rem;
 }
 
 .form-group {
-    margin-bottom: 15px;
-    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
 }
 
 .form-group label {
     display: flex;
     align-items: center;
-    font-size: 14px;
+    gap: 0.5rem;
     color: hsl(var(--foreground));
-    font-weight: 600;
-    margin-bottom: 5px;
+    font-weight: 500;
 }
 
 .form-group label .material-icons {
-    font-size: 18px;
-    margin-right: 6px;
     color: hsl(var(--primary));
 }
 
 .form-control {
-    width: 100%;
-    padding: 10px;
-    font-size: 16px;
+    padding: 0.75rem;
     border: 1px solid hsl(var(--border));
     border-radius: var(--radius);
-    /* background: hsl(var(--input)); */
+    background: hsl(var(--background));
     color: hsl(var(--foreground));
-    transition: border 0.3s ease;
+    font-size: 1rem;
+    transition: border-color 0.2s ease;
 }
 
 .form-control:focus {
-    border-color: hsl(var(--primary));
     outline: none;
+    border-color: hsl(var(--primary));
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.1);
 }
 
-textarea.form-control {
-    height: 120px;
-    resize: none;
+.form-text {
+    color: hsl(var(--muted-foreground));
+    font-size: 0.875rem;
+}
+
+.form-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-around;
+    margin-top: 1rem;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: var(--radius);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
 }
 
 .btn-primary {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    padding: 12px;
-    font-size: 16px;
-    font-weight: 600;
-    color: hsl(var(--primary-foreground));
     background: hsl(var(--primary));
-    border: none;
-    border-radius: var(--radius);
-    cursor: pointer;
-    transition: background 0.3s ease;
-}
-
-.btn-primary .material-icons {
-    font-size: 18px;
-    margin-right: 6px;
+    color: hsl(var(--primary-foreground));
 }
 
 .btn-primary:hover {
-    background: hsl(var(--ring));
+    background: hsl(var(--primary) / 0.9);
 }
 
-/* Responsive Design */
+.btn-secondary {
+    background: hsl(var(--secondary));
+    color: hsl(var(--secondary-foreground));
+}
+
+.btn-secondary:hover {
+    background: hsl(var(--secondary) / 0.9);
+}
+
+.contact-info {
+    text-align: center;
+    margin-top: 4rem;
+}
+
+.contact-info h2 {
+    color: hsl(var(--foreground));
+    margin-bottom: 2rem;
+}
+
+.help-options {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+    margin-top: 2rem;
+}
+
+.help-card {
+    background: hsl(var(--card));
+    padding: 2rem;
+    border-radius: var(--radius);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    transition: transform 0.2s ease;
+}
+
+.help-card:hover {
+    transform: translateY(-5px);
+}
+
+.help-card .material-icons {
+    font-size: 2.5rem;
+    color: hsl(var(--primary));
+}
+
+.help-card h3 {
+    color: hsl(var(--foreground));
+    font-size: 1.25rem;
+}
+
+.help-card p {
+    color: hsl(var(--muted-foreground));
+    text-align: center;
+}
+
 @media (max-width: 768px) {
     .contact-organizer-container {
-        width: 90%;
+        margin: 1rem auto;
+    }
+
+    .contact-header h1 {
+        font-size: 2rem;
+    }
+
+    .contact-form-container {
+        padding: 1.5rem;
+    }
+
+    .form-actions {
+        flex-direction: column;
+    }
+
+    .btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .help-options {
+        grid-template-columns: 1fr;
     }
 }

@@ -169,6 +169,7 @@
     }
   }
 
+  
   &.btn-secondary {
     padding: 0.625rem 1.25rem;
     white-space: nowrap;
@@ -179,9 +180,20 @@
     -moz-border-radius: var(--radius);
     -ms-border-radius: var(--radius);
     -o-border-radius: var(--radius);
+
+    &.btn-organizer {
+      background: hsl(var(--primary));
+      color: hsl(var(--primary-foreground))
+    }
   }
 
+}
 
+.type-label {
+  
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-weight: 600;
 }
 
 

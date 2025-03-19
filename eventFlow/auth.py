@@ -5,18 +5,14 @@ from flask import (
     url_for,
     flash,
     request,
-    session,
     jsonify,
     abort,
 )
 from flask_login import login_user, logout_user, login_required, current_user
-from urllib.parse import urlparse
 from . import db
 from .models import User, UserRole
 from .forms import LoginForm, SignupForm
 import traceback
-from werkzeug.security import generate_password_hash
-from sqlalchemy.exc import IntegrityError
 from functools import wraps
 
 # Create a Blueprint for authentication routes
@@ -128,12 +124,6 @@ def logout():
     logout_user()
     flash("You have been logged out successfully.", "success")
     return redirect(url_for("main.home"))
-
-
-@auth.route("/forgot-password")
-def forgot_password():
-    return render_template("auth/forgotPassword.html")
-
 
 @auth.route("/check-email", methods=["POST"])
 def check_email():

@@ -20,32 +20,32 @@
     </div>
 
     <div class="help-categories">
-      <div class="category-card">
+      <a href="#events" class="category-card">
         <span class="material-icons">event</span>
         <h3>Events</h3>
         <p>Learn about creating and managing events</p>
-      </div>
-      <div class="category-card">
+      </a>
+      <a href="#tickets" class="category-card">
         <span class="material-icons">confirmation_number</span>
         <h3>Tickets</h3>
         <p>Information about tickets and bookings</p>
-      </div>
-      <div class="category-card">
+      </a>
+      <a href="#account" class="category-card">
         <span class="material-icons">account_circle</span>
         <h3>Account</h3>
         <p>Account settings and management</p>
-      </div>
-      <div class="category-card">
+      </a>
+      <a href="#payments" class="category-card">
         <span class="material-icons">payments</span>
         <h3>Payments</h3>
         <p>Payment methods and refunds</p>
-      </div>
+      </a>
     </div>
 
     <div class="faq-section">
       <h2>Frequently Asked Questions</h2>
       <div class="faq-grid">
-        <div class="faq-category">
+        <div id="events" class="faq-category">
           <h3>Event Creation & Management</h3>
           <div class="accordion">
             <div class="accordion-item">
@@ -70,13 +70,35 @@
                 <span class="material-icons">expand_more</span>
               </button>
               <div class="accordion-content">
-                <p>You can edit your event by going to "My Events" and clicking the "Edit" button on the event you want to modify.</p>
+                <p>You can edit your event by:</p>
+                <ol>
+                  <li>Going to "My Events" in your dashboard</li>
+                  <li>Clicking the "Edit" button on the event you want to modify</li>
+                  <li>Making your changes</li>
+                  <li>Saving the updates</li>
+                </ol>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <button class="accordion-header">
+                What types of events can I create?
+                <span class="material-icons">expand_more</span>
+              </button>
+              <div class="accordion-content">
+                <p>You can create various types of events including:</p>
+                <ul>
+                  <li>Conferences and seminars</li>
+                  <li>Workshops and training sessions</li>
+                  <li>Social gatherings and meetups</li>
+                  <li>Sports events and tournaments</li>
+                  <li>Cultural and entertainment events</li>
+                </ul>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="faq-category">
+        <div id="tickets" class="faq-category">
           <h3>Tickets & Bookings</h3>
           <div class="accordion">
             <div class="accordion-item">
@@ -85,7 +107,13 @@
                 <span class="material-icons">expand_more</span>
               </button>
               <div class="accordion-content">
-                <p>Your tickets can be found in the "My Tickets" section of your account dashboard.</p>
+                <p>Your tickets can be found in the "My Tickets" section of your account dashboard. You can:</p>
+                <ul>
+                  <li>View all your upcoming events</li>
+                  <li>Download ticket PDFs</li>
+                  <li>Transfer tickets to others</li>
+                  <li>View event details and directions</li>
+                </ul>
               </div>
             </div>
             <div class="accordion-item">
@@ -94,7 +122,102 @@
                 <span class="material-icons">expand_more</span>
               </button>
               <div class="accordion-content">
-                <p>Refund policies vary by event. Please check the event's refund policy or contact the event organizer.</p>
+                <p>Refund policies vary by event. Here's what you need to know:</p>
+                <ul>
+                  <li>Check the event's refund policy before purchasing</li>
+                  <li>Contact the event organizer for refund requests</li>
+                  <li>Some events may offer partial refunds</li>
+                  <li>Processing time varies by payment method</li>
+                </ul>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <button class="accordion-header">
+                How do I transfer my ticket?
+                <span class="material-icons">expand_more</span>
+              </button>
+              <div class="accordion-content">
+                <p>To transfer your ticket:</p>
+                <ol>
+                  <li>Go to "My Tickets"</li>
+                  <li>Select the ticket you want to transfer</li>
+                  <li>Click "Transfer Ticket"</li>
+                  <li>Enter the recipient's email</li>
+                  <li>Confirm the transfer</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="account" class="faq-category">
+          <h3>Account Management</h3>
+          <div class="accordion">
+            <div class="accordion-item">
+              <button class="accordion-header">
+                How do I update my profile?
+                <span class="material-icons">expand_more</span>
+              </button>
+              <div class="accordion-content">
+                <p>To update your profile:</p>
+                <ol>
+                  <li>Click on your profile picture in the top right</li>
+                  <li>Select "Profile Settings"</li>
+                  <li>Update your information</li>
+                  <li>Click "Save Changes"</li>
+                </ol>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <button class="accordion-header">
+                How do I change my password?
+                <span class="material-icons">expand_more</span>
+              </button>
+              <div class="accordion-content">
+                <p>To change your password:</p>
+                <ol>
+                  <li>Go to "Account Settings"</li>
+                  <li>Click "Security"</li>
+                  <li>Enter your current password</li>
+                  <li>Enter and confirm your new password</li>
+                  <li>Click "Update Password"</li>
+                </ol>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="payments" class="faq-category">
+          <h3>Payments & Billing</h3>
+          <div class="accordion">
+            <div class="accordion-item">
+              <button class="accordion-header">
+                What payment methods do you accept?
+                <span class="material-icons">expand_more</span>
+              </button>
+              <div class="accordion-content">
+                <p>We accept various payment methods:</p>
+                <ul>
+                  <li>Credit and debit cards (Visa, MasterCard, American Express)</li>
+                  <li>Digital wallets (PayPal, Google Pay, Apple Pay)</li>
+                  <li>Bank transfers (in select regions)</li>
+                  <li>Cryptocurrency (Bitcoin, Ethereum)</li>
+                </ul>
+              </div>
+            </div>
+            <div class="accordion-item">
+              <button class="accordion-header">
+                How do I view my billing history?
+                <span class="material-icons">expand_more</span>
+              </button>
+              <div class="accordion-content">
+                <p>To view your billing history:</p>
+                <ol>
+                  <li>Go to "Account Settings"</li>
+                  <li>Click "Billing History"</li>
+                  <li>View all your past transactions</li>
+                  <li>Download receipts as needed</li>
+                </ol>
               </div>
             </div>
           </div>
@@ -111,11 +234,11 @@
           <h3>Email Support</h3>
           <p>Get help via email</p>
         </a>
-        <div class="contact-card">
+        <a href="{{ url_for('main.contactOrganizer') }}" class="contact-card">
           <span class="material-icons">chat</span>
-          <h3>Live Chat</h3>
-          <p>Chat with our support team</p>
-        </div>
+          <h3>Contact Organizer</h3>
+          <p>Reach out to event organizers</p>
+        </a>
       </div>
     </div>
   </div>
@@ -125,26 +248,52 @@
       // Accordion functionality
       document.querySelectorAll('.accordion-header').forEach((button) => {
         button.addEventListener('click', () => {
-          const accordionContent = button.nextElementSibling
-          button.classList.toggle('active')
+          const accordionContent = button.nextElementSibling;
+          const icon = button.querySelector('.material-icons');
+          
+          button.classList.toggle('active');
+          icon.style.transform = button.classList.contains('active') ? 'rotate(180deg)' : 'rotate(0)';
     
           if (button.classList.contains('active')) {
-            accordionContent.style.maxHeight = accordionContent.scrollHeight + 'px'
+            accordionContent.style.maxHeight = accordionContent.scrollHeight + 'px';
           } else {
-            accordionContent.style.maxHeight = 0
+            accordionContent.style.maxHeight = 0;
           }
-        })
-      })
+        });
+      });
     
       // Search functionality
-      const searchInput = document.getElementById('faqSearch')
+      const searchInput = document.getElementById('faqSearch');
       searchInput.addEventListener('input', function () {
-        const searchTerm = this.value.toLowerCase()
+        const searchTerm = this.value.toLowerCase();
         document.querySelectorAll('.accordion-item').forEach((item) => {
-          const text = item.textContent.toLowerCase()
-          item.style.display = text.includes(searchTerm) ? 'block' : 'none'
-        })
-      })
-    })
+          const text = item.textContent.toLowerCase();
+          const isVisible = text.includes(searchTerm);
+          item.style.display = isVisible ? 'block' : 'none';
+          
+          // If searching, expand matching items
+          if (isVisible && searchTerm) {
+            const button = item.querySelector('.accordion-header');
+            if (!button.classList.contains('active')) {
+              button.click();
+            }
+          }
+        });
+      });
+
+      // Smooth scroll for category links
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({
+              behavior: 'smooth',
+              block: 'start'
+            });
+          }
+        });
+      });
+    });
   </script>
 {% endblock %}

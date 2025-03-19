@@ -1,5 +1,5 @@
 import secrets
-from flask import Flask, request, session, url_for, redirect, jsonify
+from flask import Flask, request,  url_for, redirect
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
@@ -78,6 +78,10 @@ def create_app():
   from .tickets import tickets as tickets_blueprint
   app.register_blueprint(tickets_blueprint)
 
+  # blueprint for reports routes 
+  from .reports import reports as reports_blueprint
+  app.register_blueprint(reports_blueprint)
+  
   # Create database tables within app context
   with app.app_context():
     db.create_all()

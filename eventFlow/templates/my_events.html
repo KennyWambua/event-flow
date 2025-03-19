@@ -60,7 +60,7 @@
                   <span class="material-icons">visibility</span>
                   View
                 </a>
-                <button class="btn btn-edit" onclick="editEvent('{{ event.id }}', '{{ url_for('events.editEvent', event_id=event.id) }}')">
+                <button class="btn btn-edit" onclick="window.location.href='{{ url_for('events.editEvent', event_id=event.id) }}'">
                   <span class="material-icons">edit</span>
                   Edit
                 </button>
@@ -129,6 +129,7 @@
     
     function showDeleteModal(eventId) {
       eventToDelete = eventId
+      console.log('Deleting event:', eventId)
       const modal = document.getElementById('deleteModal')
       modal.style.display = 'flex'
       modal.classList.add('active')
@@ -147,14 +148,12 @@
       showDeleteModal(eventId)
     }
     
-    function editEvent(eventId) {
-      window.location.href = `/event/${eventId}/edit`
-    }
-    
     function confirmDelete() {
       if (!eventToDelete) return
     
       const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+      console.log('Deleting event:', eventToDelete)
+      console.log('CSRF Token:', csrfToken)
     
       fetch(`/event/${eventToDelete}/delete`, {
         method: 'DELETE',

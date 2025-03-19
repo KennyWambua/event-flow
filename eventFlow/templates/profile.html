@@ -8,20 +8,63 @@
 {% block title %}My Profile - eventFlow{% endblock %}
 
 {% block breadcrumb_items %}
+    <div class="breadcrumb-wrapper">
+        <ul class="breadcrumb-list">
+            <li class="breadcrumb-item">
+                <a href="{{ url_for('main.home') }}">Home</a>
+            </li>
     <li class="breadcrumb-item active">My Profile</li>
+        </ul>
+    </div>
 {% endblock %}
 
 {% block content %}
 <div class="profile-container">
     <div class="profile-header">
+        <div class="profile-picture-container">
         <div class="profile-picture">
-            <img src="{{ current_user.profile_picture or url_for('static', filename='images/default-profile.png') }}" alt="Profile Picture">
+                <img src="{{ current_user.profile_picture or url_for('static', filename='images/default-profile.png') }}" alt="Profile Picture" id="profile-preview">
+                <div class="profile-picture-overlay">
+                    <span class="material-icons">camera_alt</span>
+                </div>
+            </div>
+            <form id="profile-picture-form" method="POST" action="{{ url_for('main.updateProfile') }}" enctype="multipart/form-data" class="hidden">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <input type="file" id="profile-picture-input" name="profile_picture" accept="image/*">
+            </form>
         </div>
         <div class="profile-info">
             <h1>{{ current_user.first_name }} {{ current_user.last_name }}</h1>
             <p class="username">@{{ current_user.username }}</p>
             <p class="email">{{ current_user.email }}</p>
+            <div class="profile-stats">
+                <div class="stat-item">
+                    <span class="material-icons">event</span>
+                    <span class="stat-value">{{ current_user.events|length }}</span>
+                    <span class="stat-label">Events</span>
+                </div>
+                <div class="stat-item">
+                    <span class="material-icons">confirmation_number</span>
+                    <span class="stat-value">{{ current_user.tickets|length }}</span>
+                    <span class="stat-label">Tickets</span>
+                </div>
+                <div class="stat-item">
+                    <span class="material-icons">favorite</span>
+                    <span class="stat-value">{{ current_user.favorites|length }}</span>
+                    <span class="stat-label">Favorites</span>
+                </div>
+            </div>
         </div>
+    </div>
+
+    <div class="profile-content">
+        <div class="profile-section">
+            <div class="section-header">
+                <h2>Profile Information</h2>
+                <button class="btn btn-secondary edit-profile">
+                    <span class="material-icons">edit</span>
+                    Edit Profile
+                </button>
     </div>
 
     <!-- Edit Profile Form -->
@@ -29,31 +72,191 @@
         <form method="POST" action="{{ url_for('main.updateProfile') }}" enctype="multipart/form-data" class="edit-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
+                    <div class="form-grid">
             <div class="form-group">
-                <label for="first_name">First Name</label>
+                            <label for="first_name">
+                                <span class="material-icons">person</span>
+                                First Name
+                            </label>
                 <input type="text" id="first_name" name="first_name" value="{{ current_user.first_name }}" required>
             </div>
 
             <div class="form-group">
-                <label for="last_name">Last Name</label>
+                            <label for="last_name">
+                                <span class="material-icons">person</span>
+                                Last Name
+                            </label>
                 <input type="text" id="last_name" name="last_name" value="{{ current_user.last_name }}" required>
             </div>
 
             <div class="form-group">
-                <label for="profile_picture">Profile Picture</label>
-                <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
+                            <label for="username">
+                                <span class="material-icons">alternate_email</span>
+                                Username
+                            </label>
+                            <input type="text" id="username" name="username" value="{{ current_user.username }}" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="email">
+                                <span class="material-icons">email</span>
+                                Email
+                            </label>
+                            <input type="email" id="email" name="email" value="{{ current_user.email }}" required>
+                        </div>
             </div>
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-                <button type="button" class="btn btn-secondary cancel-edit">Cancel</button>
+                        <button type="submit" class="btn btn-primary">
+                            <span class="material-icons">save</span>
+                            Save Changes
+                        </button>
+                        <button type="button" class="btn btn-secondary cancel-edit">
+                            <span class="material-icons">close</span>
+                            Cancel
+                        </button>
             </div>
         </form>
     </div>
 
-    <!-- Profile Actions -->
-    <div class="profile-actions">
-        <button class="btn btn-primary edit-profile">Edit Profile</button>
+            <!-- Profile Display -->
+            <div class="profile-display">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="material-icons">person</span>
+                        <div class="info-content">
+                            <label>First Name</label>
+                            <p>{{ current_user.first_name }}</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <span class="material-icons">person</span>
+                        <div class="info-content">
+                            <label>Last Name</label>
+                            <p>{{ current_user.last_name }}</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <span class="material-icons">alternate_email</span>
+                        <div class="info-content">
+                            <label>Username</label>
+                            <p>@{{ current_user.username }}</p>
+                        </div>
+                    </div>
+                    <div class="info-item">
+                        <span class="material-icons">email</span>
+                        <div class="info-content">
+                            <label>Email</label>
+                            <p>{{ current_user.email }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <div class="section-header">
+                <h2>Security Settings</h2>
+                <button class="btn btn-secondary change-password">
+                    <span class="material-icons">lock</span>
+                    Change Password
+                </button>
+            </div>
+
+            <!-- Change Password Form -->
+            <div class="password-edit-section hidden">
+                <form method="POST" action="{{ url_for('main.changePassword') }}" class="edit-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <div class="form-group">
+                        <label for="current_password">
+                            <span class="material-icons">lock</span>
+                            Current Password
+                        </label>
+                        <input type="password" id="current_password" name="current_password" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="new_password">
+                            <span class="material-icons">lock_outline</span>
+                            New Password
+                        </label>
+                        <input type="password" id="new_password" name="new_password" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="confirm_password">
+                            <span class="material-icons">lock_outline</span>
+                            Confirm New Password
+                        </label>
+                        <input type="password" id="confirm_password" name="confirm_password" required>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="material-icons">save</span>
+                            Update Password
+                        </button>
+                        <button type="button" class="btn btn-secondary cancel-password">
+                            <span class="material-icons">close</span>
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="profile-section">
+            <div class="section-header">
+                <h2>Account Preferences</h2>
+                <button class="btn btn-secondary edit-preferences">
+                    <span class="material-icons">settings</span>
+                    Edit Preferences
+                </button>
+            </div>
+
+            <!-- Preferences Form -->
+            <div class="preferences-edit-section hidden">
+                <form method="POST" action="{{ url_for('main.updatePreferences') }}" class="edit-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+                    <div class="form-group">
+                        <label for="email_notifications">
+                            <span class="material-icons">notifications</span>
+                            Email Notifications
+                        </label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="email_notifications" name="email_notifications" 
+                                   {% if current_user.email_notifications %}checked{% endif %}>
+                            <span class="toggle-slider"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="theme_preference">
+                            <span class="material-icons">palette</span>
+                            Theme Preference
+                        </label>
+                        <select id="theme_preference" name="theme_preference">
+                            <option value="light" {% if current_user.theme_preference == 'light' %}selected{% endif %}>Light</option>
+                            <option value="dark" {% if current_user.theme_preference == 'dark' %}selected{% endif %}>Dark</option>
+                            <option value="system" {% if current_user.theme_preference == 'system' %}selected{% endif %}>System Default</option>
+                        </select>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <span class="material-icons">save</span>
+                            Save Preferences
+                        </button>
+                        <button type="button" class="btn btn-secondary cancel-preferences">
+                            <span class="material-icons">close</span>
+                            Cancel
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -61,19 +264,89 @@
 {% block scripts %}
     <script>
         document.addEventListener('DOMContentLoaded', function () {
+            // Profile Picture Upload Preview
+            const profilePictureInput = document.getElementById('profile-picture-input');
+            const profilePreview = document.getElementById('profile-preview');
+            const profilePictureContainer = document.querySelector('.profile-picture-container');
+            const profilePictureForm = document.getElementById('profile-picture-form');
+
+            profilePictureContainer.addEventListener('click', () => {
+                profilePictureInput.click();
+            });
+
+            profilePictureInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        profilePreview.src = e.target.result;
+                        // Submit the form when a new picture is selected
+                        profilePictureForm.submit();
+                    };
+                    reader.readAsDataURL(this.files[0]);
+                }
+            });
+
+            // Edit Profile Toggle
             const editButton = document.querySelector('.edit-profile');
             const cancelButton = document.querySelector('.cancel-edit');
             const editSection = document.querySelector('.profile-edit-section');
+            const profileDisplay = document.querySelector('.profile-display');
 
             editButton.addEventListener('click', () => {
                 editSection.classList.remove('hidden');
+                profileDisplay.classList.add('hidden');
                 editButton.style.display = 'none';
             });
 
             cancelButton.addEventListener('click', () => {
                 editSection.classList.add('hidden');
-                editButton.style.display = 'inline-block';
+                profileDisplay.classList.remove('hidden');
+                editButton.style.display = 'inline-flex';
             });
+
+            // Change Password Toggle
+            const changePasswordButton = document.querySelector('.change-password');
+            const cancelPasswordButton = document.querySelector('.cancel-password');
+            const passwordSection = document.querySelector('.password-edit-section');
+
+            changePasswordButton.addEventListener('click', () => {
+                passwordSection.classList.remove('hidden');
+                changePasswordButton.style.display = 'none';
+            });
+
+            cancelPasswordButton.addEventListener('click', () => {
+                passwordSection.classList.add('hidden');
+                changePasswordButton.style.display = 'inline-flex';
+            });
+
+            // Edit Preferences Toggle
+            const editPreferencesButton = document.querySelector('.edit-preferences');
+            const cancelPreferencesButton = document.querySelector('.cancel-preferences');
+            const preferencesSection = document.querySelector('.preferences-edit-section');
+
+            editPreferencesButton.addEventListener('click', () => {
+                preferencesSection.classList.remove('hidden');
+                editPreferencesButton.style.display = 'none';
+            });
+
+            cancelPreferencesButton.addEventListener('click', () => {
+                preferencesSection.classList.add('hidden');
+                editPreferencesButton.style.display = 'inline-flex';
+            });
+
+            // Password Confirmation Validation
+            const newPassword = document.getElementById('new_password');
+            const confirmPassword = document.getElementById('confirm_password');
+            const passwordForm = document.querySelector('.password-edit-section form');
+
+            if (passwordForm) {
+                passwordForm.addEventListener('submit', function(e) {
+                    if (newPassword.value !== confirmPassword.value) {
+                        e.preventDefault();
+                        alert('New passwords do not match!');
+                    }
+                });
+            }
         });
     </script>
 {% endblock %}

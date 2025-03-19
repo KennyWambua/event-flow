@@ -247,14 +247,128 @@ function confirmRegistration() {
   })
   .then(data => {
     if (data.success) {
-      window.location.href = data.redirect;
+      // Update the UI to reflect the registration
+      const ticketAvailability = document.querySelector('.ticket-availability span:last-child');
+      if (ticketAvailability) {
+        const currentTickets = parseInt(ticketAvailability.textContent);
+        ticketAvailability.textContent = `${currentTickets - 1} tickets available`;
+      }
+
+      // Show success message
+      showNotification('Successfully registered for the event!', 'success');
+      
+      // Disable the register button if no tickets left
+      const registerBtn = document.querySelector('.btn-book');
+      if (registerBtn && parseInt(ticketAvailability.textContent) <= 0) {
+        registerBtn.disabled = true;
+        registerBtn.innerHTML = '<span class="material-icons">event_busy</span> No Tickets Available';
+      }
+
+      // Close the modal
+      closeRegistrationModal();
+
+      // Redirect to my tickets page after a short delay
+      setTimeout(() => {
+        window.location.href = data.redirect;
+      }, 1500);
     } else {
       throw new Error(data.message || 'Registration failed');
     }
   })
   .catch(error => {
-    alert(error.message || 'Error processing registration. Please try again.');
+    showNotification(error.message || 'Error registering for the event. Please try again.', 'error');
     confirmBtn.innerHTML = originalText;
     confirmBtn.disabled = false;
   });
+}
+
+// Function to show notifications
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `
+        <span class="material-icons">${type === 'success' ? 'check_circle' : 'error'}</span>
+        <span>${message}</span>
+    `;
+
+    document.body.appendChild(notification);
+
+    // Remove notification after 3 seconds
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
+
+// Function to update the dashboard charts
+function updateDashboardCharts() {
+    // Daily Sales & Registrations Chart
+    const dailySalesCtx = document.getElementById('dailySalesChart');
+    if (dailySalesCtx) {
+        new Chart(dailySalesCtx, {
+            type: 'line',
+            data: {
+                labels: dailySalesData.labels,
+                datasets: [
+                    {
+                        label: 'Paid Sales',
+                        data: dailySalesData.paidSales,
+                        borderColor: '#4CAF50',
+                        tension: 0.1,
+                        fill: false
+                    },
+                    {
+                        label: 'Free Registrations',
+                        data: dailySalesData.freeRegistrations,
+                        borderColor: '#2196F3',
+                        tension: 0.1,
+                        fill: false
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: function(value) {
+                                return '$' + value;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    // Ticket Sales & Registrations Chart
+    const ticketSalesCtx = document.getElementById('ticketSalesChart');
+    if (ticketSalesCtx) {
+        new Chart(ticketSalesCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ticketSalesData.labels,
+                datasets: [{
+                    data: ticketSalesData.values,
+                    backgroundColor: [
+                        '#4CAF50',
+                        '#2196F3',
+                        '#FFC107',
+                        '#9C27B0',
+                        '#FF5722'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
+}
+
+// Initialize dashboard charts if on the dashboard page
+if (document.querySelector('.reports-container')) {
+    updateDashboardCharts();
 }

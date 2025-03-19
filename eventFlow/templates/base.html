@@ -72,27 +72,40 @@
           </nav>
           <div class="authSection">
             {% if current_user.is_authenticated %}
-              <div class="userMenu dropdown">
-                <button class="dropdownTitle nav-link">
-                  <span class="material-icons">account_circle</span>
-                  {{ current_user.username }}
-                  <span class="material-symbols-outlined">keyboard_arrow_down</span>
-                </button>
-                <div class="dropdownContent">
-                  <ul class="dropdownList">
-                    <li>
-                      <a href="{{ url_for('main.profile') }}">My Profile</a>
-                    </li>
-                    {% if current_user.role == UserRole.ORGANIZER %}
-                    <li class="nav-item">
-                      <a href="{{ url_for('tickets.myTickets') }}">My Tickets</a>
-                    </li>
-                    {% endif %}
-                    <li class="divider"></li>
-                    <li>
-                      <a href="{{ url_for('auth.logout') }}" class="logout-link">Log Out</a>
-                    </li>
-                  </ul>
+              <div class="user-menu">
+                <div class="user-menu-trigger">
+                  <img 
+                      src="{{ current_user.profile_picture or url_for('static', filename='images/default-profile.png') }}" 
+                      alt="{{ current_user.first_name }}'s profile"
+                      class="user-avatar"
+                      onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0yMCAyMXYtMmE0IDQgMCAwIDAtNC00SDhhNCA0IDAgMCAwLTQgNHYyIj48L3BhdGg+PGNpcmNsZSBjeD0iMTIiIGN5PSI3IiByPSI0Ij48L2NpcmNsZT48L3N2Zz4=';"
+                  >
+                  <span class="user-name">{{ current_user.first_name }}</span>
+                  <span class="material-icons">expand_more</span>
+                </div>
+                <div class="user-menu-dropdown">
+                  <a href="{{ url_for('main.profile') }}" class="menu-item">
+                    <span class="material-icons">person</span>
+                    My Profile
+                  </a>
+                  {% if current_user.role == UserRole.ORGANIZER %}
+                    <a href="{{ url_for('events.myEvents') }}" class="menu-item">
+                      <span class="material-icons">event</span>
+                      My Events
+                    </a>
+                    <a href="{{ url_for('reports.dashboard') }}" class="menu-item">
+                      <span class="material-icons">analytics</span>
+                      My Reports
+                    </a>
+                  {% endif %}
+                  <a href="{{ url_for('tickets.myTickets') }}" class="menu-item">
+                    <span class="material-icons">confirmation_number</span>
+                    My Tickets
+                  </a>
+                  <a href="{{ url_for('auth.logout') }}" class="menu-item">
+                    <span class="material-icons">logout</span>
+                    Logout
+                  </a>
                 </div>
               </div>
             {% else %}

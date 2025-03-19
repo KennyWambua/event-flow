@@ -1,4 +1,4 @@
-from flask import url_for
+from flask import current_app, url_for
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
@@ -21,6 +21,9 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128), nullable=False)
     timestamp = db.Column(db.DateTime, nullable=False, default=datetime.now(timezone.utc))
     role = db.Column(db.Enum(UserRole), nullable=False, default=UserRole.ATTENDEE)
+    profile_picture = db.Column(db.String(255), nullable=True)
+    email_notifications = db.Column(db.Boolean, default=True)
+    theme_preference = db.Column(db.String(10), default="system")
     
     # Direct relationships
     events = db.relationship('Event', back_populates='user', lazy=True)
@@ -114,7 +117,6 @@ class TicketType(db.Model):
     created_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), onupdate=lambda: datetime.now(timezone.utc))
     
-    # Add back_populates
     event = db.relationship('Event', back_populates='ticket_types', lazy=True)
 
 class Event(db.Model):
@@ -130,16 +132,17 @@ class Event(db.Model):
     # Event pricing and tickets
     is_paid_event = db.Column(db.Boolean, default=False)
     currency = db.Column(db.String(3), default='KES')
+    free_ticket_quantity = db.Column(db.Integer, nullable=True)  # For free events
     
     # Direct relationships
     user = db.relationship('User', back_populates='events', lazy=True)
     images = db.relationship('EventImage', back_populates='event', lazy=True, cascade='all, delete-orphan')
     ticket_types = db.relationship('TicketType', back_populates='event', lazy=True, cascade='all, delete-orphan')
-    orders = db.relationship('Order', back_populates='event', lazy=True)
+    orders = db.relationship('Order', back_populates='event', lazy=True, cascade='all, delete-orphan')
     
     # Registration relationships with overlaps
     registrations = db.relationship('EventRegistration', back_populates='event', lazy=True,
-                                  overlaps="registered_events,registered_users")
+                                  overlaps="registered_events,registered_users", cascade='all, delete-orphan')
     registered_users = db.relationship(
         'User',
         secondary='event_registration',
@@ -223,11 +226,44 @@ class Order(db.Model):
 
     @property
     def is_paid(self):
-        return self.payment_status == 'paid'
+        return self.payment_status in ['paid', 'completed']
 
-    def get_ticket_count(self):
-        """Returns total number of tickets in the order"""
-        return sum(ticket['quantity'] for ticket in self.ticket_details)
+    def get_ticket_count(self, ticket_type_id=None):
+        """Returns total number of tickets in the order, optionally filtered by ticket type"""
+        try:
+            # If ticket_details is a string, parse it as JSON
+            if isinstance(self.ticket_details, str):
+                import json
+                ticket_details = json.loads(self.ticket_details)
+            else:
+                ticket_details = self.ticket_details
+                
+            # Handle nested dictionary format
+            if isinstance(ticket_details, dict):
+                if ticket_type_id is not None:
+                    # Get quantity for specific ticket type
+                    ticket_info = ticket_details.get(str(ticket_type_id), {})
+                    return int(ticket_info.get('quantity', 0))
+                else:
+                    # Sum quantities for all ticket types
+                    return sum(
+                        int(ticket_info.get('quantity', 0))
+                        for ticket_info in ticket_details.values()
+                    )
+            elif isinstance(ticket_details, list):
+                if ticket_type_id is not None:
+                    # Filter by ticket type ID if provided
+                    return sum(
+                        int(ticket.get('quantity', 0)) 
+                        for ticket in ticket_details 
+                        if ticket.get('ticket_type_id') == ticket_type_id
+                    )
+                return sum(int(ticket.get('quantity', 0)) for ticket in ticket_details)
+            else:
+                return 0
+        except Exception as e:
+            current_app.logger.error(f"Error getting ticket count for order {self.id}: {str(e)}")
+            return 0
 
     def get_formatted_amount(self):
         """Returns formatted amount with currency"""
@@ -245,4 +281,4 @@ class Order(db.Model):
         )
         db.session.add(order)
         db.session.commit()
-        return order 
+        return order

@@ -3,45 +3,23 @@ from flask import (
     render_template,
     g,
     request,
-    redirect,
     url_for,
-    flash,
     jsonify,
-    make_response,
-    session,
     current_app,
-    abort,
     send_file,
 )
 
 from flask_login import login_required, current_user
 from datetime import datetime, timezone
 from sqlalchemy import or_
-from .models import Event, EventImage, db, TicketType, User, EventRegistration, Order, UserRole
-from .forms import EventForm, TicketTypeForm
-import imghdr
-import requests
-import traceback
-from flask_wtf.csrf import generate_csrf
-from werkzeug.datastructures import ImmutableMultiDict
-from .auth import role_required
+from .models import Event, db, TicketType, EventRegistration, Order
 import qrcode
 from io import BytesIO
 import json
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.units import inch
-from reportlab.pdfbase.pdfmetrics import stringWidth
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.pdfbase import pdfmetrics
 from reportlab.lib.utils import ImageReader
-# from reportlab.pdfinterp import PDFResourceManager
-# from reportlab.pdfpage.pdfpage import PDFPage
-# from reportlab.pdfdoc import PDFDocument
-# from reportlab.pdfgen import PDFPageAggregator
-# from reportlab.pdfbase.image import ImageReader
-from reportlab.lib import colors
-import os
 
 tickets = Blueprint("tickets", __name__)
 

@@ -1,0 +1,351 @@
+{% extends 'base.html' %}
+
+{% block head %}
+  {{ super() }}
+  <link rel="stylesheet" href="/static/css/reports.css" />
+  <link rel="stylesheet" href="/static/css/reports_dashboard.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block title %}
+  Reports Dashboard - eventFlow
+{% endblock %}
+
+{% block breadcrumb_items %}
+  <div class="breadcrumb-wrapper">
+    <ul class="breadcrumb-list">
+      <li class="breadcrumb-item">
+        <a href="{{ url_for('main.home') }}">Home</a>
+      </li>
+      <li class="breadcrumb-item active">Reports Dashboard</li>
+    </ul>
+  </div>
+{% endblock %}
+
+{% block content %}
+  <div class="dashboard-container">
+    <!-- Date Range Filter -->
+    <div class="date-filter">
+      <form id="dateRangeForm" class="date-range-form">
+        <div class="form-group">
+          <label for="start_date">Start Date:</label>
+          <input type="date" id="start_date" name="start_date" value="{{ start_date or '' }}" class="form-control" />
+        </div>
+        <div class="form-group">
+          <label for="end_date">End Date:</label>
+          <input type="date" id="end_date" name="end_date" value="{{ end_date or '' }}" class="form-control" />
+        </div>
+        <button type="submit" class="btn btn-primary">
+          <span class="material-icons">filter_list</span>
+          Apply Filter
+        </button>
+        {% if start_date or end_date %}
+          <a href="{{ url_for('reports.dashboard') }}" class="btn btn-secondary">
+            <span class="material-icons">clear</span>
+            Clear Filter
+          </a>
+        {% endif %}
+      </form>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="summary-cards">
+      <div class="summary-card">
+        <div class="card-icon">
+          <span class="material-icons">payments</span>
+        </div>
+        <div class="card-content">
+          <h3>Total Revenue</h3>
+          <p class="card-value">KES {{ '%.2f'|format(total_revenue) }}</p>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="card-icon">
+          <span class="material-icons">shopping_cart</span>
+        </div>
+        <div class="card-content">
+          <h3>Total Orders</h3>
+          <p class="card-value">{{ total_orders }}</p>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="card-icon">
+          <span class="material-icons">confirmation_number</span>
+        </div>
+        <div class="card-content">
+          <h3>Paid Tickets Sold</h3>
+          <p class="card-value">{{ total_tickets_sold }}</p>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="card-icon">
+          <span class="material-icons">how_to_reg</span>
+        </div>
+        <div class="card-content">
+          <h3>Free Registrations</h3>
+          <p class="card-value">{{ total_free_registrations }}</p>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="card-icon">
+          <span class="material-icons">trending_up</span>
+        </div>
+        <div class="card-content">
+          <h3>Average Order Value</h3>
+          <p class="card-value">KES {{ '%.2f'|format(avg_order_value) }}</p>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="card-icon">
+          <span class="material-icons">event</span>
+        </div>
+        <div class="card-content">
+          <h3>Total Events</h3>
+          <p class="card-value">{{ total_events }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Charts -->
+    <div class="charts-container">
+      <!-- Daily Sales Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Daily Sales & Registrations</h3>
+          <div class="chart-actions">
+            <button class="btn btn-sm btn-outline-primary export-chart" data-type="sales" data-format="pdf"><span class="material-icons">picture_as_pdf</span> PDF</button>
+          </div>
+        </div>
+        <canvas id="dailySalesChart"></canvas>
+      </div>
+
+      <!-- Ticket Sales by Type Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Ticket Sales by Type</h3>
+          <div class="chart-actions">
+            <button class="btn btn-sm btn-outline-primary export-chart" data-type="tickets" data-format="pdf"><span class="material-icons">picture_as_pdf</span> PDF</button>
+          </div>
+        </div>
+        <canvas id="ticketSalesChart"></canvas>
+      </div>
+
+      <!-- Revenue by Category Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Revenue by Event Category</h3>
+          <div class="chart-actions">
+            <button class="btn btn-sm btn-outline-primary export-chart" data-type="category" data-format="pdf"><span class="material-icons">picture_as_pdf</span> PDF</button>
+          </div>
+        </div>
+        <canvas id="categoryRevenueChart"></canvas>
+      </div>
+
+      <!-- Registration Trends Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Registration Trends</h3>
+          <div class="chart-actions">
+            <button class="btn btn-sm btn-outline-primary export-chart" data-type="registrations" data-format="pdf"><span class="material-icons">picture_as_pdf</span> PDF</button>
+          </div>
+        </div>
+        <canvas id="registrationTrendsChart"></canvas>
+      </div>
+    </div>
+
+    <!-- Event Performance Table -->
+    <div class="table-card">
+      <div class="table-header">
+        <h3>Event Performance</h3>
+        <div class="table-actions">
+          <button class="btn btn-sm btn-outline-primary export-table" data-format="pdf"><span class="material-icons">picture_as_pdf</span> PDF</button>
+        </div>
+      </div>
+      <div class="table-responsive">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th>Total Capacity</th>
+              <th>Registrations</th>
+              <th>Revenue</th>
+              <th>Occupancy Rate</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for event in event_performance %}
+              <tr>
+                <td>{{ event.title }}</td>
+                <td>{{ event.total_capacity }}</td>
+                <td>{{ event.total_registrations }}</td>
+                <td>KES {{ '%.2f'|format(event.revenue) }}</td>
+                <td>
+                  <div class="progress">
+                    <div class="progress-bar {% if event.occupancy_rate >= 80 %}bg-success{% elif event.occupancy_rate >= 50 %}bg-warning{% else %}bg-danger{% endif %}" 
+                         role="progressbar" 
+                         style="width: {{ event.occupancy_rate }}%" 
+                         aria-valuenow="{{ event.occupancy_rate }}" 
+                         aria-valuemin="0" 
+                         aria-valuemax="100">
+                      {{ '%.1f'|format(event.occupancy_rate) }}%
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  {% if event.is_upcoming %}
+                    <span class="badge bg-success">Upcoming</span>
+                  {% else %}
+                    <span class="badge bg-secondary">Past</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    // Date Range Form Handler
+    const dateRangeForm = document.getElementById('dateRangeForm');
+    dateRangeForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const startDate = document.getElementById('start_date').value;
+        const endDate = document.getElementById('end_date').value;
+        
+        let url = '/reports/dashboard';
+        if (startDate && endDate) {
+            url += `?start_date=${startDate}&end_date=${endDate}`;
+        }
+        window.location.href = url;
+    });
+
+    // Daily Sales Chart
+    const dailySalesCtx = document.getElementById('dailySalesChart').getContext('2d');
+    new Chart(dailySalesCtx, {
+        type: 'line',
+        data: {
+            labels: {{ daily_sales|map(attribute='date')|list|tojson }},
+            datasets: [{
+                label: 'Daily Revenue',
+                data: {{ daily_sales|map(attribute='daily_revenue')|list|tojson }},
+                borderColor: '#0d6efd',
+                tension: 0.1
+            }, {
+                label: 'Free Registrations',
+                data: {{ daily_sales|map(attribute='free_registrations')|list|tojson }},
+                borderColor: '#198754',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            }
+        }
+    });
+
+    // Ticket Sales Chart
+    const ticketSalesCtx = document.getElementById('ticketSalesChart').getContext('2d');
+    new Chart(ticketSalesCtx, {
+        type: 'pie',
+        data: {
+            labels: {{ ticket_sales|map(attribute='ticket_type')|list|tojson }},
+            datasets: [{
+                data: {{ ticket_sales|map(attribute='total_sold')|list|tojson }},
+                backgroundColor: [
+                    '#0d6efd',
+                    '#198754',
+                    '#ffc107',
+                    '#dc3545',
+                    '#6c757d'
+                ]
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            }
+        }
+    });
+
+    // Category Revenue Chart
+    const categoryRevenueCtx = document.getElementById('categoryRevenueChart').getContext('2d');
+    new Chart(categoryRevenueCtx, {
+        type: 'bar',
+        data: {
+            labels: {{ category_revenue|map(attribute='category')|list|tojson }},
+            datasets: [{
+                label: 'Revenue',
+                data: {{ category_revenue|map(attribute='revenue')|list|tojson }},
+                backgroundColor: '#0d6efd'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            }
+        }
+    });
+
+    // Registration Trends Chart
+    const registrationTrendsCtx = document.getElementById('registrationTrendsChart').getContext('2d');
+    new Chart(registrationTrendsCtx, {
+        type: 'line',
+        data: {
+            labels: {{ registration_trends|map(attribute='date')|list|tojson }},
+            datasets: [{
+                label: 'Paid Registrations',
+                data: {{ registration_trends|map(attribute='paid_registrations')|list|tojson }},
+                borderColor: '#0d6efd',
+                tension: 0.1
+            }, {
+                label: 'Free Registrations',
+                data: {{ registration_trends|map(attribute='free_registrations')|list|tojson }},
+                borderColor: '#198754',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            }
+        }
+    });
+
+    // Export Functionality
+    document.querySelectorAll('.export-chart, .export-table').forEach(button => {
+        button.addEventListener('click', function() {
+            const type = this.dataset.type || 'performance';
+            const format = this.dataset.format;
+            const startDate = document.getElementById('start_date').value;
+            const endDate = document.getElementById('end_date').value;
+            
+            let url = `/reports/export?type=${type}&format=${format}`;
+            if (startDate && endDate) {
+                url += `&start_date=${startDate}&end_date=${endDate}`;
+            }
+            
+            console.log('Export URL:', url);
+            window.location.href = url;
+        });
+    });
+});
+</script>
+{% endblock %}

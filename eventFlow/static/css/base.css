@@ -409,28 +409,136 @@ header {
 }
 
 /* User Menu Styles */
-.userMenu {
+.user-menu {
   position: relative;
+  display: inline-block;
 }
 
-.userMenu .dropdownTitle {
+.user-menu-trigger {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: background-color 0.2s ease;
 }
 
-.userMenu .material-icons {
-  font-size: 1.5rem;
+.user-menu-trigger:hover {
+  background-color: var(--hover-color);
 }
 
-.divider {
-  border-top: 1px solid hsl(var(--border));
-  margin: 0.5rem 0;
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--primary-color);
 }
 
-.logout-link {
-  color: hsl(var(--destructive));
+.user-name {
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.user-menu-dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: hsl(var(--background));
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  min-width: 200px;
+  z-index: 1001;
+  display: none;
+  margin-top: 0.5rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.user-menu:hover .user-menu-dropdown {
+  display: block;
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Add a small delay before hiding the dropdown */
+.user-menu-dropdown::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: transparent;
+}
+
+/* Mobile styles for user menu */
+@media (max-width: 768px) {
+  .user-menu-dropdown {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-radius: 16px 16px 0 0;
+    margin: 0;
+    padding: 1rem 0;
+    max-height: 80vh;
+    overflow-y: auto;
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+  }
+
+  .user-menu:hover .user-menu-dropdown {
+    transform: translateY(0);
+  }
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  color: var(--text-primary);
+  text-decoration: none;
+  transition: background-color 0.2s ease;
+}
+
+.menu-item:hover {
+  background-color: var(--hover-color);
+}
+
+.menu-item .material-icons {
+  font-size: 20px;
+  color: var(--text-secondary);
+}
+
+/* Auth Section Styles */
+.authSection {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.login, .signup {
+  display: flex;
+  align-items: center;
+}
+
+.auth-link {
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+}
+
+.auth-link:hover {
+  background-color: var(--hover-color);
 }
 
 /* Flash Messages */

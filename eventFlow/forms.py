@@ -7,13 +7,11 @@ from wtforms import (
     DateTimeField,
     TextAreaField,
     SelectField,
-    URLField,
     MultipleFileField,
     FieldList,
     FormField,
     IntegerField,
     DecimalField,
-    FileField,
     RadioField,
 )
 from wtforms.validators import (
@@ -22,22 +20,18 @@ from wtforms.validators import (
     Length,
     EqualTo,
     ValidationError,
-    URL,
     Optional,
     NumberRange,
 )
-from .models import User, UserRole
-from flask_wtf.file import FileAllowed, FileRequired
-from datetime import datetime
-import traceback
-from copy import deepcopy
+from .models import UserRole
+from flask_wtf.file import FileAllowed
 from flask import request
 
 
 class LoginForm(FlaskForm):
     email = StringField("Email", validators=[DataRequired(), Email()])
     password = PasswordField("Password", validators=[DataRequired()])
-    remember = BooleanField("Remember me")
+    remember = BooleanField("Keep me logged in")
     submit = SubmitField("Log In")
 
 
@@ -61,7 +55,6 @@ class SignupForm(FlaskForm):
     )
     accept_terms = BooleanField('I accept the Terms of Service', validators=[DataRequired()])
     submit = SubmitField('Sign Up')
-
 
 class BaseForm(FlaskForm):
     class Meta:
@@ -131,6 +124,12 @@ class EventForm(FlaskForm):
         validators=[DataRequired()],
     )
 
+    free_ticket_quantity = IntegerField(
+        "Number of Available Tickets",
+        validators=[Optional(), NumberRange(min=1)],
+        default=100,
+    )
+
     currency = SelectField(
         "Currency",
         choices=[
@@ -178,6 +177,11 @@ class EventForm(FlaskForm):
         if self.event_type.data == "paid" and not field.data:
             raise ValidationError("Currency is required for paid events")
 
+    def validate_free_ticket_quantity(self, field):
+        if self.event_type.data == "free":
+            if not field.data or field.data < 1:
+                raise ValidationError("Number of available tickets must be at least 1 for free events")
+
     def validate_images(self, field):
         if not field.data or not any(f.filename for f in field.data):
             raise ValidationError("At least one image is required")
@@ -198,6 +202,9 @@ class EventForm(FlaskForm):
         # For free events, currency and ticket types are not required
         if self.event_type.data == "free":
             self.currency.data = None  # Clear currency for free events
+            if not self.free_ticket_quantity.data or self.free_ticket_quantity.data < 1:
+                self.free_ticket_quantity.errors = ["Number of available tickets must be at least 1 for free events"]
+                return False
             return True
 
         # For paid events, validate currency and ticket types

@@ -5,43 +5,20 @@ from flask import (
     request,
     redirect,
     url_for,
-    flash,
     jsonify,
     make_response,
     session,
     current_app,
     abort,
-    send_file,
 )
 
 from flask_login import login_required, current_user
 from datetime import datetime, timezone
 from sqlalchemy import or_
-from .models import Event, EventImage, db, TicketType, User, EventRegistration, Order, UserRole
-from .forms import EventForm, TicketTypeForm
+from .models import Event, EventImage, db, User, EventRegistration, UserRole, TicketType
+from .forms import EventForm
 import imghdr
-import requests
-import traceback
-from flask_wtf.csrf import generate_csrf
-from werkzeug.datastructures import ImmutableMultiDict
 from .auth import role_required
-import qrcode
-from io import BytesIO
-import json
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
-from reportlab.lib.units import inch
-from reportlab.pdfbase.pdfmetrics import stringWidth
-from reportlab.pdfbase.ttfonts import TTFont
-from reportlab.pdfbase import pdfmetrics
-from reportlab.lib.utils import ImageReader
-# from reportlab.pdfinterp import PDFResourceManager
-# from reportlab.pdfpage.pdfpage import PDFPage
-# from reportlab.pdfdoc import PDFDocument
-# from reportlab.pdfgen import PDFPageAggregator
-# from reportlab.pdfbase.image import ImageReader
-from reportlab.lib import colors
-import os
 
 events = Blueprint("events", __name__)
 
@@ -71,136 +48,76 @@ def createEvent():
 
         try:
             if form.validate():
-                print("Form validated successfully")
+                # Create new event
+                new_event = Event(
+                    title=form.title.data,
+                    date=form.date.data,
+                    location=form.location.data,
+                    description=form.description.data,
+                    category=form.category.data,
+                    user_id=current_user.id,
+                    free_ticket_quantity=form.free_ticket_quantity.data if form.event_type.data == "free" else None,
+                    is_paid_event=(form.event_type.data == "paid"),
+                    currency=(form.currency.data if form.event_type.data == "paid" else None),
+                )
 
-                # Start database transaction
-                db.session.begin_nested()
+                # Add ticket types if it's a paid event
+                if form.event_type.data == "paid":
+                    # Get ticket types data from form
+                    i = 0
+                    while True:
+                        prefix = f"ticket_types-{i}-"
+                        ticket_type = request.form.get(f"{prefix}ticket_type")
+                        if not ticket_type:
+                            break
 
-                try:
-                    # Use the datetime object directly from the form
-                    event_date = form.date.data
-                    print(f"Event date: {event_date}")
+                        # Create ticket type
+                        ticket = TicketType(
+                            ticket_type=ticket_type,
+                            custom_type=request.form.get(f"{prefix}custom_type"),
+                            quantity=int(request.form.get(f"{prefix}quantity", 0)),
+                            price=float(request.form.get(f"{prefix}price", 0)),
+                            description=request.form.get(f"{prefix}description", "")
+                        )
+                        new_event.ticket_types.append(ticket)
+                        i += 1
 
-                    # Create new event
-                    new_event = Event(
-                        title=form.title.data,
-                        date=event_date,  # Use the datetime object directly
-                        location=form.location.data,
-                        description=form.description.data,
-                        category=form.category.data,
-                        user_id=current_user.id,
-                        is_paid_event=(form.event_type.data == "paid"),
-                        currency=(
-                            form.currency.data
-                            if form.event_type.data == "paid"
-                            else None
-                        ),
-                    )
+                # Process images
+                files = request.files.getlist("images")
+                for file in files:
+                    if file and file.filename:
+                        try:
+                            image_data = file.read()
+                            image_type = imghdr.what(None, image_data)
 
-                    # Process images
-                    files = request.files.getlist("images")
-                    for file in files:
-                        if file and file.filename:
-                            try:
-                                image_data = file.read()
-                                image_type = imghdr.what(None, image_data)
-
-                                if image_type not in ["jpeg", "png"]:
-                                    return make_response(
-                                        jsonify(
-                                            {
-                                                "success": False,
-                                                "message": f"Invalid image format: {file.filename}",
-                                            }
-                                        ),
-                                        400,
-                                    )
-
-                                event_image = EventImage(
-                                    image_data=image_data,
-                                    image_mime_type=f"image/{image_type}",
-                                )
-                                new_event.images.append(event_image)
-                                print(f"Added image: {file.filename}")
-
-                            except Exception as e:
-                                print(f"Error processing image: {str(e)}")
-                                traceback.print_exc()
-                                db.session.rollback()
+                            if image_type not in ["jpeg", "png"]:
                                 return make_response(
-                                    jsonify(
-                                        {
-                                            "success": False,
-                                            "message": f"Error processing image: {str(e)}",
-                                        }
-                                    ),
-                                    400,
+                                    jsonify({"success": False, "message": f"Invalid image format: {file.filename}"}), 400
                                 )
 
-                    # Process ticket types for paid events
-                    if form.event_type.data == "paid":
-                        print("Processing ticket types")
-                        for ticket_data in form.ticket_types_data:
-                            ticket = TicketType(
-                                ticket_type=ticket_data["ticket_type"],
-                                custom_type=ticket_data.get("custom_type"),
-                                quantity=int(ticket_data["quantity"]),
-                                price=float(ticket_data["price"]),
-                                description=ticket_data.get("description", ""),
+                            event_image = EventImage(
+                                image_data=image_data,
+                                image_mime_type=f"image/{image_type}",
                             )
-                            new_event.ticket_types.append(ticket)
-                            print(f"Added ticket type: {ticket_data['ticket_type']}")
+                            new_event.images.append(event_image)
 
-                    db.session.add(new_event)
-                    db.session.commit()
-                    print("Event created successfully")
+                        except Exception as e:
+                            db.session.rollback()
+                            return make_response(
+                                jsonify({"success": False, "message": f"Error processing image: {str(e)}"}), 400
+                            )
 
-                    return make_response(
-                        jsonify(
-                            {
-                                "success": True,
-                                "redirect": url_for(
-                                    "events.event", event_id=new_event.id
-                                ),
-                            }
-                        ),
-                        200,
-                    )
+                db.session.add(new_event)
+                db.session.commit()
 
-                except Exception as e:
-                    db.session.rollback()
-                    print(f"Error saving event: {str(e)}")
-                    traceback.print_exc()
-                    return make_response(
-                        jsonify(
-                            {
-                                "success": False,
-                                "message": f"Error saving event: {str(e)}",
-                            }
-                        ),
-                        500,
-                    )
-            else:
-                print("Form validation failed:", form.errors)
                 return make_response(
-                    jsonify(
-                        {
-                            "success": False,
-                            "message": "Form validation failed",
-                            "errors": form.errors,
-                        }
-                    ),
-                    400,
+                    jsonify({"success": True, "redirect": url_for("events.event", event_id=new_event.id)}), 200
                 )
 
         except Exception as e:
-            print(f"Error processing request: {str(e)}")
-            traceback.print_exc()
+            db.session.rollback()
             return make_response(
-                jsonify(
-                    {"success": False, "message": f"Error processing request: {str(e)}"}
-                ),
-                500,
+                jsonify({"success": False, "message": f"Error processing request: {str(e)}"}), 500
             )
 
     return render_template("create_event.html", form=form, now=g.now)
@@ -274,13 +191,24 @@ def findEvent():
 
 @events.route("/event/<int:event_id>")
 def event(event_id):
-
     event = Event.query.join(User).filter(Event.id == event_id).first_or_404()
 
     if event.date.tzinfo is None:
         event.date = event.date.replace(tzinfo=timezone.utc)
 
-    return render_template("event.html", event=event, now=g.now)
+    # Get the minimum ticket price if it's a paid event with ticket types
+    min_ticket_price = None
+    if event.is_paid_event and event.ticket_types:
+        try:
+            # Filter out any ticket types with None price and get the minimum
+            valid_tickets = [t for t in event.ticket_types if t.price is not None]
+            if valid_tickets:
+                min_ticket_price = min(t.price for t in valid_tickets)
+        except (ValueError, TypeError) as e:
+            print(f"Error calculating min ticket price: {str(e)}")
+            min_ticket_price = None
+
+    return render_template("event.html", event=event, now=g.now, min_ticket_price=min_ticket_price)
 
 @events.route("/image/<int:image_id>")
 def get_image(image_id):
@@ -318,10 +246,29 @@ def editEvent(event_id):
             event.location = form.location.data
             event.description = form.description.data
             event.category = form.category.data
+            event.free_ticket_quantity = form.free_ticket_quantity.data if form.event_type.data == "free" else None
             event.is_paid_event = form.event_type.data == "paid"
-            event.currency = (
-                form.currency.data if form.event_type.data == "paid" else None
-            )
+            event.currency = form.currency.data if form.event_type.data == "paid" else None
+            
+            if form.event_type.data == "paid":
+                    # Get ticket types data from form
+                    i = 0
+                    while True:
+                        prefix = f"ticket_types-{i}-"
+                        ticket_type = request.form.get(f"{prefix}ticket_type")
+                        if not ticket_type:
+                            break
+
+                        # Create ticket type
+                        ticket = TicketType(
+                            ticket_type=ticket_type,
+                            custom_type=request.form.get(f"{prefix}custom_type"),
+                            quantity=int(request.form.get(f"{prefix}quantity", 0)),
+                            price=float(request.form.get(f"{prefix}price", 0)),
+                            description=request.form.get(f"{prefix}description", "")
+                        )
+                        event.ticket_types.append(ticket)
+                        i += 1
 
             # Handle image deletions if any
             removed_images = request.form.get("removed_images", "").split(",")
@@ -334,9 +281,7 @@ def editEvent(event_id):
             # Handle new image uploads if any
             files = request.files.getlist("images")
             if any(f.filename for f in files):
-                current_image_count = len(event.images) - len(
-                    [id for id in removed_images if id]
-                )
+                current_image_count = len(event.images) - len([id for id in removed_images if id])
                 allowed_new_images = 5 - current_image_count
 
                 for file in files[:allowed_new_images]:
@@ -353,49 +298,13 @@ def editEvent(event_id):
                         except Exception as e:
                             print(f"Error processing image: {str(e)}")
 
-            # Update ticket types if it's a paid event
-            if form.event_type.data == "paid":
-                # Clear existing ticket types
-                for ticket in event.ticket_types:
-                    db.session.delete(ticket)
-                event.ticket_types = []
-
-                # Add new ticket types
-                for i in range(100):  # Reasonable limit
-                    prefix = f"ticket_types-{i}-"
-                    ticket_type = request.form.get(f"{prefix}ticket_type")
-                    if not ticket_type:
-                        break
-
-                    quantity = int(request.form.get(f"{prefix}quantity", 0))
-                    price = float(request.form.get(f"{prefix}price", 0))
-                    description = request.form.get(f"{prefix}description", "")
-
-                    ticket = TicketType(
-                        ticket_type=ticket_type,
-                        quantity=quantity,
-                        price=price,
-                        description=description,
-                    )
-                    event.ticket_types.append(ticket)
-
             db.session.commit()
-            return jsonify(
-                {"success": True, "redirect": url_for("events.event", event_id=event.id)}
-            )
+            return jsonify({"success": True, "redirect": url_for("events.event", event_id=event.id)})
 
         except Exception as e:
-            db.session.rollback()
             print(f"Error updating event: {str(e)}")
-            return (
-                jsonify(
-                    {
-                        "success": False,
-                        "message": "Error updating event. Please try again.",
-                    }
-                ),
-                500,
-            )
+            db.session.rollback()
+            return jsonify({"success": False, "message": "Error updating event. Please try again." }), 500
 
     # Pre-populate form for GET request
     if request.method == "GET":
@@ -418,14 +327,6 @@ def deleteEvent(event_id):
         return jsonify({"error": "Unauthorized access"}), 403
 
     try:
-        # Delete associated images first
-        for image in event.images:
-            db.session.delete(image)
-
-        # Delete associated tickets
-        for ticket in event.ticket_types:
-            db.session.delete(ticket)
-
         db.session.delete(event)
         db.session.commit()
 
@@ -481,6 +382,13 @@ def register_free_event():
                 'message': 'This is not a free event'
             }), 400
 
+        # Check if there are tickets available
+        if not event.free_ticket_quantity or event.free_ticket_quantity <= 0:
+            return jsonify({
+                'success': False,
+                'message': 'No tickets available for this event'
+            }), 400
+
         # Check if user is already registered
         existing_registration = EventRegistration.query.filter_by(
             user_id=current_user.id,
@@ -498,6 +406,9 @@ def register_free_event():
             user_id=current_user.id,
             event_id=event_id
         )
+        
+        # Update the free ticket quantity
+        event.free_ticket_quantity -= 1
         
         db.session.add(registration)
         db.session.commit()

@@ -27,14 +27,22 @@ document.addEventListener('DOMContentLoaded', function () {
     radio.checked = true;
 
     const ticketSection = document.getElementById('ticketSection');
+    const freeTicketQuantity = document.getElementById('freeTicketQuantity');
 
     if (radio.value === 'paid') {
       ticketSection.style.display = 'block';
+      freeTicketQuantity.style.display = 'none';
       if (!document.querySelector('.ticket-type-item')) {
         addTicketType();
       }
     } else {
       ticketSection.style.display = 'none';
+      freeTicketQuantity.style.display = 'block';
+      // Set default value for free ticket quantity if not already set
+      const freeTicketInput = document.getElementById('free_ticket_quantity');
+      if (freeTicketInput && !freeTicketInput.value) {
+        freeTicketInput.value = '100';
+      }
     }
   }
 

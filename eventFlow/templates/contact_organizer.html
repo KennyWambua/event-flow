@@ -29,17 +29,102 @@
     <div class="contact-form-container">
       <form method="POST" action="{{ url_for('main.contactOrganizer') }}" class="contact-form">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        
         <div class="form-group">
-          <label for="organizer-email"><span class="material-icons">email</span> Organizer Email</label>
-          <input type="email" id="organizer-email" name="email" class="form-control" placeholder="Enter the organizer's email" required />
+          <label for="organizer-email">
+            <span class="material-icons">email</span>
+            Organizer Email
+          </label>
+          <input 
+            type="email" 
+            id="organizer-email" 
+            name="email" 
+            class="form-control" 
+            placeholder="Enter the organizer's email" 
+            required 
+            pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+          />
+          <small class="form-text">Enter the email address of the event organizer you want to contact.</small>
         </div>
 
         <div class="form-group">
-          <label for="message"><span class="material-icons">message</span> Your Message</label>
-          <textarea id="message" name="message" class="form-control" placeholder="Write your message here..." required></textarea>
+          <label for="subject">
+            <span class="material-icons">subject</span>
+            Subject
+          </label>
+          <input 
+            type="text" 
+            id="subject" 
+            name="subject" 
+            class="form-control" 
+            placeholder="Enter a subject for your message" 
+            required 
+            minlength="5"
+            maxlength="100"
+          />
         </div>
-        <button type="submit" class="btn btn-primary"><span class="material-icons">send</span> Send Message</button>
+
+        <div class="form-group">
+          <label for="message">
+            <span class="material-icons">message</span>
+            Your Message
+          </label>
+          <textarea 
+            id="message" 
+            name="message" 
+            class="form-control" 
+            placeholder="Write your message here..." 
+            required 
+            minlength="10"
+            maxlength="1000"
+            rows="5"
+          ></textarea>
+          <small class="form-text">Please provide as much detail as possible about your inquiry.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="event-reference">
+            <span class="material-icons">event</span>
+            Event Reference (Optional)
+          </label>
+          <input 
+            type="text" 
+            id="event-reference" 
+            name="event_reference" 
+            class="form-control" 
+            placeholder="Enter event name or ID if applicable"
+          />
+        </div>
+
+        <div class="form-actions">
+          <button type="reset" class="btn btn-secondary">
+            <span class="material-icons">clear</span>
+            Clear Form
+          </button>
+          <button type="submit" class="btn btn-primary">
+            <span class="material-icons">send</span>
+            Send Message
+          </button>
+        </div>
       </form>
+    </div>
+
+    <div class="contact-info">
+      <h2>Need Help?</h2>
+      <div class="help-options">
+        <div class="help-card">
+          <span class="material-icons">help_outline</span>
+          <h3>Check FAQ</h3>
+          <p>Browse our frequently asked questions for quick answers.</p>
+          <a href="{{ url_for('main.helpCenter') }}" class="btn btn-secondary">View FAQ</a>
+        </div>
+        <div class="help-card">
+          <span class="material-icons">support_agent</span>
+          <h3>Support Team</h3>
+          <p>Our support team is here to help you.</p>
+          <a href="{{ url_for('main.contact') }}" class="btn btn-secondary">Contact Support</a>
+        </div>
+      </div>
     </div>
   </div>
 {% endblock %}

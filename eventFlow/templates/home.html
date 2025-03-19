@@ -12,7 +12,7 @@
   <main class="homeContainer">
     <section class="hero">
       <div class="heroContent">
-        <h1>Discover Amazing Events</h1>
+        <h1>Discover, Attend & Enjoy</h1>
         <p>Find and attend events that match your interests</p>
         <div class="heroStats">
           <div class="stat">
@@ -23,7 +23,7 @@
 
         {% if not current_user.is_authenticated %}
           <div class="heroActions">
-            <a href="{{ url_for('auth.signup') }}" class="btn btn-outline">
+            <a href="{{ url_for('auth.signup') }}" class="btn btn-home">
               <span class="material-icons">person_add</span>
               Create Account
             </a>
@@ -34,7 +34,7 @@
           </div>
         {% elif current_user.is_organizer() %}
           <div class="heroActions">
-            <a href="{{ url_for('events.createEvent') }}" class="btn btn-outline">
+            <a href="{{ url_for('events.createEvent') }}" class="btn btn-home">
               <span class="material-icons">add</span>
               Create Event
             </a>
