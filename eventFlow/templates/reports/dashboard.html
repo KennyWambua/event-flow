@@ -182,14 +182,18 @@
                 <td>KES {{ '%.2f'|format(event.revenue) }}</td>
                 <td>
                   <div class="progress">
-                    <div class="progress-bar {% if event.occupancy_rate >= 80 %}bg-success{% elif event.occupancy_rate >= 50 %}bg-warning{% else %}bg-danger{% endif %}" 
-                         role="progressbar" 
-                         style="width: {{ event.occupancy_rate }}%" 
-                         aria-valuenow="{{ event.occupancy_rate }}" 
-                         aria-valuemin="0" 
-                         aria-valuemax="100">
-                      {{ '%.1f'|format(event.occupancy_rate) }}%
-                    </div>
+                    <div class="progress-bar {% if event.occupancy_rate >= 80 %}
+                        bg-success
+                      {% elif event.occupancy_rate >= 50 %}
+                        bg-warning
+                      {% else %}
+                        bg-danger
+                      {% endif %}"
+                      role="progressbar"
+                      style="width: {{ event.occupancy_rate }}%"
+                      aria-valuenow="{{ event.occupancy_rate }}"
+                      aria-valuemin="0"
+                      aria-valuemax="100">{{ '%.1f'|format(event.occupancy_rate) }}%</div>
                   </div>
                 </td>
                 <td>

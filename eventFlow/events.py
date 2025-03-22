@@ -251,24 +251,29 @@ def editEvent(event_id):
             event.currency = form.currency.data if form.event_type.data == "paid" else None
             
             if form.event_type.data == "paid":
-                    # Get ticket types data from form
-                    i = 0
-                    while True:
-                        prefix = f"ticket_types-{i}-"
-                        ticket_type = request.form.get(f"{prefix}ticket_type")
-                        if not ticket_type:
-                            break
+                # Clear existing ticket types
+                for ticket_type in event.ticket_types[:]:
+                    db.session.delete(ticket_type)
+                
+                # Add updated ticket types
+                i = 0
+                while True:
+                    prefix = f"ticket_types-{i}-"
+                    ticket_type = request.form.get(f"{prefix}ticket_type")
+                    if not ticket_type:
+                        break
 
-                        # Create ticket type
-                        ticket = TicketType(
-                            ticket_type=ticket_type,
-                            custom_type=request.form.get(f"{prefix}custom_type"),
-                            quantity=int(request.form.get(f"{prefix}quantity", 0)),
-                            price=float(request.form.get(f"{prefix}price", 0)),
-                            description=request.form.get(f"{prefix}description", "")
-                        )
-                        event.ticket_types.append(ticket)
-                        i += 1
+                    # Create ticket type
+                    ticket = TicketType(
+                        ticket_type=ticket_type,
+                        custom_type=request.form.get(f"{prefix}custom_type"),
+                        quantity=int(request.form.get(f"{prefix}quantity", 0)),
+                        price=float(request.form.get(f"{prefix}price", 0)),
+                        description=request.form.get(f"{prefix}description", "").strip(),
+                        event_id=event.id
+                    )
+                    db.session.add(ticket)
+                    i += 1
 
             # Handle image deletions if any
             removed_images = request.form.get("removed_images", "").split(",")
@@ -315,6 +320,7 @@ def editEvent(event_id):
         form.category.data = event.category
         form.event_type.data = "paid" if event.is_paid_event else "free"
         form.currency.data = event.currency if event.is_paid_event else None
+        form.free_ticket_quantity.data = event.free_ticket_quantity
 
     return render_template("edit_event.html", form=form, event=event)
 
