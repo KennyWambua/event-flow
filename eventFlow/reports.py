@@ -150,11 +150,6 @@ def dashboard():
     start_date = request.args.get("start_date")
     end_date = request.args.get("end_date")
     
-    # Debug logging
-    current_app.logger.info(
-        f"Dashboard request - Start date: {start_date}, End date: {end_date}"
-    )
-    
     # Get user's events
     events_query = Event.query.filter(Event.user_id == current_user.id)
     
@@ -262,32 +257,60 @@ def dashboard():
     
     # Get ticket sales by type with debug logging
     ticket_sales = []
+    ticket_type_totals = {}  # Dictionary to store aggregated totals
+    
     for event in events:
         if event.is_paid_event:
             for ticket_type in event.ticket_types:
                 current_app.logger.info(
-                    f"Calculating ticket sales for {event.title} - {ticket_type.ticket_type} (ID: {ticket_type.id})"
+                    f"Processing ticket type {ticket_type.id} ({ticket_type.ticket_type}) for event {event.title}"
                 )
                 total_sold = 0
-                for order in event.orders:
-                    if order.is_paid:
-                        count = order.get_ticket_count(ticket_type.id)
-                        current_app.logger.info(
-                            f"Order {order.id}: Ticket count for type {ticket_type.id} = {count}"
+                
+                # Get all paid orders for this event
+                paid_orders = [order for order in event.orders if order.is_paid]
+                
+                for order in paid_orders:
+                    # Debug log the ticket details
+                    
+                    # Handle both dictionary and list formats
+                    if isinstance(order.ticket_details, dict):
+                        # Dictionary format (key is ticket_type_id)
+                        ticket_info = order.ticket_details.get(str(ticket_type.id), {})
+                        count = int(ticket_info.get('quantity', 0))
+                        if count > 0:
+                            total_sold += count
+                    elif isinstance(order.ticket_details, list):
+                        # List format
+                        for ticket_detail in order.ticket_details:
+                            if str(ticket_detail.get('ticket_type_id')) == str(ticket_type.id):
+                                count = int(ticket_detail.get('quantity', 0))
+
+                                total_sold += count
+                    else:
+                        current_app.logger.warning(
+                            f"Unexpected ticket_details format in order {order.id}: {type(order.ticket_details)}"
                         )
-                        total_sold += count
                 
                 if total_sold > 0:
+                    # Use the ticket type as the key
+                    type_name = ticket_type.custom_type or ticket_type.ticket_type
+                    if type_name in ticket_type_totals:
+                        ticket_type_totals[type_name] += total_sold
+                    else:
+                        ticket_type_totals[type_name] = total_sold
+                    
                     current_app.logger.info(
-                        f"Total ticket sales for {event.title} - {ticket_type.ticket_type}: {total_sold}"
+                        f"Updated total for {type_name}: {ticket_type_totals[type_name]}"
                     )
-                    ticket_sales.append(
-                        {
-                            "ticket_type": ticket_type.custom_type
-                            or ticket_type.ticket_type,
-                            "total_sold": total_sold,
-                        }
-                    )
+    
+    # Convert the aggregated totals to the list format expected by the template
+    ticket_sales = [
+        {"ticket_type": type_name, "total_sold": total}
+        for type_name, total in ticket_type_totals.items()
+    ]
+    
+    current_app.logger.info(f"Final ticket sales data: {ticket_sales}")
     
     # Get revenue by category with debug logging
     category_revenue = {}
@@ -484,33 +507,136 @@ def export_report():
         )
     
     elif report_type == "tickets":
-        # Generate ticket sales report
+        # Generate ticket sales report with proper grouping
         ticket_data = (
             db.session.query(
                 Event.title,
+                TicketType.id,
                 TicketType.ticket_type,
-                func.count(Order.id).label("total_sold"),
+                TicketType.custom_type,
+                func.sum(
+                    func.cast(
+                        func.json_extract(
+                            Order.ticket_details,
+                            f'$."*".quantity'
+                        ),
+                        db.Integer
+                    )
+                ).label("total_sold")
             )
-            .join(Order)
-            .join(TicketType)
-            .filter(
-                Event.id.in_(event_ids),
-                Order.payment_status.in_(["paid", "completed"])
+            .join(Event, TicketType.event_id == Event.id)
+            .join(
+                Order,
+                db.and_(
+                    Order.event_id == Event.id,
+                    Order.payment_status.in_(["paid", "completed"])
+                )
             )
-            .group_by(Event.title, TicketType.ticket_type)
+            .filter(Event.id.in_(event_ids))
+            .group_by(Event.title, TicketType.id, TicketType.ticket_type, TicketType.custom_type)
+            .order_by(Event.title, TicketType.ticket_type)
             .all()
         )
         
-        # Prepare table data
+        # Process ticket data manually since JSON extraction is complex
+        ticket_totals = {}  # Dictionary to store totals by event and ticket type
+        
+        # Get all orders for the events
+        orders = Order.query.filter(
+            Order.event_id.in_(event_ids),
+            Order.payment_status.in_(["paid", "completed"])
+        ).all()
+        
+        # Process each order
+        for order in orders:
+            if not order.ticket_details:
+                continue
+                
+            current_app.logger.info(f"Processing order {order.id} with details: {order.ticket_details}")
+            
+            # Handle both dictionary and list formats
+            if isinstance(order.ticket_details, dict):
+                # Dictionary format (key is ticket_type_id)
+                for ticket_id, details in order.ticket_details.items():
+                    quantity = int(details.get('quantity', 0))
+                    if quantity > 0:
+                        key = (order.event_id, int(ticket_id))
+                        if key not in ticket_totals:
+                            ticket_totals[key] = 0
+                        ticket_totals[key] += quantity
+            elif isinstance(order.ticket_details, list):
+                # List format
+                for detail in order.ticket_details:
+                    ticket_id = detail.get('ticket_type_id')
+                    quantity = int(detail.get('quantity', 0))
+                    if ticket_id and quantity > 0:
+                        key = (order.event_id, int(ticket_id))
+                        if key not in ticket_totals:
+                            ticket_totals[key] = 0
+                        ticket_totals[key] += quantity
+        
+        # Prepare table data with better organization
         table_data = [["Event", "Ticket Type", "Total Sold"]]
         total_tickets = 0
-        for ticket in ticket_data:
+        current_event = None
+        event_total = 0
+        
+        # Get all ticket types for proper ordering
+        ticket_types = (
+            TicketType.query
+            .join(Event)
+            .filter(Event.id.in_(event_ids))
+            .order_by(Event.title, TicketType.ticket_type)
+            .all()
+        )
+        
+        for ticket_type in ticket_types:
+            # Use custom type if available, otherwise use default ticket type
+            ticket_type_name = ticket_type.custom_type or ticket_type.ticket_type
+            key = (ticket_type.event_id, ticket_type.id)
+            sold_count = ticket_totals.get(key, 0)
+            
+            # Add event subtotal if we're moving to a new event
+            if current_event and current_event != ticket_type.event.title:
+                table_data.append([
+                    f"{current_event} Total",
+                    "",
+                    str(event_total)
+                ])
+                table_data.append(["", "", ""])  # Empty row for spacing
+                event_total = 0
+            
+            # Update current event and totals
+            current_event = ticket_type.event.title
+            event_total += sold_count
+            total_tickets += sold_count
+            
+            # Add the ticket type row
             table_data.append([
-                ticket.title,
-                ticket.ticket_type,
-                str(ticket.total_sold)
+                ticket_type.event.title,
+                ticket_type_name,
+                str(sold_count)
             ])
-            total_tickets += ticket.total_sold
+            
+            current_app.logger.info(
+                f"Ticket data - Event: {ticket_type.event.title}, Type: {ticket_type_name}, Sold: {sold_count}"
+            )
+        
+        # Add the last event's total
+        if current_event:
+            table_data.append([
+                f"{current_event} Total",
+                "",
+                str(event_total)
+            ])
+        
+        # Add grand total
+        table_data.append(["", "", ""])  # Empty row for spacing
+        table_data.append([
+            "Grand Total",
+            "",
+            str(total_tickets)
+        ])
         
         # Generate PDF using helper function
         buffer = generate_pdf_report(
@@ -519,6 +645,8 @@ def export_report():
             start_date,
             end_date,
             {
+                "Total Events": len(set(t.event.title for t in ticket_types)),
+                "Total Ticket Types": len(ticket_types),
                 "Total Tickets Sold": total_tickets
             }
         )

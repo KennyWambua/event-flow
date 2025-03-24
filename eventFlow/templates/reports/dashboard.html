@@ -276,13 +276,16 @@
 
       // Daily Sales Chart
       const dailySalesCtx = document.getElementById('dailySalesChart').getContext('2d');
+      const dailySalesData = {{ daily_sales|tojson }};
+      console.log('Daily Sales Data:', dailySalesData);
+      
       new Chart(dailySalesCtx, {
         type: 'line',
         data: {
-          labels: {{ daily_sales|map(attribute='date')|list|tojson }},
+          labels: dailySalesData.map(item => item.date),
           datasets: [{
             label: 'Daily Revenue',
-            data: {{ daily_sales|map(attribute='daily_revenue')|list|tojson }},
+            data: dailySalesData.map(item => item.daily_revenue),
             borderColor: chartColors.primary,
             backgroundColor: chartColors.primaryLight,
             borderWidth: 2,
@@ -290,7 +293,7 @@
             fill: true
           }, {
             label: 'Free Registrations',
-            data: {{ daily_sales|map(attribute='free_registrations')|list|tojson }},
+            data: dailySalesData.map(item => item.free_registrations),
             borderColor: chartColors.success,
             backgroundColor: chartColors.successLight,
             borderWidth: 2,
@@ -344,55 +347,108 @@
 
       // Ticket Sales Chart
       const ticketSalesCtx = document.getElementById('ticketSalesChart').getContext('2d');
-      new Chart(ticketSalesCtx, {
-        type: 'doughnut',
-        data: {
-          labels: {{ ticket_sales|map(attribute='ticket_type')|list|tojson }},
-          datasets: [{
-            data: {{ ticket_sales|map(attribute='total_sold')|list|tojson }},
-            backgroundColor: [
-              chartColors.primary,
-              chartColors.success,
-              chartColors.info,
-              chartColors.warning,
-              chartColors.danger,
-              chartColors.teal
-            ],
-            borderColor: chartColors.tooltipBackground,
-            borderWidth: 2,
-            hoverOffset: 4
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'top',
-            },
-            tooltip: {
-              backgroundColor: chartColors.tooltipBackground,
-              titleColor: 'hsl(var(--foreground))',
-              bodyColor: 'hsl(var(--foreground))',
-              borderColor: 'hsl(var(--border))',
-              borderWidth: 1,
-              padding: 12,
-              boxPadding: 6,
-            }
+      const ticketSalesData = {{ ticket_sales|tojson }};
+      console.log('Raw Ticket Sales Data:', ticketSalesData);
+      
+      // Ensure we have data
+      if (ticketSalesData && ticketSalesData.length > 0) {
+        console.log('Processing ticket sales data...');
+        console.log('Labels:', ticketSalesData.map(item => item.ticket_type));
+        console.log('Values:', ticketSalesData.map(item => item.total_sold));
+        
+        new Chart(ticketSalesCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ticketSalesData.map(item => item.ticket_type),
+            datasets: [{
+              data: ticketSalesData.map(item => item.total_sold),
+              backgroundColor: [
+                chartColors.primary,
+                chartColors.success,
+                chartColors.info,
+                chartColors.warning,
+                chartColors.danger,
+                chartColors.teal
+              ],
+              borderColor: chartColors.tooltipBackground,
+              borderWidth: 2,
+              hoverOffset: 4
+            }]
           },
-          cutout: '60%'
-        }
-      });
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                position: 'top',
+                labels: {
+                  font: {
+                    size: 12
+                  },
+                  padding: 20
+                }
+              },
+              tooltip: {
+                backgroundColor: chartColors.tooltipBackground,
+                titleColor: 'hsl(var(--foreground))',
+                bodyColor: 'hsl(var(--foreground))',
+                borderColor: 'hsl(var(--border))',
+                borderWidth: 1,
+                padding: 12,
+                boxPadding: 6,
+                callbacks: {
+                  label: function(context) {
+                    const label = context.label || '';
+                    const value = context.raw || 0;
+                    return `${label}: ${value} tickets`;
+                  }
+                }
+              }
+            },
+            cutout: '60%'
+          }
+        });
+      } else {
+        console.log('No ticket sales data available');
+        // Display a message in the chart area
+        const noDataMessage = new Chart(ticketSalesCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['No Data'],
+            datasets: [{
+              data: [1],
+              backgroundColor: [chartColors.muted],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false
+              },
+              tooltip: {
+                enabled: false
+              }
+            },
+            cutout: '60%'
+          }
+        });
+      }
 
       // Category Revenue Chart
       const categoryRevenueCtx = document.getElementById('categoryRevenueChart').getContext('2d');
+      const categoryData = {{ category_revenue|tojson }};
+      console.log('Category Revenue Data:', categoryData);
+      
       new Chart(categoryRevenueCtx, {
         type: 'bar',
         data: {
-          labels: {{ category_revenue|map(attribute='category')|list|tojson }},
+          labels: categoryData.map(item => item.category),
           datasets: [{
             label: 'Revenue',
-            data: {{ category_revenue|map(attribute='revenue')|list|tojson }},
+            data: categoryData.map(item => item.revenue),
             backgroundColor: [
               chartColors.primary,
               chartColors.success,
@@ -448,13 +504,16 @@
 
       // Registration Trends Chart
       const registrationTrendsCtx = document.getElementById('registrationTrendsChart').getContext('2d');
+      const trendsData = {{ registration_trends|tojson }};
+      console.log('Registration Trends Data:', trendsData);
+      
       new Chart(registrationTrendsCtx, {
         type: 'line',
         data: {
-          labels: {{ registration_trends|map(attribute='date')|list|tojson }},
+          labels: trendsData.map(item => item.date),
           datasets: [{
             label: 'Paid Registrations',
-            data: {{ registration_trends|map(attribute='paid_registrations')|list|tojson }},
+            data: trendsData.map(item => item.paid_registrations),
             borderColor: chartColors.primary,
             backgroundColor: chartColors.primaryLight,
             borderWidth: 2,
@@ -462,7 +521,7 @@
             fill: true
           }, {
             label: 'Free Registrations',
-            data: {{ registration_trends|map(attribute='free_registrations')|list|tojson }},
+            data: trendsData.map(item => item.free_registrations),
             borderColor: chartColors.success,
             backgroundColor: chartColors.successLight,
             borderWidth: 2,

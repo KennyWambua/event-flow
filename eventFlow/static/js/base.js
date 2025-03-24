@@ -7,6 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
   const userMenuTrigger = userMenu?.querySelector('.user-menu-trigger');
   const userMenuDropdown = userMenu?.querySelector('.user-menu-dropdown');
   const navbar = document.querySelector('.navbar');
+  let userMenuTimeout;
 
   // Initialize menu icon
   if (menuIcon && !menuIcon.textContent) {
@@ -91,6 +92,56 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
   
+    // Add hover functionality for desktop
+    if (window.innerWidth > 768) {
+      userMenuTrigger.addEventListener('mouseenter', function() {
+        clearTimeout(userMenuTimeout);
+        userMenu.classList.add('active');
+        userMenuTrigger.setAttribute('aria-expanded', 'true');
+      });
+
+      userMenuTrigger.addEventListener('mouseleave', function(e) {
+        // Check if the mouse is moving to the dropdown
+        const dropdownBox = userMenuDropdown.getBoundingClientRect();
+        if (!(e.clientX >= dropdownBox.left && 
+              e.clientX <= dropdownBox.right && 
+              e.clientY >= dropdownBox.top && 
+              e.clientY <= dropdownBox.bottom)) {
+          userMenuTimeout = setTimeout(() => {
+            console.log('Checking if should close menu');
+            // Only close if mouse is not over dropdown
+            if (!userMenuDropdown.matches(':hover')) {
+              console.log('Closing menu - Mouse not over dropdown');
+              userMenu.classList.remove('active');
+              userMenuTrigger.setAttribute('aria-expanded', 'false');
+            } else {
+            }
+          }, 3000);
+        } else {
+        }
+      });
+
+      // Keep menu open when hovering over dropdown
+      userMenuDropdown.addEventListener('mouseenter', function() {
+        clearTimeout(userMenuTimeout);
+      });
+
+      userMenuDropdown.addEventListener('mouseleave', function(e) {
+        // Check if the mouse is moving back to trigger
+        const triggerBox = userMenuTrigger.getBoundingClientRect();
+        if (!(e.clientX >= triggerBox.left && 
+              e.clientX <= triggerBox.right && 
+              e.clientY >= triggerBox.top && 
+              e.clientY <= triggerBox.bottom)) {
+          userMenuTimeout = setTimeout(() => {
+            userMenu.classList.remove('active');
+            userMenuTrigger.setAttribute('aria-expanded', 'false');
+          }, 3000);
+        } else {
+        }
+      });
+    }
+
     // Prevent user menu dropdown clicks from closing the menu on mobile
     userMenuDropdown?.addEventListener('click', function (e) {
       if (window.innerWidth <= 768) {
@@ -114,10 +165,20 @@ document.addEventListener('DOMContentLoaded', function () {
       dropdowns.forEach(dropdown => dropdown.classList.remove('active'));
     }
 
-    // Close user menu if clicked outside
+    // Close user menu if clicked outside (with delay on desktop)
     if (!isClickInsideUserMenu && userMenu?.classList.contains('active')) {
-      userMenu.classList.remove('active');
-      document.body.style.overflow = '';
+      if (window.innerWidth <= 768) {
+        userMenu.classList.remove('active');
+        document.body.style.overflow = '';
+      } else {
+        console.log('Click outside menu - Starting 3s timeout');
+        clearTimeout(userMenuTimeout);
+        userMenuTimeout = setTimeout(() => {
+          console.log('Timeout complete - Closing menu after click outside');
+          userMenu.classList.remove('active');
+          userMenuTrigger.setAttribute('aria-expanded', 'false');
+        }, 3000); // Increased to 3 seconds
+      }
     }
   });
 

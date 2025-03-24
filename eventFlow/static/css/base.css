@@ -226,6 +226,10 @@ a {
   margin-top: 0.5rem;
   display: none;
   z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+  transition-delay: 0s;
 }
 
 .user-menu-trigger:hover {
@@ -390,10 +394,15 @@ a {
     display: none;
     z-index: 1100;
     overflow-y: auto;
+    transition: none;
+    opacity: 1;
+    visibility: visible;
   }
 
   .user-menu.active .user-menu-dropdown {
     display: block;
+    opacity: 1;
+    visibility: visible;
   }
 
   /* Dropdown Mobile Styles */
@@ -443,6 +452,21 @@ a {
 @media (min-width: 768px) {
   .user-menu:hover .user-menu-dropdown {
     display: block;
+    opacity: 1;
+    visibility: visible;
+    transition-delay: 0.3s;
+  }
+
+  .user-menu-dropdown {
+    display: block !important;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    transition-delay: 0.3s;
+  }
+
+  .user-menu:not(:hover) .user-menu-dropdown {
+    opacity: 0;
+    visibility: hidden;
+    transition-delay: 0.3s;
   }
 
   .user-menu {
@@ -501,20 +525,6 @@ a {
   font-size: 0.9rem;
   font-weight: 500;
   color: hsl(var(--foreground));
-}
-
-.user-menu-dropdown {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  min-width: 200px;
-  background: hsl(var(--background));
-  border: 1px solid hsl(var(--border));
-  border-radius: var(--radius);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  margin-top: 0.5rem;
-  display: none;
-  z-index: 1000;
 }
 
 .menu-item {
