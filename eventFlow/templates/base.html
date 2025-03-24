@@ -21,10 +21,14 @@
   <body>
     <header class="header">
       <div class="headerSection">
+        <button class="mobileMenuBtn" aria-label="Toggle menu" aria-expanded="false">
+          <span class="material-icons">menu</span>
+        </button>
+        
         <div class="companyName">
           <a href="{{ url_for('main.home') }}">eventFlow</a>
         </div>
-        <button class="mobileMenuBtn" aria-label="Toggle menu"><span class="material-icons">menu</span></button>
+
         <div class="navSection">
           <nav class="navbar">
             <ul class="mainNavbar">
@@ -56,70 +60,68 @@
                 </button>
                 <div class="dropdownContent">
                   <ul class="dropdownList">
-                    <li>
-                      <a href="{{ url_for('main.helpCenter') }}">Help Center</a>
-                    </li>
-                    <li class="nav-item">
-                      <a href="{{ url_for('tickets.myTickets') }}">Find My Tickets</a>
-                    </li>
-                    <li>
-                      <a href="{{ url_for('main.contactOrganizer') }}">Contact Event Organizer</a>
-                    </li>
+                    <li><a href="{{ url_for('main.helpCenter') }}">Help Center</a></li>
+                    <li><a href="{{ url_for('tickets.myTickets') }}">Find My Tickets</a></li>
+                    <li><a href="{{ url_for('main.contactOrganizer') }}">Contact Event Organizer</a></li>
                   </ul>
                 </div>
               </li>
             </ul>
           </nav>
-          <div class="authSection">
-            {% if current_user.is_authenticated %}
-              <div class="user-menu">
-                <div class="user-menu-trigger">
-                  <img 
-                      src="{{ current_user.profile_picture or url_for('static', filename='images/default-profile.png') }}" 
-                      alt="{{ current_user.first_name }}'s profile"
-                      class="user-avatar"
-                      onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0yMCAyMXYtMmE0IDQgMCAwIDAtNC00SDhhNCA0IDAgMCAwLTQgNHYyIj48L3BhdGg+PGNpcmNsZSBjeD0iMTIiIGN5PSI3IiByPSI0Ij48L2NpcmNsZT48L3N2Zz4=';"
-                  >
-                  <span class="user-name">{{ current_user.first_name }}</span>
-                  <span class="material-icons">expand_more</span>
-                </div>
-                <div class="user-menu-dropdown">
-                  <a href="{{ url_for('main.profile') }}" class="menu-item">
-                    <span class="material-icons">person</span>
-                    My Profile
-                  </a>
-                  {% if current_user.role == UserRole.ORGANIZER %}
-                    <a href="{{ url_for('events.myEvents') }}" class="menu-item">
-                      <span class="material-icons">event</span>
-                      My Events
-                    </a>
-                    <a href="{{ url_for('reports.dashboard') }}" class="menu-item">
-                      <span class="material-icons">analytics</span>
-                      My Reports
-                    </a>
-                  {% endif %}
-                  <a href="{{ url_for('tickets.myTickets') }}" class="menu-item">
-                    <span class="material-icons">confirmation_number</span>
-                    My Tickets
-                  </a>
-                  <a href="{{ url_for('auth.logout') }}" class="menu-item">
-                    <span class="material-icons">logout</span>
-                    Logout
-                  </a>
-                </div>
-              </div>
-            {% else %}
+
+          {% if not current_user.is_authenticated %}
+            <div class="authSection">
               <div class="login">
                 <a href="{{ url_for('auth.login') }}" class="auth-link">Log In</a>
               </div>
               <div class="signup">
                 <a href="{{ url_for('auth.signup') }}" class="auth-link">Sign Up</a>
               </div>
-            {% endif %}
-          </div>
+            </div>
+          {% endif %}
         </div>
+
+        {% if current_user.is_authenticated %}
+          <div class="user-menu">
+            <div class="user-menu-trigger">
+              <img 
+                src="{{ current_user.profile_picture or url_for('static', filename='images/default-profile.png') }}" 
+                alt="{{ current_user.first_name }}'s profile"
+                class="user-avatar"
+                onerror="this.onerror=null; this.src='data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0OCIgaGVpZ2h0PSI0OCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0yMCAyMXYtMmE0IDQgMCAwIDAtNC00SDhhNCA0IDAgMCAwLTQgNHYyIj48L3BhdGg+PGNpcmNsZSBjeD0iMTIiIGN5PSI3IiByPSI0Ij48L2NpcmNsZT48L3N2Zz4=';"
+              >
+              <span class="user-name">{{ current_user.first_name }}</span>
+              <span class="material-icons">expand_more</span>
+            </div>
+            <div class="user-menu-dropdown">
+              <a href="{{ url_for('main.profile') }}" class="menu-item">
+                <span class="material-icons">person</span>
+                My Profile
+              </a>
+              {% if current_user.role == UserRole.ORGANIZER %}
+                <a href="{{ url_for('events.myEvents') }}" class="menu-item">
+                  <span class="material-icons">event</span>
+                  My Events
+                </a>
+                <a href="{{ url_for('reports.dashboard') }}" class="menu-item">
+                  <span class="material-icons">analytics</span>
+                  My Reports
+                </a>
+              {% endif %}
+              <a href="{{ url_for('tickets.myTickets') }}" class="menu-item">
+                <span class="material-icons">confirmation_number</span>
+                My Tickets
+              </a>
+              <a href="{{ url_for('auth.logout') }}" class="menu-item">
+                <span class="material-icons">logout</span>
+                Logout
+              </a>
+            </div>
+          </div>
+        {% endif %}
       </div>
     </header>
+
     <div class="breadcrumbs">
       {% block breadcrumb_items %}
 
@@ -201,10 +203,10 @@
           <h3>Support</h3>
           <ul>
             <li>
-              <a href="#">Contact Us</a>
+              <a href="{{ url_for('main.contact') }}">Contact Us</a>
             </li>
             <li>
-              <a href="#">FAQs</a>
+              <a href="{{ url_for('main.helpCenter') }}">FAQs</a>
             </li>
             <li>
               <a href="#">Terms of Service</a>

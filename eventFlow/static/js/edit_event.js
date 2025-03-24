@@ -10,8 +10,29 @@ document.addEventListener('DOMContentLoaded', function () {
   const ticketTypes = document.getElementById('ticketTypes');
   const maxImages = 5
   let removedImages = new Set();
-  let ticketTypeCounter = 0;
   let imageCount = 0;
+  let ticketTypeCounter = document.querySelectorAll('.ticket-type-item').length;
+
+  function updateTicketTypeIndices() {
+    const ticketItems = document.querySelectorAll('.ticket-type-item');
+    ticketItems.forEach((item, index) => {
+      // Update the label
+      const label = item.querySelector('.ticket-type-label');
+      if (label) {
+        label.textContent = `Ticket Type ${index + 1}`;
+      }
+
+      // Update all input names
+      const inputs = item.querySelectorAll('input, select, textarea');
+      inputs.forEach(input => {
+        const name = input.getAttribute('name');
+        if (name) {
+          const newName = name.replace(/ticket_types-\d+/, `ticket_types-${index}`);
+          input.setAttribute('name', newName);
+        }
+      });
+    });
+  }
 
   function selectEventType(element) {
     // Remove selected class from all options
@@ -47,16 +68,15 @@ document.addEventListener('DOMContentLoaded', function () {
   }
 
   function addTicketType() {
-
     const ticketHtml = `
       <div class="ticket-type-item">
-					<div class="ticket-type-header">
+        <div class="ticket-type-header">
           <h4 class="ticket-type-label">Ticket Type ${ticketTypeCounter + 1}</h4>
           ${ticketTypeCounter > 0 ?
-          '<button type="button" class="remove-ticket"><span class="material-icons">delete</span> Remove</button>' : ''}
-					</div>
-					<div class="ticket-type-grid">
-							<div class="form-group">
+            '<button type="button" class="remove-ticket"><span class="material-icons">delete</span> Remove</button>' : ''}
+        </div>
+        <div class="ticket-type-grid">
+          <div class="form-group">
             <label>Ticket Type *</label>
             <select name="ticket_types-${ticketTypeCounter}-ticket_type" class="form-control ticket-type-select" required>
               <option value="">Select Ticket Type</option>
@@ -68,7 +88,7 @@ document.addEventListener('DOMContentLoaded', function () {
               <option value="group">Group</option>
               <option value="custom">Custom</option>
             </select>
-							</div>
+          </div>
 
           <div class="form-group custom-type-field" style="display: none;">
             <label>Custom Type Name *</label>
@@ -76,9 +96,9 @@ document.addEventListener('DOMContentLoaded', function () {
               name="ticket_types-${ticketTypeCounter}-custom_type" 
               class="form-control" 
               placeholder="Enter custom ticket type name">
-							</div>
+          </div>
 
-							<div class="form-group">
+          <div class="form-group">
             <label>Quantity *</label>
             <input type="number" 
               name="ticket_types-${ticketTypeCounter}-quantity" 
@@ -86,9 +106,9 @@ document.addEventListener('DOMContentLoaded', function () {
               min="1" 
               value="100" 
               required>
-							</div>
+          </div>
 
-							<div class="form-group">
+          <div class="form-group">
             <label>Price *</label>
             <input type="number" 
               name="ticket_types-${ticketTypeCounter}-price" 
@@ -97,52 +117,44 @@ document.addEventListener('DOMContentLoaded', function () {
               step="0.01" 
               value="0.00" 
               required>
-							</div>
-
-							<div class="form-group full-width">
-									<label>Description</label>
-            <textarea name="ticket_types-${ticketTypeCounter}-description" 
-              class="form-control" rows="3">
-            </textarea>
           </div>
-							</div>
-					</div>
-			`;
+
+          <div class="form-group full-width">
+            <label>Description</label>
+            <textarea name="ticket_types-${ticketTypeCounter}-description" 
+              class="form-control" rows="3"></textarea>
+          </div>
+        </div>
+      </div>
+    `;
 
     const ticketDiv = document.createElement('div');
-    ticketDiv.innerHTML = ticketHtml
-    const newTicket = ticketDiv.firstElementChild 
+    ticketDiv.innerHTML = ticketHtml.trim();
+    const newTicket = ticketDiv.firstElementChild;
 
     // Add ticket type change handler
-		const ticketTypeSelect = newTicket.querySelector('.ticket-type-select');
-		const customTypeField = newTicket.querySelector('.custom-type-field');
+    const ticketTypeSelect = newTicket.querySelector('.ticket-type-select');
+    const customTypeField = newTicket.querySelector('.custom-type-field');
 
-		ticketTypeSelect.addEventListener('change', function () {
-			if (this.value === 'custom') {
-				customTypeField.style.display = 'block';
-				customTypeField.querySelector('input').required = true;
-			} else {
-				customTypeField.style.display = 'none';
-				customTypeField.querySelector('input').required = false;
-			}
-		});
+    ticketTypeSelect.addEventListener('change', function () {
+      if (this.value === 'custom') {
+        customTypeField.style.display = 'block';
+        customTypeField.querySelector('input').required = true;
+      } else {
+        customTypeField.style.display = 'none';
+        customTypeField.querySelector('input').required = false;
+      }
+    });
 
-    	// Add remove button handler
-		const removeBtn = newTicket.querySelector('.remove-ticket');
-		if (removeBtn) {
-			removeBtn.addEventListener('click', function () {
-				newTicket.remove();
-				ticketTypeCounter--;
-				// Renumber remaining tickets
-				const ticketTypeItem = document.querySelectorAll('.ticket-type-item');
-				ticketTypeItem.forEach((container, index) => {
-					const ticketLabel = container.querySelector('.ticket-type-label');
-					if (ticketLabel) {
-						ticketLabel.textContent = `Ticket Type ${index + 1}`;
-					}
-				});
-			});
-		}
+    // Add remove button handler
+    const removeBtn = newTicket.querySelector('.remove-ticket');
+    if (removeBtn) {
+      removeBtn.addEventListener('click', function () {
+        newTicket.remove();
+        ticketTypeCounter--;
+        updateTicketTypeIndices();
+      });
+    }
 
     ticketTypes.appendChild(newTicket);
     ticketTypeCounter++;
@@ -197,9 +209,9 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 
   if (addTicketTypeBtn) {
-  addTicketTypeBtn.addEventListener('click', function () {
-    addTicketType();
-  });
+    addTicketTypeBtn.addEventListener('click', function () {
+      addTicketType();
+    });
   }
 
   if (eventType) {
@@ -348,6 +360,33 @@ document.addEventListener('DOMContentLoaded', function () {
     } catch (error) {
       console.error('Form submission error:', error);
       alert('Error updating event. Please try again.');
+    }
+  });
+
+  // Initialize existing ticket type handlers
+  document.querySelectorAll('.ticket-type-item').forEach(item => {
+    const ticketTypeSelect = item.querySelector('.ticket-type-select');
+    const customTypeField = item.querySelector('.custom-type-field');
+    const removeBtn = item.querySelector('.remove-ticket');
+
+    if (ticketTypeSelect) {
+      ticketTypeSelect.addEventListener('change', function () {
+        if (this.value === 'custom') {
+          customTypeField.style.display = 'block';
+          customTypeField.querySelector('input').required = true;
+        } else {
+          customTypeField.style.display = 'none';
+          customTypeField.querySelector('input').required = false;
+        }
+      });
+    }
+
+    if (removeBtn) {
+      removeBtn.addEventListener('click', function () {
+        item.remove();
+        ticketTypeCounter--;
+        updateTicketTypeIndices();
+      });
     }
   });
 });

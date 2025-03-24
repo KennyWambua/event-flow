@@ -94,26 +94,6 @@
     color: #f57c00;
 }
 
-.payment-badge {
-    position: absolute;
-    top: 3.5rem;
-    left: 1rem;
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius);
-    font-size: 0.875rem;
-    font-weight: 500;
-}
-
-.payment-badge.pending {
-    background: hsl(var(--warning));
-    color: hsl(var(--warning-foreground));
-}
-
-.payment-badge.completed {
-    background: hsl(var(--success));
-    color: hsl(var(--success-foreground));
-}
-
 .ticket-details {
     padding: 1.5rem;
 }

@@ -2,8 +2,7 @@
 
 {% block head %}
   {{ super() }}
-  <link rel="stylesheet" href="/static/css/reports.css" />
-  <link rel="stylesheet" href="/static/css/reports_dashboard.css" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
 
@@ -28,14 +27,14 @@
     <div class="date-filter">
       <form id="dateRangeForm" class="date-range-form">
         <div class="form-group">
-          <label for="start_date">Start Date:</label>
-          <input type="date" id="start_date" name="start_date" value="{{ start_date or '' }}" class="form-control" />
+          <label for="start_date">Start Date</label>
+          <input type="date" id="start_date" name="start_date" value="{{ start_date or '' }}" />
         </div>
         <div class="form-group">
-          <label for="end_date">End Date:</label>
-          <input type="date" id="end_date" name="end_date" value="{{ end_date or '' }}" class="form-control" />
+          <label for="end_date">End Date</label>
+          <input type="date" id="end_date" name="end_date" value="{{ end_date or '' }}" />
         </div>
-        <button type="submit" class="btn btn-primary">
+        <button type="submit">
           <span class="material-icons">filter_list</span>
           Apply Filter
         </button>
@@ -56,7 +55,7 @@
         </div>
         <div class="card-content">
           <h3>Total Revenue</h3>
-          <p class="card-value">KES {{ '%.2f'|format(total_revenue) }}</p>
+          <p class="card-value">{{ total_revenue|format_currency }}</p>
         </div>
       </div>
       <div class="summary-card">
@@ -92,7 +91,7 @@
         </div>
         <div class="card-content">
           <h3>Average Order Value</h3>
-          <p class="card-value">KES {{ '%.2f'|format(avg_order_value) }}</p>
+          <p class="card-value">{{ avg_order_value|format_currency }}</p>
         </div>
       </div>
       <div class="summary-card">
@@ -113,10 +112,15 @@
         <div class="chart-header">
           <h3>Daily Sales & Registrations</h3>
           <div class="chart-actions">
-            <button class="btn btn-sm btn-outline-primary export-chart" data-type="sales" data-format="pdf"><span class="material-icons">picture_as_pdf</span> PDF</button>
+            <button class="export-chart" data-type="sales" data-format="pdf">
+              <span class="material-icons">picture_as_pdf</span>
+              PDF
+            </button>
           </div>
         </div>
-        <canvas id="dailySalesChart"></canvas>
+        <div class="chart-wrapper">
+          <canvas id="dailySalesChart"></canvas>
+        </div>
       </div>
 
       <!-- Ticket Sales by Type Chart -->
@@ -124,10 +128,15 @@
         <div class="chart-header">
           <h3>Ticket Sales by Type</h3>
           <div class="chart-actions">
-            <button class="btn btn-sm btn-outline-primary export-chart" data-type="tickets" data-format="pdf"><span class="material-icons">picture_as_pdf</span> PDF</button>
+            <button class="export-chart" data-type="tickets" data-format="pdf">
+              <span class="material-icons">picture_as_pdf</span>
+              PDF
+            </button>
           </div>
         </div>
-        <canvas id="ticketSalesChart"></canvas>
+        <div class="chart-wrapper">
+          <canvas id="ticketSalesChart"></canvas>
+        </div>
       </div>
 
       <!-- Revenue by Category Chart -->
@@ -135,10 +144,15 @@
         <div class="chart-header">
           <h3>Revenue by Event Category</h3>
           <div class="chart-actions">
-            <button class="btn btn-sm btn-outline-primary export-chart" data-type="category" data-format="pdf"><span class="material-icons">picture_as_pdf</span> PDF</button>
+            <button class="export-chart" data-type="category" data-format="pdf">
+              <span class="material-icons">picture_as_pdf</span>
+              PDF
+            </button>
           </div>
         </div>
-        <canvas id="categoryRevenueChart"></canvas>
+        <div class="chart-wrapper">
+          <canvas id="categoryRevenueChart"></canvas>
+        </div>
       </div>
 
       <!-- Registration Trends Chart -->
@@ -146,10 +160,15 @@
         <div class="chart-header">
           <h3>Registration Trends</h3>
           <div class="chart-actions">
-            <button class="btn btn-sm btn-outline-primary export-chart" data-type="registrations" data-format="pdf"><span class="material-icons">picture_as_pdf</span> PDF</button>
+            <button class="export-chart" data-type="registrations" data-format="pdf">
+              <span class="material-icons">picture_as_pdf</span>
+              PDF
+            </button>
           </div>
         </div>
-        <canvas id="registrationTrendsChart"></canvas>
+        <div class="chart-wrapper">
+          <canvas id="registrationTrendsChart"></canvas>
+        </div>
       </div>
     </div>
 
@@ -157,8 +176,11 @@
     <div class="table-card">
       <div class="table-header">
         <h3>Event Performance</h3>
-        <div class="table-actions">
-          <button class="btn btn-sm btn-outline-primary export-table" data-format="pdf"><span class="material-icons">picture_as_pdf</span> PDF</button>
+        <div class="chart-actions">
+          <button class="export-table" data-format="pdf">
+            <span class="material-icons">picture_as_pdf</span>
+            PDF
+          </button>
         </div>
       </div>
       <div class="table-responsive">
@@ -179,17 +201,21 @@
                 <td>{{ event.title }}</td>
                 <td>{{ event.total_capacity }}</td>
                 <td>{{ event.total_registrations }}</td>
-                <td>KES {{ '%.2f'|format(event.revenue) }}</td>
+                <td>{{ event.revenue|format_currency }}</td>
                 <td>
                   <div class="progress">
-                    <div class="progress-bar {% if event.occupancy_rate >= 80 %}bg-success{% elif event.occupancy_rate >= 50 %}bg-warning{% else %}bg-danger{% endif %}" 
-                         role="progressbar" 
-                         style="width: {{ event.occupancy_rate }}%" 
-                         aria-valuenow="{{ event.occupancy_rate }}" 
-                         aria-valuemin="0" 
-                         aria-valuemax="100">
-                      {{ '%.1f'|format(event.occupancy_rate) }}%
-                    </div>
+                    <div class="progress-bar {% if event.occupancy_rate >= 80 %}
+                        bg-success
+                      {% elif event.occupancy_rate >= 50 %}
+                        bg-warning
+                      {% else %}
+                        bg-danger
+                      {% endif %}"
+                      role="progressbar"
+                      style="width: {{ event.occupancy_rate }}%"
+                      aria-valuenow="{{ event.occupancy_rate }}"
+                      aria-valuemin="0"
+                      aria-valuemax="100">{{ '%.1f'|format(event.occupancy_rate) }}%</div>
                   </div>
                 </td>
                 <td>
@@ -208,144 +234,358 @@
   </div>
 
   <script>
-document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function() {
+      // Chart.js Global Configuration
+      Chart.defaults.font.family = 'var(--font-family)';
+      Chart.defaults.color = 'hsl(var(--foreground))';
+      Chart.defaults.plugins.legend.position = 'top';
+      Chart.defaults.plugins.legend.labels.usePointStyle = true;
+      Chart.defaults.plugins.legend.labels.pointStyle = 'circle';
 
-    // Date Range Form Handler
-    const dateRangeForm = document.getElementById('dateRangeForm');
-    dateRangeForm.addEventListener('submit', function(e) {
+      // Custom color palette
+      const chartColors = {
+        primary: 'hsl(251 70% 50%)',
+        primaryLight: 'hsl(251 70% 95%)',
+        success: 'hsl(142 70% 45%)',
+        successLight: 'hsl(142 70% 95%)',
+        info: 'hsl(221 70% 50%)',
+        infoLight: 'hsl(221 70% 95%)',
+        warning: 'hsl(43 70% 45%)',
+        warningLight: 'hsl(43 70% 95%)',
+        danger: 'hsl(346 70% 50%)',
+        dangerLight: 'hsl(346 70% 95%)',
+        teal: 'hsl(174 70% 45%)',
+        tealLight: 'hsl(174 70% 95%)',
+        gridLine: 'hsl(var(--border) / 0.1)',
+        tooltipBackground: 'hsl(var(--background))',
+      };
+
+      // Date Range Form Handler
+      const dateRangeForm = document.getElementById('dateRangeForm');
+      dateRangeForm.addEventListener('submit', function(e) {
         e.preventDefault();
         const startDate = document.getElementById('start_date').value;
         const endDate = document.getElementById('end_date').value;
         
         let url = '/reports/dashboard';
         if (startDate && endDate) {
-            url += `?start_date=${startDate}&end_date=${endDate}`;
+          url += `?start_date=${startDate}&end_date=${endDate}`;
         }
         window.location.href = url;
-    });
+      });
 
-    // Daily Sales Chart
-    const dailySalesCtx = document.getElementById('dailySalesChart').getContext('2d');
-    new Chart(dailySalesCtx, {
+      // Daily Sales Chart
+      const dailySalesCtx = document.getElementById('dailySalesChart').getContext('2d');
+      const dailySalesData = {{ daily_sales|tojson }};
+      console.log('Daily Sales Data:', dailySalesData);
+      
+      new Chart(dailySalesCtx, {
         type: 'line',
         data: {
-            labels: {{ daily_sales|map(attribute='date')|list|tojson }},
-            datasets: [{
-                label: 'Daily Revenue',
-                data: {{ daily_sales|map(attribute='daily_revenue')|list|tojson }},
-                borderColor: '#0d6efd',
-                tension: 0.1
-            }, {
-                label: 'Free Registrations',
-                data: {{ daily_sales|map(attribute='free_registrations')|list|tojson }},
-                borderColor: '#198754',
-                tension: 0.1
-            }]
+          labels: dailySalesData.map(item => item.date),
+          datasets: [{
+            label: 'Daily Revenue',
+            data: dailySalesData.map(item => item.daily_revenue),
+            borderColor: chartColors.primary,
+            backgroundColor: chartColors.primaryLight,
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true
+          }, {
+            label: 'Free Registrations',
+            data: dailySalesData.map(item => item.free_registrations),
+            borderColor: chartColors.success,
+            backgroundColor: chartColors.successLight,
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true
+          }]
         },
         options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                }
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            tooltip: {
+              backgroundColor: chartColors.tooltipBackground,
+              titleColor: 'hsl(var(--foreground))',
+              bodyColor: 'hsl(var(--foreground))',
+              borderColor: 'hsl(var(--border))',
+              borderWidth: 1,
+              padding: 12,
+              boxPadding: 6,
             }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: chartColors.gridLine,
+                drawBorder: false
+              },
+              ticks: {
+                callback: function(value) {
+                  return 'KES ' + value.toLocaleString();
+                },
+                padding: 10
+              }
+            },
+            x: {
+              grid: {
+                color: chartColors.gridLine,
+                drawBorder: false
+              },
+              ticks: {
+                padding: 10
+              }
+            }
+          }
         }
-    });
+      });
 
-    // Ticket Sales Chart
-    const ticketSalesCtx = document.getElementById('ticketSalesChart').getContext('2d');
-    new Chart(ticketSalesCtx, {
-        type: 'pie',
-        data: {
-            labels: {{ ticket_sales|map(attribute='ticket_type')|list|tojson }},
+      // Ticket Sales Chart
+      const ticketSalesCtx = document.getElementById('ticketSalesChart').getContext('2d');
+      const ticketSalesData = {{ ticket_sales|tojson }};
+      console.log('Raw Ticket Sales Data:', ticketSalesData);
+      
+      // Ensure we have data
+      if (ticketSalesData && ticketSalesData.length > 0) {
+        console.log('Processing ticket sales data...');
+        console.log('Labels:', ticketSalesData.map(item => item.ticket_type));
+        console.log('Values:', ticketSalesData.map(item => item.total_sold));
+        
+        new Chart(ticketSalesCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ticketSalesData.map(item => item.ticket_type),
             datasets: [{
-                data: {{ ticket_sales|map(attribute='total_sold')|list|tojson }},
-                backgroundColor: [
-                    '#0d6efd',
-                    '#198754',
-                    '#ffc107',
-                    '#dc3545',
-                    '#6c757d'
-                ]
+              data: ticketSalesData.map(item => item.total_sold),
+              backgroundColor: [
+                chartColors.primary,
+                chartColors.success,
+                chartColors.info,
+                chartColors.warning,
+                chartColors.danger,
+                chartColors.teal
+              ],
+              borderColor: chartColors.tooltipBackground,
+              borderWidth: 2,
+              hoverOffset: 4
             }]
-        },
-        options: {
+          },
+          options: {
             responsive: true,
+            maintainAspectRatio: false,
             plugins: {
-                legend: {
-                    position: 'top',
+              legend: {
+                position: 'top',
+                labels: {
+                  font: {
+                    size: 12
+                  },
+                  padding: 20
                 }
-            }
-        }
-    });
+              },
+              tooltip: {
+                backgroundColor: chartColors.tooltipBackground,
+                titleColor: 'hsl(var(--foreground))',
+                bodyColor: 'hsl(var(--foreground))',
+                borderColor: 'hsl(var(--border))',
+                borderWidth: 1,
+                padding: 12,
+                boxPadding: 6,
+                callbacks: {
+                  label: function(context) {
+                    const label = context.label || '';
+                    const value = context.raw || 0;
+                    return `${label}: ${value} tickets`;
+                  }
+                }
+              }
+            },
+            cutout: '60%'
+          }
+        });
+      } else {
+        console.log('No ticket sales data available');
+        // Display a message in the chart area
+        const noDataMessage = new Chart(ticketSalesCtx, {
+          type: 'doughnut',
+          data: {
+            labels: ['No Data'],
+            datasets: [{
+              data: [1],
+              backgroundColor: [chartColors.muted],
+              borderWidth: 0
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false
+              },
+              tooltip: {
+                enabled: false
+              }
+            },
+            cutout: '60%'
+          }
+        });
+      }
 
-    // Category Revenue Chart
-    const categoryRevenueCtx = document.getElementById('categoryRevenueChart').getContext('2d');
-    new Chart(categoryRevenueCtx, {
+      // Category Revenue Chart
+      const categoryRevenueCtx = document.getElementById('categoryRevenueChart').getContext('2d');
+      const categoryData = {{ category_revenue|tojson }};
+      console.log('Category Revenue Data:', categoryData);
+      
+      new Chart(categoryRevenueCtx, {
         type: 'bar',
         data: {
-            labels: {{ category_revenue|map(attribute='category')|list|tojson }},
-            datasets: [{
-                label: 'Revenue',
-                data: {{ category_revenue|map(attribute='revenue')|list|tojson }},
-                backgroundColor: '#0d6efd'
-            }]
+          labels: categoryData.map(item => item.category),
+          datasets: [{
+            label: 'Revenue',
+            data: categoryData.map(item => item.revenue),
+            backgroundColor: [
+              chartColors.primary,
+              chartColors.success,
+              chartColors.info
+            ],
+            borderRadius: 6,
+            borderSkipped: false,
+            barThickness: 40,
+          }]
         },
         options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                }
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              backgroundColor: chartColors.tooltipBackground,
+              titleColor: 'hsl(var(--foreground))',
+              bodyColor: 'hsl(var(--foreground))',
+              borderColor: 'hsl(var(--border))',
+              borderWidth: 1,
+              padding: 12,
+              boxPadding: 6,
             }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: chartColors.gridLine,
+                drawBorder: false
+              },
+              ticks: {
+                callback: function(value) {
+                  return 'KES ' + value.toLocaleString();
+                },
+                padding: 10
+              }
+            },
+            x: {
+              grid: {
+                display: false
+              },
+              ticks: {
+                padding: 10
+              }
+            }
+          }
         }
-    });
+      });
 
-    // Registration Trends Chart
-    const registrationTrendsCtx = document.getElementById('registrationTrendsChart').getContext('2d');
-    new Chart(registrationTrendsCtx, {
+      // Registration Trends Chart
+      const registrationTrendsCtx = document.getElementById('registrationTrendsChart').getContext('2d');
+      const trendsData = {{ registration_trends|tojson }};
+      console.log('Registration Trends Data:', trendsData);
+      
+      new Chart(registrationTrendsCtx, {
         type: 'line',
         data: {
-            labels: {{ registration_trends|map(attribute='date')|list|tojson }},
-            datasets: [{
-                label: 'Paid Registrations',
-                data: {{ registration_trends|map(attribute='paid_registrations')|list|tojson }},
-                borderColor: '#0d6efd',
-                tension: 0.1
-            }, {
-                label: 'Free Registrations',
-                data: {{ registration_trends|map(attribute='free_registrations')|list|tojson }},
-                borderColor: '#198754',
-                tension: 0.1
-            }]
+          labels: trendsData.map(item => item.date),
+          datasets: [{
+            label: 'Paid Registrations',
+            data: trendsData.map(item => item.paid_registrations),
+            borderColor: chartColors.primary,
+            backgroundColor: chartColors.primaryLight,
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true
+          }, {
+            label: 'Free Registrations',
+            data: trendsData.map(item => item.free_registrations),
+            borderColor: chartColors.success,
+            backgroundColor: chartColors.successLight,
+            borderWidth: 2,
+            tension: 0.4,
+            fill: true
+          }]
         },
         options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'top',
-                }
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            tooltip: {
+              backgroundColor: chartColors.tooltipBackground,
+              titleColor: 'hsl(var(--foreground))',
+              bodyColor: 'hsl(var(--foreground))',
+              borderColor: 'hsl(var(--border))',
+              borderWidth: 1,
+              padding: 12,
+              boxPadding: 6,
             }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: chartColors.gridLine,
+                drawBorder: false
+              },
+              ticks: {
+                padding: 10
+              }
+            },
+            x: {
+              grid: {
+                color: chartColors.gridLine,
+                drawBorder: false
+              },
+              ticks: {
+                padding: 10
+              }
+            }
+          }
         }
-    });
+      });
 
-    // Export Functionality
-    document.querySelectorAll('.export-chart, .export-table').forEach(button => {
+      // Export Functionality
+      document.querySelectorAll('.export-chart, .export-table').forEach(button => {
         button.addEventListener('click', function() {
-            const type = this.dataset.type || 'performance';
-            const format = this.dataset.format;
-            const startDate = document.getElementById('start_date').value;
-            const endDate = document.getElementById('end_date').value;
-            
-            let url = `/reports/export?type=${type}&format=${format}`;
-            if (startDate && endDate) {
-                url += `&start_date=${startDate}&end_date=${endDate}`;
-            }
-            
-            console.log('Export URL:', url);
-            window.location.href = url;
+          const type = this.dataset.type || 'performance';
+          const format = this.dataset.format;
+          const startDate = document.getElementById('start_date').value;
+          const endDate = document.getElementById('end_date').value;
+          
+          let url = `/reports/export?type=${type}&format=${format}`;
+          if (startDate && endDate) {
+            url += `&start_date=${startDate}&end_date=${endDate}`;
+          }
+          
+          window.location.href = url;
         });
+      });
     });
-});
-</script>
+  </script>
 {% endblock %}
