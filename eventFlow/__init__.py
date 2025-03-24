@@ -6,6 +6,7 @@ from flask_migrate import Migrate
 from flask_session import Session
 from config import Config
 from flask_wtf.csrf import CSRFProtect
+from .utils import init_app as init_utils
 
 
 db = SQLAlchemy()
@@ -32,6 +33,9 @@ def create_app():
   
   # Initialize CSRF protection
   csrf.init_app(app)
+  
+  # Initialize utility functions
+  init_utils(app)
   
   login_manager.login_view = 'auth.login'
   login_manager.login_message = 'Please log in to access this page.'

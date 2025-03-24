@@ -93,12 +93,14 @@
 								<div class="ticket-card" data-status="{{ 'upcoming' if order.event.is_upcoming(now) else 'past' }}">
 										<div class="ticket-image">
 												<img src="{{ order.event.get_primary_image_url() }}" alt="{{ order.event.title }}">
-												<div class="ticket-type-badge paid">Paid Event</div>
-												{% if order.payment_status == 'pending' %}
+												<div class="ticket-type-badge paid">
+													Paid Event
+													{% if order.payment_status == 'pending' %}
 														<div class="payment-badge pending">Payment Pending</div>
-												{% elif order.payment_status == 'completed' %}
+													{% elif order.payment_status == 'completed' %}
 														<div class="payment-badge completed">Payment Completed</div>
-												{% endif %}
+													{% endif %}
+												</div>
 										</div>
 										<div class="ticket-details">
 												<div class="ticket-header">
@@ -131,13 +133,13 @@
 														<div class="ticket-details-list">
 																{% for ticket_id, ticket in order.ticket_details.items() %}
 																		<div class="ticket-type-item">
-																				<span>{{ ticket.name }}  x  {{ ticket.quantity }} @ {{ ticket.price }}</span>
-																				<span>{{ ticket.subtotal }} {{ order.event.currency }}</span>
+																				<span>{{ ticket.name }}  x  {{ ticket.quantity }} @ {{ ticket.price|format_currency(currency=order.event.currency) }}</span>
+																				<span>{{ ticket.subtotal|format_currency(currency=order.event.currency) }}</span>
 																		</div>
 																{% endfor %}
 																<div class="total">
 																		<span>Total</span>
-																		<span>{{ order.total_amount }} {{ order.event.currency }}</span>
+																		<span>{{ order.total_amount|format_currency(currency=order.event.currency) }} </span>
 																</div>
 														</div>
 												</div>

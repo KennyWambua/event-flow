@@ -8,12 +8,10 @@ import string
 import base64
 import enum
 
-
 class UserRole(enum.Enum):
     ATTENDEE = "ATTENDEE"
     ORGANIZER = "ORGANIZER"
-
-
+    
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
@@ -103,8 +101,6 @@ class User(UserMixin, db.Model):
 
     def is_attendee(self):
         return self.role == UserRole.ATTENDEE
-
-
 class EventImage(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     event_id = db.Column(db.Integer, db.ForeignKey("event.id"), nullable=False)
@@ -119,8 +115,6 @@ class EventImage(db.Model):
         if self.image_data:
             return f"data:{self.image_mime_type};base64,{base64.b64encode(self.image_data).decode('utf-8')}"
         return None
-
-
 class TicketType(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     event_id = db.Column(db.Integer, db.ForeignKey("event.id"), nullable=False)
@@ -137,7 +131,6 @@ class TicketType(db.Model):
     )
 
     event = db.relationship("Event", back_populates="ticket_types", lazy=True)
-
 
 class Event(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -222,8 +215,6 @@ class Event(db.Model):
         """Check if event is upcoming compared to given time"""
         event_date = self.date_utc
         return event_date > reference_time
-
-
 class EventRegistration(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
@@ -248,8 +239,6 @@ class EventRegistration(db.Model):
 
     def __repr__(self):
         return f"<EventRegistration {self.id}>"
-
-
 class Order(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
@@ -315,10 +304,6 @@ class Order(db.Model):
                 f"Error getting ticket count for order {self.id}: {str(e)}"
             )
             return 0
-
-    def get_formatted_amount(self):
-        """Returns formatted amount with currency"""
-        return f"{self.total_amount:.2f} {self.event.currency}"
 
     @staticmethod
     def create_from_checkout(

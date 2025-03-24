@@ -104,7 +104,7 @@
             <div class="price-range">
               <span class="type-label">Tickets starting from</span>
               {% if min_ticket_price %}
-                <span class="amount">{{ min_ticket_price }} {{ event.currency }}</span>
+                <span class="amount">{{ min_ticket_price|format_currency(currency=event.currency) }}</span>
               {% else %}
                 <span class="amount">Price not set</span>
               {% endif %}
